@@ -3,7 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,18 +16,13 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { CheckCircle, XCircle } from "lucide-react"
+import { DialogClose } from "@/components/ui/dialog"
 
-// Esquema para el formulario de registro (incluye todos los campos posibles)
+// Esquema unificado para ambos formularios
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "El nombre debe tener al menos 2 caracteres.",
-  }).optional(),
-  email: z.string().email({
-    message: "Por favor ingresa un email válido.",
-  }),
-  password: z.string().min(6, {
-    message: "La contraseña debe tener al menos 6 caracteres.",
-  }),
+  name: z.string().optional(),
+  email: z.string(),
+  password: z.string(),
 })
 
 type FormValues = z.infer<typeof formSchema>;
@@ -36,18 +32,18 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onModeChange }: LoginFormProps) {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loginStatus, setLoginStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const dialogCloseRef = useRef<HTMLButtonElement>(null);
   
-  // Notificar al componente padre cuando cambia el modo
   useEffect(() => {
     if (onModeChange) {
       onModeChange(isLogin);
     }
   }, [isLogin, onModeChange]);
   
-  // Definir el formulario
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,19 +53,25 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
     },
   })
 
-  // Manejar el envío del formulario
   async function onSubmit(values: FormValues) {
     try {
-      // Determinar la URL de la solicitud
-      const url = `${process.env.NEXT_PUBLIC_URL}/login`;
+      // Determinar la URL según el modo (login o signup)
+      const url = isLogin 
+        ? `${process.env.NEXT_PUBLIC_URL}/login` 
+        : `${process.env.NEXT_PUBLIC_URL}/signup`;
       
       // Preparar los datos para enviar
-      const payload = {
+      const payload = isLogin ? {
+        email: values.email,
+        password: values.password
+      } : {
+        name: values.name,
         email: values.email,
         password: values.password
       };
 
-      // Realizar la solicitud de login
+      console.log("Enviando datos:", payload);
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -78,42 +80,66 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
         body: JSON.stringify(payload)
       });
 
-      // Verificar la respuesta
       if (response.ok) {
-        console.log("✅ Login exitoso");
+        console.log("✅ Operación exitosa");
         setLoginStatus('success');
-      } else {
-        console.error("❌ Error en el login");
-        setLoginStatus('error');
-      }
+        const data = await response.json();
+        console.log("Respuesta del servidor:", data);
 
-      // Mostrar mensaje de éxito o error
-      setIsSubmitted(true);
-      
-      // Resetear el estado después de 3 segundos
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setLoginStatus('idle');
-      }, 3000);
+        // Si es login exitoso, redirigir después de mostrar el mensaje
+        if (isLogin) {
+          setIsSubmitted(true);
+          setTimeout(() => {
+            // Cerrar el diálogo
+            if (dialogCloseRef.current) {
+              dialogCloseRef.current.click();
+            }
+            
+            // Redirigir al dashboard con el nombre de usuario
+            router.push(`/dashboard?name=${encodeURIComponent(data.user.name)}`);
+          }, 1000); // Redirigir después de 1 segundo para que se vea el mensaje de éxito
+        } else {
+          // Para registro, mostrar mensaje de éxito y cambiar a modo login
+          setIsSubmitted(true);
+          setTimeout(() => {
+            setIsSubmitted(false);
+            setLoginStatus('idle');
+            setIsLogin(true); // Cambiar a modo login después del registro
+          }, 1000);
+        }
+      } else {
+        console.error("❌ Error en la operación");
+        const error = await response.text();
+        console.error("Error del servidor:", error);
+        setLoginStatus('error');
+        setIsSubmitted(true);
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setLoginStatus('idle');
+        }, 1000);
+      }
 
     } catch (error) {
       console.error("Error de conexión:", error);
       setLoginStatus('error');
       setIsSubmitted(true);
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setLoginStatus('idle');
+      }, 1000);
     }
   }
 
-  // Cambiar entre login y registro
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setLoginStatus('idle');
+    setIsSubmitted(false);
     form.reset();
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Campo de nombre (solo para registro) */}
         {!isLogin && (
           <FormField
             control={form.control}
@@ -130,7 +156,6 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
           />
         )}
         
-        {/* Campo de email */}
         <FormField
           control={form.control}
           name="email"
@@ -145,7 +170,6 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
           )}
         />
         
-        {/* Campo de contraseña */}
         <FormField
           control={form.control}
           name="password"
@@ -174,8 +198,8 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
               )}
               <span>
                 {loginStatus === 'success' 
-                  ? "¡Inicio de sesión exitoso!" 
-                  : "Error en el inicio de sesión"}
+                  ? (isLogin ? "¡Inicio de sesión exitoso!" : "¡Registro exitoso!")
+                  : (isLogin ? "Error en el inicio de sesión" : "Error en el registro")}
               </span>
             </div>
           ) : (
@@ -197,6 +221,9 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
             </button>
           </div>
         </div>
+
+        {/* Botón oculto para cerrar el diálogo */}
+        <DialogClose ref={dialogCloseRef} className="hidden" />
       </form>
     </Form>
   )
