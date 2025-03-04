@@ -108,7 +108,7 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
           }, 1000);
         }
       } else {
-        console.error("❌ Error en la operación");
+        console.error("Error en la operación");
         const error = await response.text();
         console.error("Error del servidor:", error);
         setLoginStatus('error');
