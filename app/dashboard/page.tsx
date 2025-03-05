@@ -1,10 +1,17 @@
 "use client"
 
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
-  const searchParams = useSearchParams();
-  const userName = searchParams.get('name') || 'Usuario';
+  const [userName, setUserName] = useState<string>('Usuario');
+
+  useEffect(() => {
+    // Obtener el nombre de usuario desde localStorage
+    const storedUserName = localStorage.getItem('userName');
+    if (storedUserName) {
+      setUserName(storedUserName);
+    }
+  }, []);
 
   return (
     <div className="container mx-auto p-8">

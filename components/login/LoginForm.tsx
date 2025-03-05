@@ -17,32 +17,37 @@ import {
 import { Input } from "@/components/ui/input"
 import { CheckCircle, XCircle } from "lucide-react"
 import { DialogClose } from "@/components/ui/dialog"
-
-// Esquema unificado para ambos formularios
-const formSchema = z.object({
-  name: z.string().optional(),
-  email: z.string(),
-  password: z.string(),
-})
+import { formSchema } from "@/lib/validation"
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface LoginFormProps {
   onModeChange?: (isLogin: boolean) => void;
+  onPasswordRecoveryMode?: (isRecovery: boolean) => void;
+  onLoginSuccess?: (name: string) => void;
 }
 
-export function LoginForm({ onModeChange }: LoginFormProps) {
+export function LoginForm({ 
+  onModeChange, 
+  onPasswordRecoveryMode,
+  onLoginSuccess
+}: LoginFormProps) {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loginStatus, setLoginStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
   
   useEffect(() => {
     if (onModeChange) {
       onModeChange(isLogin);
     }
-  }, [isLogin, onModeChange]);
+    if (onPasswordRecoveryMode) {
+      onPasswordRecoveryMode(isPasswordRecovery);
+    }
+  }, [isLogin, isPasswordRecovery, onModeChange, onPasswordRecoveryMode]);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -54,21 +59,31 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
   })
 
   async function onSubmit(values: FormValues) {
+    setIsSubmitting(true);
     try {
-      // Determinar la URL según el modo (login o signup)
-      const url = isLogin 
-        ? `${process.env.NEXT_PUBLIC_URL}/login` 
-        : `${process.env.NEXT_PUBLIC_URL}/signup`;
-      
-      // Preparar los datos para enviar
-      const payload = isLogin ? {
-        email: values.email,
-        password: values.password
-      } : {
-        name: values.name,
-        email: values.email,
-        password: values.password
-      };
+      // Determinar la URL según el modo (login, signup o recuperación de contraseña)
+      let url = '';
+      let payload = {};
+
+      if (isPasswordRecovery) {
+        url = `${process.env.NEXT_PUBLIC_URL}/request-reset-password`;
+        payload = {
+          email: values.email
+        };
+      } else {
+        url = isLogin 
+          ? `${process.env.NEXT_PUBLIC_URL}/login` 
+          : `${process.env.NEXT_PUBLIC_URL}/signup`;
+        
+        payload = isLogin ? {
+          email: values.email,
+          password: values.password
+        } : {
+          name: values.name,
+          email: values.email,
+          password: values.password
+        };
+      }
 
       console.log("Enviando datos:", payload);
 
@@ -86,25 +101,45 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
         const data = await response.json();
         console.log("Respuesta del servidor:", data);
 
-        // Si es login exitoso, redirigir después de mostrar el mensaje
-        if (isLogin) {
+        if (isPasswordRecovery) {
+          // Manejar recuperación de contraseña
           setIsSubmitted(true);
           setTimeout(() => {
+            setIsSubmitted(false);
+            setLoginStatus('idle');
+            setIsPasswordRecovery(false);
+            setIsSubmitting(false);
+          }, 2000);
+        } else if (isLogin) {
+          // Manejar login
+          setIsSubmitted(true);
+          setTimeout(() => {
+            // Guardar el token en localStorage
+            if (data.token) {
+              localStorage.setItem('token', data.token);
+            }
+
             // Cerrar el diálogo
             if (dialogCloseRef.current) {
               dialogCloseRef.current.click();
             }
             
-            // Redirigir al dashboard con el nombre de usuario
-            router.push(`/dashboard?name=${encodeURIComponent(data.user.name)}`);
-          }, 1000); // Redirigir después de 1 segundo para que se vea el mensaje de éxito
+            // Llamar a la función de login exitoso si está definida
+            if (onLoginSuccess) {
+              onLoginSuccess(data.user.name);
+            }
+            
+            // Redirigir al dashboard sin pasar el nombre como parámetro
+            router.push('/dashboard');
+          }, 1000);
         } else {
-          // Para registro, mostrar mensaje de éxito y cambiar a modo login
+          // Manejar registro
           setIsSubmitted(true);
           setTimeout(() => {
             setIsSubmitted(false);
             setLoginStatus('idle');
-            setIsLogin(true); // Cambiar a modo login después del registro
+            setIsLogin(true);
+            setIsSubmitting(false);
           }, 1000);
         }
       } else {
@@ -116,6 +151,7 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
         setTimeout(() => {
           setIsSubmitted(false);
           setLoginStatus('idle');
+          setIsSubmitting(false);
         }, 1000);
       }
 
@@ -126,12 +162,18 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
       setTimeout(() => {
         setIsSubmitted(false);
         setLoginStatus('idle');
+        setIsSubmitting(false);
       }, 1000);
     }
   }
 
   const toggleMode = () => {
-    setIsLogin(!isLogin);
+    if (isPasswordRecovery) {
+      setIsPasswordRecovery(false);
+      setIsLogin(true);
+    } else {
+      setIsLogin(!isLogin);
+    }
     setLoginStatus('idle');
     setIsSubmitted(false);
     form.reset();
@@ -140,7 +182,8 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {!isLogin && (
+        {/* Campo de nombre (solo para registro) */}
+        {!isLogin && !isPasswordRecovery && (
           <FormField
             control={form.control}
             name="name"
@@ -148,7 +191,11 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
               <FormItem>
                 <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="Tu nombre" {...field} />
+                  <Input 
+                    placeholder="Tu nombre" 
+                    {...field} 
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -156,33 +203,47 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
           />
         )}
         
+        {/* Campo de email */}
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{isPasswordRecovery ? "Email para recuperación" : "Email"}</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="tu@email.com" {...field} />
+                <Input 
+                  type="email" 
+                  placeholder={isSubmitting ? "Enviando..." : "tu@email.com"} 
+                  {...field} 
+                  disabled={isSubmitting}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contraseña</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="******" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Campo de contraseña (solo para login y registro) */}
+        {!isPasswordRecovery && (
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contraseña</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="password" 
+                    placeholder={isSubmitting ? "Iniciando..." : "******"} 
+                    {...field} 
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         
         <div className="flex flex-col space-y-2">
           {isSubmitted ? (
@@ -198,27 +259,66 @@ export function LoginForm({ onModeChange }: LoginFormProps) {
               )}
               <span>
                 {loginStatus === 'success' 
-                  ? (isLogin ? "¡Inicio de sesión exitoso!" : "¡Registro exitoso!")
+                  ? (isPasswordRecovery 
+                    ? "Solicitud de recuperación enviada" 
+                    : (isLogin ? "¡Inicio de sesión exitoso!" : "¡Registro exitoso!"))
                   : (isLogin ? "Error en el inicio de sesión" : "Error en el registro")}
               </span>
             </div>
           ) : (
-            <Button type="submit" className="w-full">
-              {isLogin ? "Iniciar sesión" : "Registrarse"}
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting 
+                ? (isPasswordRecovery 
+                  ? "Enviando..." 
+                  : (isLogin ? "Iniciando..." : "Registrando..."))
+                : (isPasswordRecovery 
+                  ? "Enviar solicitud de recuperación" 
+                  : (isLogin ? "Iniciar sesión" : "Registrarse"))}
             </Button>
           )}
           
           <div className="text-center text-sm mt-2">
-            <span className="text-muted-foreground">
-              {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
-            </span>{" "}
-            <button 
-              type="button" 
-              onClick={toggleMode} 
-              className="text-primary underline hover:text-primary/90 italic"
-            >
-              {isLogin ? "Registrarse" : "Iniciar sesión"}
-            </button>
+            {!isPasswordRecovery ? (
+              <>
+                <span className="text-muted-foreground">
+                  {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
+                </span>{" "}
+                <button 
+                  type="button" 
+                  onClick={toggleMode} 
+                  className="text-primary underline hover:text-primary/90 italic"
+                >
+                  {isLogin ? "Registrarse" : "Iniciar sesión"}
+                </button>
+                {isLogin && (
+                  <>
+                    {" • "}
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setIsPasswordRecovery(true);
+                        form.reset();
+                      }}
+                      className="text-primary underline hover:text-primary/90 italic"
+                    >
+                      Recuperar contraseña
+                    </button>
+                  </>
+                )}
+              </>
+            ) : (
+              <button 
+                type="button" 
+                onClick={toggleMode} 
+                className="text-primary underline hover:text-primary/90 italic"
+              >
+                Volver a iniciar sesión
+              </button>
+            )}
           </div>
         </div>
 
