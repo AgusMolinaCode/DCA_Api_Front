@@ -39,6 +39,11 @@ export function LoginForm({
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   useEffect(() => {
     if (onModeChange) {
@@ -85,8 +90,6 @@ export function LoginForm({
         };
       }
 
-      console.log("Enviando datos:", payload);
-
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -96,10 +99,8 @@ export function LoginForm({
       });
 
       if (response.ok) {
-        console.log("✅ Operación exitosa");
         setLoginStatus('success');
         const data = await response.json();
-        console.log("Respuesta del servidor:", data);
 
         if (isPasswordRecovery) {
           // Manejar recuperación de contraseña
@@ -113,25 +114,33 @@ export function LoginForm({
         } else if (isLogin) {
           // Manejar login
           setIsSubmitted(true);
-          setTimeout(() => {
-            // Guardar el token en localStorage
-            if (data.token) {
-              localStorage.setItem('token', data.token);
+          
+          // Guardar el token y el tiempo de inicio de sesión inmediatamente
+          if (isClient && data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('loginTime', new Date().getTime().toString());
+            
+            // Guardar el nombre de usuario
+            if (data.user && data.user.name) {
+              localStorage.setItem('userName', data.user.name);
             }
-
+          }
+          
+          // Llamar a la función de login exitoso si está definida
+          if (onLoginSuccess && data.user && data.user.name) {
+            onLoginSuccess(data.user.name);
+          }
+          
+          // Cerrar el diálogo y redirigir después de un breve retraso
+          setTimeout(() => {
             // Cerrar el diálogo
             if (dialogCloseRef.current) {
               dialogCloseRef.current.click();
             }
             
-            // Llamar a la función de login exitoso si está definida
-            if (onLoginSuccess) {
-              onLoginSuccess(data.user.name);
-            }
-            
-            // Redirigir al dashboard sin pasar el nombre como parámetro
+            // Redirigir al dashboard usando window.location para forzar una navegación completa
             router.push('/dashboard');
-          }, 1000);
+          }, 500);
         } else {
           // Manejar registro
           setIsSubmitted(true);
@@ -143,9 +152,7 @@ export function LoginForm({
           }, 1000);
         }
       } else {
-        console.error("Error en la operación");
         const error = await response.text();
-        console.error("Error del servidor:", error);
         setLoginStatus('error');
         setIsSubmitted(true);
         setTimeout(() => {
@@ -156,7 +163,6 @@ export function LoginForm({
       }
 
     } catch (error) {
-      console.error("Error de conexión:", error);
       setLoginStatus('error');
       setIsSubmitted(true);
       setTimeout(() => {

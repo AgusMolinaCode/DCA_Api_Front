@@ -73,12 +73,12 @@ export default function ResetPasswordPage() {
         }, 3000);
       } else {
         const errorData = await response.text();
-        console.error('Error al restablecer la contraseña:', errorData);
+      
         setStatus('error');
         setMessage('Error al restablecer la contraseña. El token puede haber expirado.');
       }
     } catch (error) {
-      console.error('Error de conexión:', error);
+  
       setStatus('error');
       setMessage('Error de conexión. Por favor intenta de nuevo.');
     }
