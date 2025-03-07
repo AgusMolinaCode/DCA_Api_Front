@@ -17,9 +17,15 @@ import {
 import { Input } from "@/components/ui/input"
 import { CheckCircle, XCircle } from "lucide-react"
 import { DialogClose } from "@/components/ui/dialog"
-import { formSchema } from "@/lib/validation"
 
-type FormValues = z.infer<typeof formSchema>;
+// Esquema flexible que funciona para todos los modos
+const flexibleSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().email("Email inválido"),
+  password: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof flexibleSchema>;
 
 interface LoginFormProps {
   onModeChange?: (isLogin: boolean) => void;
@@ -36,6 +42,7 @@ export function LoginForm({
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loginStatus, setLoginStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
@@ -55,16 +62,53 @@ export function LoginForm({
   }, [isLogin, isPasswordRecovery, onModeChange, onPasswordRecoveryMode]);
   
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(flexibleSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
     },
-  })
+  });
+
+  // Validación manual adicional antes de enviar
+  const validateForm = (values: FormValues): boolean => {
+    let isValid = true;
+    
+    // Limpiar errores previos
+    form.clearErrors();
+    
+    // Validar según el modo
+    if (!isPasswordRecovery) {
+      if (values.password === undefined || values.password.trim() === "") {
+        form.setError("password", { 
+          type: "manual", 
+          message: "La contraseña es requerida" 
+        });
+        isValid = false;
+      }
+      
+      if (!isLogin && (!values.name || values.name.trim() === "")) {
+        form.setError("name", { 
+          type: "manual", 
+          message: "El nombre es requerido" 
+        });
+        isValid = false;
+      }
+    }
+    
+    return isValid;
+  };
 
   async function onSubmit(values: FormValues) {
+    // Validación manual adicional
+    if (!validateForm(values)) {
+      return;
+    }
+    
     setIsSubmitting(true);
+    setErrorMessage("");
+    console.log("Iniciando envío del formulario:", { isLogin, isPasswordRecovery, values });
+    
     try {
       // Determinar la URL según el modo (login, signup o recuperación de contraseña)
       let url = '';
@@ -90,17 +134,23 @@ export function LoginForm({
         };
       }
 
+      console.log(`Enviando solicitud a: ${url}`, payload);
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        credentials: 'include', // Importante para manejar cookies
       });
+
+      console.log("Respuesta recibida:", { status: response.status, ok: response.ok });
 
       if (response.ok) {
         setLoginStatus('success');
         const data = await response.json();
+        console.log("Datos de respuesta:", data);
 
         if (isPasswordRecovery) {
           // Manejar recuperación de contraseña
@@ -131,6 +181,8 @@ export function LoginForm({
             onLoginSuccess(data.user.name);
           }
           
+          console.log("Login exitoso, redirigiendo al dashboard...");
+          
           // Cerrar el diálogo y redirigir después de un breve retraso
           setTimeout(() => {
             // Cerrar el diálogo
@@ -138,8 +190,8 @@ export function LoginForm({
               dialogCloseRef.current.click();
             }
             
-            // Redirigir al dashboard usando window.location para forzar una navegación completa
-            router.push('/dashboard');
+            // Redirigir al dashboard
+            window.location.href = '/dashboard';
           }, 500);
         } else {
           // Manejar registro
@@ -152,24 +204,38 @@ export function LoginForm({
           }, 1000);
         }
       } else {
-        const error = await response.text();
+        // Manejar errores de respuesta
+        let errorText = "";
+        try {
+          const errorData = await response.json();
+          errorText = errorData.message || errorData.error || "Error en la operación";
+          console.error("Error de respuesta (JSON):", errorData);
+        } catch (e) {
+          // Si no es JSON, intentar obtener el texto
+          errorText = await response.text();
+          console.error("Error de respuesta (texto):", errorText);
+        }
+        
+        setErrorMessage(errorText);
         setLoginStatus('error');
         setIsSubmitted(true);
         setTimeout(() => {
           setIsSubmitted(false);
           setLoginStatus('idle');
           setIsSubmitting(false);
-        }, 1000);
+        }, 3000);
       }
 
     } catch (error) {
+      console.error("Error de conexión:", error);
+      setErrorMessage("Error de conexión. Por favor, intenta de nuevo más tarde.");
       setLoginStatus('error');
       setIsSubmitted(true);
       setTimeout(() => {
         setIsSubmitted(false);
         setLoginStatus('idle');
         setIsSubmitting(false);
-      }, 1000);
+      }, 3000);
     }
   }
 
@@ -182,6 +248,7 @@ export function LoginForm({
     }
     setLoginStatus('idle');
     setIsSubmitted(false);
+    setErrorMessage("");
     form.reset();
   }
 
@@ -268,7 +335,7 @@ export function LoginForm({
                   ? (isPasswordRecovery 
                     ? "Solicitud de recuperación enviada" 
                     : (isLogin ? "¡Inicio de sesión exitoso!" : "¡Registro exitoso!"))
-                  : (isLogin ? "Error en el inicio de sesión" : "Error en el registro")}
+                  : errorMessage || (isLogin ? "Error en el inicio de sesión" : "Error en el registro")}
               </span>
             </div>
           ) : (

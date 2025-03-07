@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={spaceMono.className}>
 
-      <body>
+      <body className="">
         <Navbar />
         {children}
       </body>
