@@ -38,7 +38,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cryptoFormSchema, type CryptoFormValues } from "@/lib/validation";
-import { AlertCircle, CalendarIcon, Loader2, Plus, Search } from "lucide-react";
+import { AlertCircle, CalendarIcon, Loader2, Plus, Search, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
@@ -67,6 +67,9 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm<CryptoFormValues>({
     resolver: zodResolver(cryptoFormSchema),
@@ -214,28 +217,62 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
         ...updatedValues,
         amount: parseFloat(updatedValues.amount),
         purchase_price: parseFloat(updatedValues.purchase_price),
-        total:
-          parseFloat(updatedValues.amount) *
-          parseFloat(updatedValues.purchase_price),
+        total: parseFloat(updatedValues.amount) * parseFloat(updatedValues.purchase_price),
         date: date.toISOString(),
         added_manually: manualMode,
       };
 
       console.log("Datos de la criptomoneda:", cryptoData);
-
-      if (onAddCrypto) {
-        onAddCrypto(cryptoData);
+      
+      // Enviar los datos a la API
+      setIsSubmitting(true);
+      
+      try {
+        const response = await fetch('http://localhost:8080/transactions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(cryptoData),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error al guardar la transacción: ${response.status} ${response.statusText}`);
+        }
+        
+        const responseData = await response.json();
+        console.log("Transacción guardada exitosamente:", responseData);
+        
+        // Llamar al callback si existe
+        if (onAddCrypto) {
+          onAddCrypto(cryptoData);
+        }
+        
+        // Mostrar mensaje de éxito
+        setSubmitSuccess(true);
+        
+        // Cerrar el modal y resetear el formulario después de un breve retraso
+        setTimeout(() => {
+          setOpen(false);
+          form.reset();
+          setDate(new Date());
+          setSelectedCrypto(null);
+          setSearchError(null);
+          setManualMode(false);
+          setSubmitSuccess(false);
+        }, 1500);
+        
+      } catch (apiError) {
+        console.error("Error al enviar datos a la API:", apiError);
+        setSubmitError(apiError instanceof Error ? apiError.message : "Error al guardar la transacción");
+        setIsSubmitting(false);
       }
-
-      // Cerrar el modal y resetear el formulario
-      setOpen(false);
-      form.reset();
-      setDate(new Date());
-      setSelectedCrypto(null);
-      setSearchError(null);
-      setManualMode(false);
+      
     } catch (error) {
       console.error("Error al agregar criptomoneda:", error);
+      setSubmitError("Error al procesar los datos del formulario");
+      setIsSubmitting(false);
     }
   }
 
@@ -511,12 +548,29 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
             <div className="bg-muted p-3 rounded-md">
               <div className="flex justify-between items-center">
                 <span className="font-medium">Total:</span>
-                <span className="font-bold text-lg">
-                  ${total.toFixed(2)} USD
-                </span>
+                <span className="font-bold text-lg">${total.toFixed(2)} USD</span>
               </div>
             </div>
-
+            
+            {/* Mensaje de éxito o error */}
+            {submitSuccess && (
+              <Alert className="bg-green-50 text-green-800 border-green-200">
+                <AlertDescription className="flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Transacción guardada exitosamente
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {submitError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                <AlertDescription>
+                  {submitError}
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <DialogFooter className="flex gap-2">
               <Button
                 type="button"
@@ -533,7 +587,13 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
                 Resetear
               </Button>
 
-              <Button type="submit">Agregar</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Agregar"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
