@@ -48,6 +48,11 @@ export const cryptoFormSchema = z.object({
       errorMap: () => ({ message: "El tipo debe ser 'compra' o 'venta'" }),
     })
     .default("compra"),
+    
+  image_url: z
+    .string()
+    .url("La URL de la imagen debe ser válida")
+    .optional(),
 });
 
 export type CryptoFormValues = z.infer<typeof cryptoFormSchema>;

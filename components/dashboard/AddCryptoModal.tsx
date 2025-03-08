@@ -152,6 +152,7 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       form.setValue("crypto_name", crypto.name);
       form.setValue("ticker", crypto.ticker);
       form.setValue("purchase_price", crypto.price.toString());
+      form.setValue("image_url", crypto.imageUrl || "");
 
       // Establecer la criptomoneda seleccionada
       setSelectedCrypto(crypto);
@@ -185,12 +186,13 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
   const enableManualMode = () => {
     setManualMode(true);
     setSearchError(null);
-
+    
     // Mantener el ticker pero limpiar los otros campos para entrada manual
     const currentTicker = form.getValues("ticker");
     form.setValue("crypto_name", "");
     form.setValue("purchase_price", "");
-
+    form.setValue("image_url", "");
+    
     // Desactivar la selección de criptomoneda
     setSelectedCrypto(null);
   };
@@ -220,6 +222,7 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
         total: parseFloat(updatedValues.amount) * parseFloat(updatedValues.purchase_price),
         date: date.toISOString(),
         added_manually: manualMode,
+        image_url: selectedCrypto?.imageUrl || "",
       };
 
       console.log("Datos de la criptomoneda:", cryptoData);
@@ -494,6 +497,29 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
                 )}
               />
             </div>
+
+            {/* Campo para URL de imagen (solo visible en modo manual) */}
+            {manualMode && (
+              <FormField
+                control={form.control}
+                name="image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL de la imagen</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://ejemplo.com/imagen.png"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      URL de la imagen de la criptomoneda (opcional)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
