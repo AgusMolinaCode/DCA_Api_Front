@@ -51,7 +51,6 @@ export const cryptoFormSchema = z.object({
     
   image_url: z
     .string()
-    .url("La URL de la imagen debe ser válida")
     .optional(),
 });
 
