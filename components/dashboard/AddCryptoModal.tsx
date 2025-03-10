@@ -13,12 +13,27 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cryptoFormSchema, type CryptoFormValues } from "@/lib/validation";
-import { Plus} from "lucide-react";
+import { Plus } from "lucide-react";
 import { Crypto, CryptoData } from "@/lib/types";
 import FormCryptoAdd from "./FormCryptoAdd";
+import { createTransaction } from "@/lib/actions";
 
 // URL base de la API de CryptoCompare
 const CRYPTO_COMPARE_API_URL = "https://min-api.cryptocompare.com/data";
+
+// Función para obtener una cookie
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith(name + '=')) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return null;
+}
 
 interface AddCryptoModalProps {
   onAddCrypto?: (data: CryptoData) => void;
@@ -119,7 +134,7 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       form.setValue("crypto_name", crypto.name);
       form.setValue("ticker", crypto.ticker);
       form.setValue("purchase_price", crypto.price.toFixed(2));
-      form.setValue("image_url", crypto.imageUrl || "/images/cripto.png");
+      form.setValue("image_url", crypto.imageUrl || "");
       
       // Establecer la criptomoneda seleccionada
       setSelectedCrypto(crypto);
@@ -200,6 +215,12 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
     try {
       setIsSubmitting(true);
       setSubmitError(null);
+
+      // Verificar que haya un token en las cookies
+      const token = getCookie("auth_token");
+      if (!token) {
+        throw new Error("No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.");
+      }
       
       // Si estamos en modo manual, asegurarse de que se use la imagen predeterminada
       if (manualMode) {
@@ -240,49 +261,33 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
 
       console.log("Datos de la criptomoneda a enviar:", cryptoData);
       
-      // Enviar los datos a la API
-      try {
-        console.log("Enviando datos a la API...");
-        const response = await fetch('http://localhost:8080/transactions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify(cryptoData),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Error al guardar la transacción: ${response.status} ${response.statusText}`);
-        }
-        
-        const responseData = await response.json();
-        console.log("Transacción guardada exitosamente:", responseData);
-        
-        // Llamar al callback si existe
-        if (onAddCrypto) {
-          onAddCrypto(cryptoData);
-        }
-        
-        // Mostrar mensaje de éxito
-        setSubmitSuccess(true);
-        
-        // Cerrar el modal y resetear el formulario después de un breve retraso
-        setTimeout(() => {
-          setOpen(false);
-          handleReset();
-        }, 1500);
-        
-      } catch (apiError) {
-        console.error("Error al enviar datos a la API:", apiError);
-        setSubmitError(apiError instanceof Error ? apiError.message : "Error al guardar la transacción");
-      } finally {
-        setIsSubmitting(false);
+      // Usar la acción del servidor para crear la transacción
+      const result = await createTransaction(cryptoData);
+      
+      if (!result.success) {
+        throw new Error(result.error || "Error al guardar la transacción");
       }
+      
+      console.log("Transacción guardada exitosamente:", result.data);
+      
+      // Llamar al callback si existe
+      if (onAddCrypto) {
+        onAddCrypto(cryptoData);
+      }
+      
+      // Mostrar mensaje de éxito
+      setSubmitSuccess(true);
+      
+      // Cerrar el modal y resetear el formulario después de un breve retraso
+      setTimeout(() => {
+        setOpen(false);
+        handleReset();
+      }, 1500);
       
     } catch (error) {
       console.error("Error al agregar criptomoneda:", error);
-      setSubmitError("Error al procesar los datos del formulario");
+      setSubmitError(error instanceof Error ? error.message : "Error al procesar los datos del formulario");
+    } finally {
       setIsSubmitting(false);
     }
   }
@@ -297,9 +302,9 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Agregar cripto</DialogTitle>
+          <DialogTitle>Agregar transacción</DialogTitle>
           <DialogDescription>
-            Agrega una cripto a tu lista de criptos
+            Agrega una transacción de criptomoneda a tu portafolio
           </DialogDescription>
         </DialogHeader>
         

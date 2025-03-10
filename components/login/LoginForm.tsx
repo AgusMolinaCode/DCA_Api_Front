@@ -100,137 +100,163 @@ export function LoginForm({
   };
 
   async function onSubmit(values: FormValues) {
-    // Validación manual adicional
+    console.log("Formulario enviado:", values);
+    
+    // Validar el formulario según el modo
     if (!validateForm(values)) {
       return;
     }
-    
-    setIsSubmitting(true);
-    setErrorMessage("");
-    console.log("Iniciando envío del formulario:", { isLogin, isPasswordRecovery, values });
-    
-    try {
-      // Determinar la URL según el modo (login, signup o recuperación de contraseña)
-      let url = '';
-      let payload = {};
 
-      if (isPasswordRecovery) {
-        url = `${process.env.NEXT_PUBLIC_URL}/request-reset-password`;
+    // Verificar que la URL del backend esté definida
+    const apiUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:8080';
+    console.log("URL del backend:", apiUrl);
+
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
+      setLoginStatus('idle');
+
+      // Determinar la URL según el modo
+      let endpoint = '';
+      let payload: any = {};
+
+      if (isLogin) {
+        // Modo login
+        endpoint = `${apiUrl}/login`;
         payload = {
-          email: values.email
-        };
-      } else {
-        url = isLogin 
-          ? `${process.env.NEXT_PUBLIC_URL}/login` 
-          : `${process.env.NEXT_PUBLIC_URL}/signup`;
-        
-        payload = isLogin ? {
           email: values.email,
-          password: values.password
-        } : {
+          password: values.password,
+        };
+      } else if (!isPasswordRecovery) {
+        // Modo registro
+        endpoint = `${apiUrl}/signup`;
+        payload = {
           name: values.name,
           email: values.email,
-          password: values.password
+          password: values.password,
+        };
+      } else {
+        // Modo recuperación de contraseña
+        endpoint = `${apiUrl}/recover-password`;
+        payload = {
+          email: values.email,
         };
       }
 
-      console.log(`Enviando solicitud a: ${url}`, payload);
+      console.log(`Enviando solicitud a ${endpoint}:`, payload);
 
-      const response = await fetch(url, {
-        method: 'POST',
+      // Realizar la petición al servidor
+      const response = await fetch(endpoint, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-        credentials: 'include', // Importante para manejar cookies
       });
 
-      console.log("Respuesta recibida:", { status: response.status, ok: response.ok });
+      console.log("Respuesta del servidor:", response.status, response.statusText);
 
-      if (response.ok) {
-        setLoginStatus('success');
-        const data = await response.json();
-        console.log("Datos de respuesta:", data);
-
-        if (isPasswordRecovery) {
-          // Manejar recuperación de contraseña
-          setIsSubmitted(true);
-          setTimeout(() => {
-            setIsSubmitted(false);
-            setLoginStatus('idle');
-            setIsPasswordRecovery(false);
-            setIsSubmitting(false);
-          }, 2000);
-        } else if (isLogin) {
-          // Manejar login
-          setIsSubmitted(true);
-          
-          // Guardar el token y el tiempo de inicio de sesión inmediatamente
-          if (isClient && data.token) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('loginTime', new Date().getTime().toString());
-            
-            // Guardar el nombre de usuario
-            if (data.user && data.user.name) {
-              localStorage.setItem('userName', data.user.name);
-            }
-          }
-          
-          // Llamar a la función de login exitoso si está definida
-          if (onLoginSuccess && data.user && data.user.name) {
-            onLoginSuccess(data.user.name);
-          }
-          
-          console.log("Login exitoso, redirigiendo al dashboard...");
-          
-          // Cerrar el diálogo y redirigir después de un breve retraso
-          setTimeout(() => {
-            // Cerrar el diálogo
-            if (dialogCloseRef.current) {
-              dialogCloseRef.current.click();
-            }
-            
-            // Redirigir al dashboard
-            window.location.href = '/dashboard';
-          }, 500);
-        } else {
-          // Manejar registro
-          setIsSubmitted(true);
-          setTimeout(() => {
-            setIsSubmitted(false);
-            setLoginStatus('idle');
-            setIsLogin(true);
-            setIsSubmitting(false);
-          }, 1000);
-        }
-      } else {
-        // Manejar errores de respuesta
-        let errorText = "";
-        try {
-          const errorData = await response.json();
-          errorText = errorData.message || errorData.error || "Error en la operación";
-          console.error("Error de respuesta (JSON):", errorData);
-        } catch (e) {
-          // Si no es JSON, intentar obtener el texto
-          errorText = await response.text();
-          console.error("Error de respuesta (texto):", errorText);
-        }
+      // Intentar obtener la respuesta como JSON
+      let data;
+      try {
+        const responseText = await response.text();
+        console.log("Respuesta en texto:", responseText);
         
-        setErrorMessage(errorText);
-        setLoginStatus('error');
+        try {
+          data = JSON.parse(responseText);
+          console.log("Datos de respuesta parseados:", data);
+        } catch (e) {
+          console.error("Error al parsear la respuesta JSON:", e);
+          data = { message: responseText };
+        }
+      } catch (e) {
+        console.error("Error al obtener el texto de la respuesta:", e);
+        data = {};
+      }
+
+      if (!response.ok) {
+        // Manejar errores específicos
+        if (response.status === 409) {
+          throw new Error("El email ya está registrado. Por favor, utiliza otro email o inicia sesión.");
+        } else if (response.status === 401) {
+          throw new Error("Credenciales incorrectas. Por favor, verifica tu email y contraseña.");
+        } else {
+          throw new Error(data.message || data.error || "Error en la autenticación");
+        }
+      }
+
+      // Guardar el token en localStorage y cookie
+      if (data.token) {
+        console.log("Guardando token:", data.token.substring(0, 10) + "...");
+        
+        // Guardar el token en una cookie
+        document.cookie = `auth_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+        
+        // Guardar el nombre de usuario en una cookie
+        const userName = data.user?.name || data.name || "Usuario";
+        document.cookie = `username=${userName}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+        
+        console.log("Cookies establecidas para:", userName);
+      }
+
+      if (isPasswordRecovery) {
+        // Manejar recuperación de contraseña
         setIsSubmitted(true);
         setTimeout(() => {
           setIsSubmitted(false);
           setLoginStatus('idle');
+          setIsPasswordRecovery(false);
           setIsSubmitting(false);
-        }, 3000);
+        }, 2000);
+      } else if (isLogin) {
+        // Manejar login
+        setIsSubmitted(true);
+        
+        // Llamar a la función de login exitoso si está definida
+        const userName = data.user?.name || data.name;
+        if (onLoginSuccess && userName) {
+          onLoginSuccess(userName);
+        }
+        
+        // Cerrar el diálogo y redirigir después de un breve retraso
+        setTimeout(() => {
+          // Cerrar el diálogo
+          if (dialogCloseRef.current) {
+            dialogCloseRef.current.click();
+          }
+          
+          // Redirigir al dashboard
+          window.location.href = '/dashboard';
+          
+          setIsSubmitting(false);
+        }, 1000);
+      } else {
+        // Manejar registro exitoso
+        setIsSubmitted(true);
+        setTimeout(() => {
+          // Cambiar a modo login después del registro exitoso
+          setIsLogin(true);
+          if (onModeChange) {
+            onModeChange(true);
+          }
+          setIsSubmitted(false);
+          setLoginStatus('idle');
+          setIsSubmitting(false);
+          
+          // Limpiar el formulario
+          form.reset({
+            name: "",
+            email: values.email, // Mantener el email para facilitar el login
+            password: "",
+          });
+        }, 2000);
       }
-
-    } catch (error) {
-      console.error("Error de conexión:", error);
-      setErrorMessage("Error de conexión. Por favor, intenta de nuevo más tarde.");
+    } catch (err) {
+      console.error("Error en la solicitud:", err);
       setLoginStatus('error');
+      setErrorMessage(err instanceof Error ? err.message : "Error desconocido");
       setIsSubmitted(true);
+      
       setTimeout(() => {
         setIsSubmitted(false);
         setLoginStatus('idle');

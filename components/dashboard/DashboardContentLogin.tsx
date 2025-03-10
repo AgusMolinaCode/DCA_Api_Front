@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -12,10 +13,26 @@ import { Loader2, Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import { AddCryptoModal } from "./AddCryptoModal";
 
+// Función para obtener una cookie
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith(name + '=')) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return null;
+}
+
 export function DashboardContentLogin() {
+  const router = useRouter();
   const [userName, setUserName] = useState<string>("Usuario");
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -25,40 +42,33 @@ export function DashboardContentLogin() {
     if (!isClient) return;
 
     try {
-      // Obtener el nombre de usuario desde localStorage
-      const storedUserName = localStorage.getItem("userName");
-      console.log("Dashboard - Nombre de usuario:", storedUserName);
+      // Verificar autenticación
+      const token = getCookie("auth_token");
+      const storedUserName = getCookie("username");
+      
+      console.log("Verificando estado de autenticación:", {
+        hasToken: !!token,
+        username: storedUserName
+      });
+
+      if (!token) {
+        console.warn("No hay token en las cookies");
+        router.push('/');
+        return;
+      }
 
       if (storedUserName) {
         setUserName(storedUserName);
       }
 
-      // Verificar si el token existe y no ha expirado
-      const token = localStorage.getItem("token");
-      const loginTime = localStorage.getItem("loginTime");
-
-      if (!token || !loginTime) {
-        console.warn("Dashboard - No hay token o tiempo de login");
-      } else {
-        // Verificar si ha pasado más de 1 hora desde el inicio de sesión
-        const currentTime = new Date().getTime();
-        const loginTimeMs = parseInt(loginTime);
-        const oneHourInMs = 60 * 60 * 1000; // 1 hora en milisegundos
-        const timeElapsed = currentTime - loginTimeMs;
-
-        const minutesRemaining = Math.floor(
-          (oneHourInMs - timeElapsed) / 1000 / 60
-        );
-        console.log(
-          `Dashboard - Tiempo restante de sesión: ${minutesRemaining} minutos`
-        );
-      }
+      setIsAuthenticated(true);
     } catch (error) {
       console.error("Error al obtener datos de usuario:", error);
+      router.push('/');
     } finally {
       setIsLoading(false);
     }
-  }, [isClient]);
+  }, [isClient, router]);
 
   if (!isClient || isLoading) {
     return (
@@ -67,6 +77,10 @@ export function DashboardContentLogin() {
         <span>Cargando información del dashboard...</span>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (

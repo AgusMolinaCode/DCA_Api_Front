@@ -4,6 +4,20 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
+// Función para obtener una cookie
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith(name + '=')) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return null;
+}
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
@@ -25,57 +39,37 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     function verifyAuth() {
       try {  
-        // Verificar si hay un token y su tiempo de expiración
-        const token = localStorage.getItem('token');
-        const userName = localStorage.getItem('userName');
-        const loginTime = localStorage.getItem('loginTime');
+        // Verificar si hay un token en las cookies
+        const token = getCookie('auth_token');
+        const userName = getCookie('username');
         
+        console.log("ProtectedRoute - Verificando autenticación:", { 
+          hasToken: !!token,
+          hasUsername: !!userName 
+        });
 
         // Si no hay token o nombre de usuario, no está autenticado
-        if (!token || !userName || !loginTime) {
+        if (!token || !userName) {
+          console.log("ProtectedRoute - No se encontró token o nombre de usuario en las cookies");
           setIsAuthenticated(false);
           setIsLoading(false);
           router.push('/');
           return;
         }
         
-        // Verificar si ha pasado más de 1 hora desde el inicio de sesión
-        const currentTime = new Date().getTime();
-        const loginTimeMs = parseInt(loginTime);
-        const oneHourInMs = 60 * 60 * 1000; // 1 hora en milisegundos
-        const timeElapsed = currentTime - loginTimeMs;
-        
-
-        if (timeElapsed > oneHourInMs) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userName');
-          localStorage.removeItem('loginTime');
-          
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          router.push('/');
-          return;
-        }
-        
-        // Si el token existe y no ha expirado, establecer como autenticado
+        // Si el token existe, establecer como autenticado
         setIsAuthenticated(true);
         setIsLoading(false);
       } catch (error) {
+        console.error("ProtectedRoute - Error al verificar autenticación:", error);
         setIsAuthenticated(false);
         setIsLoading(false);
+        router.push('/');
       }
     }
 
     // Verificar inmediatamente
     verifyAuth();
-    
-    // Configurar un intervalo para verificar la expiración cada minuto
-    const checkInterval = setInterval(() => {
-      verifyAuth();
-    }, 60000); // Verificar cada minuto
-    
-    // Limpiar el intervalo al desmontar el componente
-    return () => clearInterval(checkInterval);
   }, [router, isClient]);
 
   // Mostrar un loader mientras se verifica la autenticación (solo en el cliente)

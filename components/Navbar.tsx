@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,27 @@ import {
 } from "@/components/ui/dialog";
 import { LoginForm } from "./login/LoginForm";
 
+// Función para obtener una cookie
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith(name + '=')) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return null;
+}
+
+// Función para eliminar una cookie
+function deleteCookie(name: string): void {
+  if (typeof document === 'undefined') return;
+  
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict`;
+}
+
 export const Navbar = () => {
   const router = useRouter();
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -21,58 +42,38 @@ export const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Marcar cuando estamos en el cliente
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Verificar el estado de autenticación al cargar la página
-  useEffect(() => {
-    if (!isClient) return;
-
-    function checkAuthStatus() {
-      try {
-   
-        const token = localStorage.getItem("token");
-        const userName = localStorage.getItem("userName");
-        const loginTime = localStorage.getItem("loginTime");
-
-
-
-        // Si no hay información de autenticación, no está autenticado
-        if (!token || !userName || !loginTime) {
-       
-          setIsAuthenticated(false);
-          setUserName("");
-          return;
-        }
-
-        // Verificar si ha pasado más de 1 hora desde el inicio de sesión
-        const currentTime = new Date().getTime();
-        const loginTimeMs = parseInt(loginTime);
-        const oneHourInMs = 60 * 60 * 1000; // 1 hora en milisegundos
-        const timeElapsed = currentTime - loginTimeMs;
-
-    
-
-        if (timeElapsed > oneHourInMs) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("loginTime");
-
-          setIsAuthenticated(false);
-          setUserName("");
-          return;
-        }
-
+  // Verificar el estado de autenticación
+  function checkAuthStatus() {
+    if (typeof window !== 'undefined') {
+      // Obtener el token de las cookies
+      const token = getCookie('auth_token');
+      const storedUserName = getCookie('username');
+      
+      console.log("Verificando estado de autenticación:", { 
+        token: !!token,
+        username: storedUserName 
+      });
+      
+      if (token && storedUserName) {
         setIsAuthenticated(true);
-        setUserName(userName);
-      } catch (error) {
+        setUserName(storedUserName);
+      } else {
         setIsAuthenticated(false);
         setUserName("");
       }
     }
+  }
+
+  // Verificar el estado de autenticación al cargar la página
+  useEffect(() => {
+    if (!isClient) return;
 
     // Verificar al cargar la página
     checkAuthStatus();
@@ -97,112 +98,75 @@ export const Navbar = () => {
     setIsPasswordRecovery(isRecovery);
   };
 
-  // Función para manejar el login exitoso
+  // Función para manejar el inicio de sesión exitoso
   const handleLoginSuccess = (name: string) => {
+    console.log("Login exitoso en Navbar, actualizando estado:", name);
     setIsAuthenticated(true);
     setUserName(name);
-    if (isClient) {
-      localStorage.setItem("userName", name);
-    }
   };
 
   // Función para manejar el logout
   const handleLogout = async () => {
-    if (!isClient) return;
-
     try {
-      // Obtener el token almacenado
-      const token = localStorage.getItem("token");
-      const userName = localStorage.getItem("userName");
-
-      // Verificar si hay token y nombre de usuario
-      if (!token || !userName) {
-        setIsAuthenticated(false);
-        setUserName("");
-        localStorage.removeItem("token");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("loginTime");
-        router.push("/");
+      setIsLoggingOut(true);
+      
+      // Obtener el token de las cookies
+      const token = getCookie('auth_token');
+      
+      if (!token) {
+        console.error("No se encontró el token para cerrar sesión");
         return;
       }
-
+      
       // Verificar que la URL del backend esté definida
-      const backendUrl = process.env.NEXT_PUBLIC_URL;
-      if (!backendUrl) {
-       
+      const apiUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:8080';
+      if (!apiUrl) {
+        console.error("Error: La URL del backend no está definida en las variables de entorno");
+        
+        // Limpiar datos de sesión de todos modos
+        deleteCookie("auth_token");
+        deleteCookie("username");
         setIsAuthenticated(false);
         setUserName("");
-        localStorage.removeItem("token");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("loginTime");
-        router.push("/");
+        window.location.href = "/";
         return;
       }
-
-
-      // Intentar hacer la solicitud con un timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos de timeout
-
-      try {
-        const response = await fetch(`${backendUrl}/logout`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-         
-          // Limpiar el estado de autenticación
-          setIsAuthenticated(false);
-          setUserName("");
-
-          // Eliminar datos del almacenamiento local
-          localStorage.removeItem("userName");
-          localStorage.removeItem("token");
-          localStorage.removeItem("loginTime");
-
-          // Redirigir a la página de inicio
-          router.push("/");
-        } else {
-          const errorData = await response.text();
-         
-
-          // En caso de error, igual limpiar el estado
-          setIsAuthenticated(false);
-          setUserName("");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("token");
-          localStorage.removeItem("loginTime");
-          router.push("/");
+      
+      console.log("Cerrando sesión, enviando solicitud a:", `${apiUrl}/logout`);
+      
+      // Llamar al endpoint de logout
+      const response = await fetch(`${apiUrl}/logout`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
         }
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
-
-        // Si hay un error de conexión, limpiar el estado de todos modos
-        setIsAuthenticated(false);
-        setUserName("");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("token");
-        localStorage.removeItem("loginTime");
-        router.push("/");
-      }
-    } catch (error) {
-     
-
-      // En caso de error de conexión, limpiar el estado
+      });
+      
+      console.log("Respuesta del servidor:", response.status, response.statusText);
+      
+      // Eliminar las cookies
+      deleteCookie("auth_token");
+      deleteCookie("username");
+      
+      // Actualizar el estado de autenticación
       setIsAuthenticated(false);
       setUserName("");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("token");
-      localStorage.removeItem("loginTime");
-      router.push("/");
+      
+      console.log("Sesión cerrada, redirigiendo a la página principal");
+      
+      // Redirigir a la página principal
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      
+      // Limpiar datos de sesión de todos modos en caso de error
+      deleteCookie("auth_token");
+      deleteCookie("username");
+      setIsAuthenticated(false);
+      setUserName("");
+      window.location.href = "/";
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
