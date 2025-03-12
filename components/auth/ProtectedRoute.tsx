@@ -42,15 +42,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         // Verificar si hay un token en las cookies
         const token = getCookie('auth_token');
         const userName = getCookie('username');
-        
-        console.log("ProtectedRoute - Verificando autenticación:", { 
-          hasToken: !!token,
-          hasUsername: !!userName 
-        });
 
         // Si no hay token o nombre de usuario, no está autenticado
         if (!token || !userName) {
-          console.log("ProtectedRoute - No se encontró token o nombre de usuario en las cookies");
           setIsAuthenticated(false);
           setIsLoading(false);
           router.push('/');
@@ -61,7 +55,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         setIsAuthenticated(true);
         setIsLoading(false);
       } catch (error) {
-        console.error("ProtectedRoute - Error al verificar autenticación:", error);
         setIsAuthenticated(false);
         setIsLoading(false);
         router.push('/');

@@ -81,8 +81,6 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
     setManualMode(false);
     
     try {
-      console.log(`Buscando información para: ${formattedTicker}`);
-      
       // Obtener información detallada de la criptomoneda
       const response = await fetch(
         `${CRYPTO_COMPARE_API_URL}/pricemultifull?fsyms=${formattedTicker}&tsyms=USD`
@@ -139,10 +137,7 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       // Establecer la criptomoneda seleccionada
       setSelectedCrypto(crypto);
       
-      console.log("Información obtenida:", crypto);
-      
     } catch (err) {
-      console.error("Error buscando criptomoneda:", err);
       setSearchError(err instanceof Error ? err.message : "Error desconocido");
       // No limpiar los campos para permitir la entrada manual
       form.setValue("ticker", ticker.trim().toUpperCase());
@@ -181,8 +176,6 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
     
     // Desactivar la selección de criptomoneda
     setSelectedCrypto(null);
-    
-    console.log("Modo manual activado, imagen predeterminada establecida:", form.getValues("image_url"));
   };
 
   // Resetear el formulario
@@ -211,7 +204,6 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
   const total = isNaN(amount) || isNaN(purchasePrice) ? 0 : amount * purchasePrice;
 
   async function onSubmit(values: CryptoFormValues) {
-    console.log("Función onSubmit llamada con valores:", values);
     try {
       setIsSubmitting(true);
       setSubmitError(null);
@@ -237,7 +229,6 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
 
       // Usar los valores actualizados después de la búsqueda
       const updatedValues = form.getValues();
-      console.log("Valores actualizados del formulario:", updatedValues);
 
       // Si estamos en modo manual, asegurarse de que se use la imagen predeterminada
       if (manualMode) {
@@ -258,8 +249,6 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
         type: updatedValues.type as "compra" | "venta",
         note: updatedValues.note,
       };
-
-      console.log("Datos de la criptomoneda a enviar:", cryptoData);
       
       // Usar la acción del servidor para crear la transacción
       const result = await createTransaction(cryptoData);
@@ -267,8 +256,6 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       if (!result.success) {
         throw new Error(result.error || "Error al guardar la transacción");
       }
-      
-      console.log("Transacción guardada exitosamente:", result.data);
       
       // Llamar al callback si existe
       if (onAddCrypto) {
@@ -285,7 +272,6 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       }, 1500);
       
     } catch (error) {
-      console.error("Error al agregar criptomoneda:", error);
       setSubmitError(error instanceof Error ? error.message : "Error al procesar los datos del formulario");
     } finally {
       setIsSubmitting(false);

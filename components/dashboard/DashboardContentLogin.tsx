@@ -45,14 +45,8 @@ export function DashboardContentLogin() {
       // Verificar autenticación
       const token = getCookie("auth_token");
       const storedUserName = getCookie("username");
-      
-      console.log("Verificando estado de autenticación:", {
-        hasToken: !!token,
-        username: storedUserName
-      });
 
       if (!token) {
-        console.warn("No hay token en las cookies");
         router.push('/');
         return;
       }
@@ -63,7 +57,6 @@ export function DashboardContentLogin() {
 
       setIsAuthenticated(true);
     } catch (error) {
-      console.error("Error al obtener datos de usuario:", error);
       router.push('/');
     } finally {
       setIsLoading(false);

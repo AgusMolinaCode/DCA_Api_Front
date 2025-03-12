@@ -56,11 +56,6 @@ export const Navbar = () => {
       const token = getCookie('auth_token');
       const storedUserName = getCookie('username');
       
-      console.log("Verificando estado de autenticación:", { 
-        token: !!token,
-        username: storedUserName 
-      });
-      
       if (token && storedUserName) {
         setIsAuthenticated(true);
         setUserName(storedUserName);
@@ -100,7 +95,6 @@ export const Navbar = () => {
 
   // Función para manejar el inicio de sesión exitoso
   const handleLoginSuccess = (name: string) => {
-    console.log("Login exitoso en Navbar, actualizando estado:", name);
     setIsAuthenticated(true);
     setUserName(name);
   };
@@ -114,15 +108,12 @@ export const Navbar = () => {
       const token = getCookie('auth_token');
       
       if (!token) {
-        console.error("No se encontró el token para cerrar sesión");
         return;
       }
       
       // Verificar que la URL del backend esté definida
       const apiUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:8080';
       if (!apiUrl) {
-        console.error("Error: La URL del backend no está definida en las variables de entorno");
-        
         // Limpiar datos de sesión de todos modos
         deleteCookie("auth_token");
         deleteCookie("username");
@@ -132,8 +123,6 @@ export const Navbar = () => {
         return;
       }
       
-      console.log("Cerrando sesión, enviando solicitud a:", `${apiUrl}/logout`);
-      
       // Llamar al endpoint de logout
       const response = await fetch(`${apiUrl}/logout`, {
         method: "POST",
@@ -141,8 +130,6 @@ export const Navbar = () => {
           "Authorization": `Bearer ${token}`
         }
       });
-      
-      console.log("Respuesta del servidor:", response.status, response.statusText);
       
       // Eliminar las cookies
       deleteCookie("auth_token");
@@ -152,12 +139,9 @@ export const Navbar = () => {
       setIsAuthenticated(false);
       setUserName("");
       
-      console.log("Sesión cerrada, redirigiendo a la página principal");
-      
       // Redirigir a la página principal
       window.location.href = "/";
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+    } catch (error) {   
       
       // Limpiar datos de sesión de todos modos en caso de error
       deleteCookie("auth_token");

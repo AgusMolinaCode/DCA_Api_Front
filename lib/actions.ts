@@ -46,7 +46,6 @@ export async function getAuthToken() {
  */
 export async function createTransaction(data: CryptoData) {
   try {
-    console.log("Creando transacción en el servidor:", data);
     
     const token = await getAuthToken();
     if (!token) {
@@ -77,7 +76,6 @@ export async function createTransaction(data: CryptoData) {
     
     return { success: true, data: result };
   } catch (error) {
-    console.error("Error en createTransaction:", error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error desconocido al crear la transacción" 
@@ -100,8 +98,6 @@ export async function getTransactions() {
       };
     }
     
-    console.log("Obteniendo transacciones en el servidor con token presente");
-    
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/transactions`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -114,7 +110,6 @@ export async function getTransactions() {
     }
     
     const responseData = await response.json();
-    console.log("Respuesta del servidor:", responseData);
     
     // Asegurarse de que data sea un array
     let transactions = [];
@@ -137,11 +132,8 @@ export async function getTransactions() {
       }
     }
     
-    console.log("Transacciones procesadas:", transactions);
-    
     return { success: true, data: transactions };
   } catch (error) {
-    console.error("Error en getTransactions:", error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error desconocido al obtener las transacciones",
@@ -181,7 +173,6 @@ export async function deleteTransaction(id: string) {
     
     return { success: true };
   } catch (error) {
-    console.error("Error en deleteTransaction:", error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error desconocido al eliminar la transacción" 

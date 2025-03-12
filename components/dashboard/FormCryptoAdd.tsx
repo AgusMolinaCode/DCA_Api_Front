@@ -82,7 +82,6 @@ const FormCryptoAdd = ({
   }, [manualMode, form]);
 
   const handleFormSubmit = form.handleSubmit((values) => {
-    console.log("Formulario enviado con valores:", values);
     if (manualMode) {
       values.image_url = "/images/cripto.png";
     }

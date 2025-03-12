@@ -45,7 +45,6 @@ export default function DashboardContent() {
 
         // Verificar que la URL del backend esté definida
         const apiUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:8080';
-        console.log("URL del backend configurada:", apiUrl);
 
         // Realizar la petición al servidor
         const response = await fetch(`${apiUrl}/transactions`, {
@@ -56,18 +55,12 @@ export default function DashboardContent() {
           },
         });
 
-        console.log("Respuesta del servidor:", {
-          status: response.status,
-          statusText: response.statusText,
-        });
-
         if (!response.ok) {
           throw new Error(`Error al obtener transacciones: ${response.status} ${response.statusText}`);
         }
 
         // Procesar la respuesta
         const data = await response.json();
-        console.log("Datos recibidos:", data);
 
         // Extraer las transacciones según la estructura de la respuesta
         let transactionData = [];
@@ -84,7 +77,6 @@ export default function DashboardContent() {
 
         setTransactions(transactionData);
       } catch (error) {
-        console.error("Error al obtener transacciones:", error);
         setError(error instanceof Error ? error.message : "Error desconocido");
       } finally {
         setIsLoading(false);
