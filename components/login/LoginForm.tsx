@@ -313,6 +313,13 @@ export function LoginForm({
         document.cookie = `username=${userName}; path=/; max-age=${
           60 * 60 * 24 * 7
         }; SameSite=Strict`;
+        
+        // Establecer cookie de expiración de sesión (5 horas)
+        const expirationTime = new Date().getTime() + (5 * 60 * 60 * 1000); // Tiempo actual + 5 horas
+        document.cookie = `session_expiration=${expirationTime}; path=/; max-age=${
+          60 * 60 * 24 * 7
+        }; SameSite=Strict`;
+        console.log("Sesión iniciada, expirará en 5 horas");
       }
 
       if (isPasswordRecovery) {
@@ -448,90 +455,90 @@ export function LoginForm({
                 loginStatus === "success"
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
-              }`}
-            >
-              {loginStatus === "success" ? (
-                <CheckCircle className="h-5 w-5" />
-              ) : (
-                <XCircle className="h-5 w-5" />
-              )}
-              <span>
-                {loginStatus === "success"
-                  ? isPasswordRecovery
-                    ? "Solicitud de recuperación enviada"
-                    : isLogin
-                    ? "¡Inicio de sesión exitoso!"
-                    : "¡Registro exitoso!"
-                  : errorMessage ||
-                    (isLogin
-                      ? "Error en el inicio de sesión"
-                      : "Error en el registro")}
-              </span>
-            </div>
-          ) : (
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting
-                ? isPasswordRecovery
-                  ? "Enviando..."
-                  : isLogin
-                  ? "Iniciando..."
-                  : "Registrando..."
-                : isPasswordRecovery
-                ? "Enviar solicitud de recuperación"
-                : isLogin
-                ? "Iniciar sesión"
-                : "Registrarse"}
-            </Button>
-          )}
-
-          <div className="text-center text-sm mt-2">
-            {!isPasswordRecovery ? (
-              <>
-                <span className="text-muted-foreground">
-                  {isLogin
-                    ? "¿No tienes una cuenta?"
-                    : "¿Ya tienes una cuenta?"}
-                </span>{" "}
-                <button
-                  type="button"
-                  onClick={toggleMode}
-                  className="text-primary underline hover:text-primary/90 italic"
-                >
-                  {isLogin ? "Registrarse" : "Iniciar sesión"}
-                </button>
-                {isLogin && (
-                  <>
-                    {" • "}
+                  }`}
+                  >
+                    {loginStatus === "success" ? (
+                      <CheckCircle className="h-5 w-5" />
+                    ) : (
+                      <XCircle className="h-5 w-5" />
+                    )}
+                    <span>
+                      {loginStatus === "success"
+                        ? isPasswordRecovery
+                          ? "Solicitud de recuperación enviada"
+                          : isLogin
+                          ? "¡Inicio de sesión exitoso!"
+                          : "¡Registro exitoso!"
+                        : errorMessage ||
+                          (isLogin
+                            ? "Error en el inicio de sesión"
+                            : "Error en el registro")}
+                    </span>
+                  </div>
+                ) : (
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting
+                      ? isPasswordRecovery
+                        ? "Enviando..."
+                        : isLogin
+                        ? "Iniciando..."
+                        : "Registrando..."
+                      : isPasswordRecovery
+                      ? "Enviar solicitud de recuperación"
+                      : isLogin
+                      ? "Iniciar sesión"
+                      : "Registrarse"}
+                  </Button>
+                )}
+      
+                <div className="text-center text-sm mt-2">
+                  {!isPasswordRecovery ? (
+                    <>
+                      <span className="text-muted-foreground">
+                        {isLogin
+                          ? "¿No tienes una cuenta?"
+                          : "¿Ya tienes una cuenta?"}
+                      </span>{" "}
+                      <button
+                        type="button"
+                        onClick={toggleMode}
+                        className="text-primary underline hover:text-primary/90 italic"
+                      >
+                        {isLogin ? "Registrarse" : "Iniciar sesión"}
+                      </button>
+                      {isLogin && (
+                        <>
+                          {" • "}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsPasswordRecovery(true);
+                              form.reset();
+                            }}
+                            className="text-primary underline hover:text-primary/90 italic"
+                          >
+                            Recuperar contraseña
+                          </button>
+                        </>
+                      )}
+                    </>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsPasswordRecovery(true);
-                        form.reset();
-                      }}
+                      onClick={toggleMode}
                       className="text-primary underline hover:text-primary/90 italic"
                     >
-                      Recuperar contraseña
+                      Volver a iniciar sesión
                     </button>
-                  </>
-                )}
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="text-primary underline hover:text-primary/90 italic"
-              >
-                Volver a iniciar sesión
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Botón oculto para cerrar el diálogo */}
-        <DialogClose ref={dialogCloseRef} className="hidden" />
-      </form>
-    </Form>
-  );
-}
-
-export default LoginForm;
+                  )}
+                </div>
+              </div>
+      
+              {/* Botón oculto para cerrar el diálogo */}
+              <DialogClose ref={dialogCloseRef} className="hidden" />
+            </form>
+          </Form>
+        );
+      }
+      
+      export default LoginForm;

@@ -18,6 +18,23 @@ function getCookie(name: string): string | null {
   return null;
 }
 
+// Función para eliminar una cookie
+function deleteCookie(name: string): void {
+  if (typeof document === 'undefined') return;
+  
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict`;
+}
+
+// Función para verificar si la sesión ha expirado
+function hasSessionExpired(): boolean {
+  if (typeof document === 'undefined') return true;
+  
+  const sessionExpiration = getCookie('session_expiration');
+  if (!sessionExpiration) return true;
+  
+  return new Date().getTime() > parseInt(sessionExpiration);
+}
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
@@ -51,7 +68,20 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
           return;
         }
         
-        // Si el token existe, establecer como autenticado
+        // Verificar si la sesión ha expirado
+        if (hasSessionExpired()) {
+          console.log("La sesión ha expirado después de 5 horas");
+          // Cerrar sesión automáticamente
+          deleteCookie("auth_token");
+          deleteCookie("username");
+          deleteCookie("session_expiration");
+          setIsAuthenticated(false);
+          setIsLoading(false);
+          router.push('/');
+          return;
+        }
+        
+        // Si el token existe y la sesión no ha expirado, establecer como autenticado
         setIsAuthenticated(true);
         setIsLoading(false);
       } catch (error) {
@@ -63,6 +93,14 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     // Verificar inmediatamente
     verifyAuth();
+    
+    // Configurar un intervalo para verificar la expiración cada 5 segundos
+    const checkInterval = setInterval(() => {
+      verifyAuth();
+    }, 5000); // Verificar cada 5 segundos
+    
+    // Limpiar el intervalo al desmontar el componente
+    return () => clearInterval(checkInterval);
   }, [router, isClient]);
 
   // Mostrar un loader mientras se verifica la autenticación (solo en el cliente)

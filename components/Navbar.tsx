@@ -35,6 +35,15 @@ function deleteCookie(name: string): void {
   document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict`;
 }
 
+// Función para establecer una cookie con expiración de 5 horas
+function setCookieWithExpiration(name: string, value: string): void {
+  if (typeof document === 'undefined') return;
+  
+  // Establecer la cookie con expiración de 5 horas
+  const expirationMs = 5 * 60 * 60 * 1000; // 5 horas en milisegundos
+  document.cookie = `${name}=${value}; path=/; max-age=${expirationMs / 1000}; SameSite=Strict`;
+}
+
 export const Navbar = () => {
   const router = useRouter();
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -55,10 +64,26 @@ export const Navbar = () => {
       // Obtener el token de las cookies
       const token = getCookie('auth_token');
       const storedUserName = getCookie('username');
+      const sessionExpiration = getCookie('session_expiration');
       
       if (token && storedUserName) {
-        setIsAuthenticated(true);
-        setUserName(storedUserName);
+        // Verificar si la sesión ha expirado
+        if (!sessionExpiration || new Date().getTime() > parseInt(sessionExpiration)) {
+          console.log("La sesión ha expirado después de 5 horas");
+          // Cerrar sesión automáticamente
+          deleteCookie("auth_token");
+          deleteCookie("username");
+          deleteCookie("session_expiration");
+          setIsAuthenticated(false);
+          setUserName("");
+          // Redirigir a la página principal si estamos en una ruta protegida
+          if (window.location.pathname.startsWith('/dashboard')) {
+            window.location.href = "/";
+          }
+        } else {
+          setIsAuthenticated(true);
+          setUserName(storedUserName);
+        }
       } else {
         setIsAuthenticated(false);
         setUserName("");
@@ -73,10 +98,10 @@ export const Navbar = () => {
     // Verificar al cargar la página
     checkAuthStatus();
 
-    // Configurar un intervalo para verificar la expiración cada minuto
+    // Configurar un intervalo para verificar la expiración cada 5 segundos
     const checkInterval = setInterval(() => {
       checkAuthStatus();
-    }, 60000); // Verificar cada minuto
+    }, 5000); // Verificar cada 5 segundos
 
     // Limpiar el intervalo al desmontar el componente
     return () => clearInterval(checkInterval);
@@ -97,6 +122,11 @@ export const Navbar = () => {
   const handleLoginSuccess = (name: string) => {
     setIsAuthenticated(true);
     setUserName(name);
+    
+    // Establecer la cookie de expiración de sesión (5 horas)
+    const expirationTime = new Date().getTime() + (5 * 60 * 60 * 1000); // Tiempo actual + 5 horas
+    setCookieWithExpiration('session_expiration', expirationTime.toString());
+    console.log("Sesión iniciada, expirará en 5 horas");
   };
 
   // Función para manejar el logout
@@ -117,6 +147,7 @@ export const Navbar = () => {
         // Limpiar datos de sesión de todos modos
         deleteCookie("auth_token");
         deleteCookie("username");
+        deleteCookie("session_expiration");
         setIsAuthenticated(false);
         setUserName("");
         window.location.href = "/";
@@ -134,6 +165,7 @@ export const Navbar = () => {
       // Eliminar las cookies
       deleteCookie("auth_token");
       deleteCookie("username");
+      deleteCookie("session_expiration");
       
       // Actualizar el estado de autenticación
       setIsAuthenticated(false);
@@ -146,6 +178,7 @@ export const Navbar = () => {
       // Limpiar datos de sesión de todos modos en caso de error
       deleteCookie("auth_token");
       deleteCookie("username");
+      deleteCookie("session_expiration");
       setIsAuthenticated(false);
       setUserName("");
       window.location.href = "/";

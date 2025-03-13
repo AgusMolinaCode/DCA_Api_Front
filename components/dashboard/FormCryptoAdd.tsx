@@ -291,34 +291,12 @@ const FormCryptoAdd = ({
         </div>
 
         <div>
-          {manualMode ? (
-            <input 
-              type="hidden" 
-              {...form.register("image_url")} 
-              value="/images/cripto.png" 
-            />
-          ) : (
-            selectedCrypto && selectedCrypto.imageUrl && (
-              <FormField
-                control={form.control}
-                name="image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL de imagen</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        readOnly
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      URL de la imagen obtenida automáticamente
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-            )
-          )}
+          {/* Campo oculto para la URL de la imagen */}
+          <input 
+            type="hidden" 
+            {...form.register("image_url")} 
+            value={manualMode ? "/images/cripto.png" : (selectedCrypto?.imageUrl || "")} 
+          />
 
           <div className="grid gap-4">
             <div>
