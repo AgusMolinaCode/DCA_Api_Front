@@ -4,5 +4,27 @@
     "chat.editor.fontSize": 14,
     "tailwindCSS.rootFontSize": 14,
     "debug.console.fontSize": 14,
-    "scm.inputFontSize": 14
+    "scm.inputFontSize": 14,
+    "git.ignoreLimitWarning": true,
+    "fontFamily": "Jetbrains Mono",
+    "scm.inputFontFamily": "Jetbrains Mono",
+    "editor.inlayHints.fontFamily": "Jetbrains Mono",
+    "terminal.integrated.fontFamily": "Jetbrains Mono",
+    "notebook.output.fontFamily": "Jetbrains Mono",
+    "editor.fontFamily": "Jetbrains Mono",
+    "editor.codeLensFontFamily": "Jetbrains Mono",
+    "editor.experimentalInlineEdit.fontFamily": "Jetbrains Mono",
+    "editor.inlineSuggest.fontFamily": "Jetbrains Mono",
+    "debug.console.fontFamily": "Jetbrains Mono",
+    "chat.editor.fontFamily": "Jetbrains Mono",
+    "markdown.preview.fontFamily": "Jetbrains Mono",
+    "editor.fontVariations": true,
+    "apc.font.family": "Jetbrains Mono",
+    "apc.monospace.font.family": "Jetbrains Mono",
+    "apc.parts.font.family": {
+        "fontFamily": "Jetbrains Mono",
+        "default": "Jetbrains Mono"
+    },
+    "css.lint.fontFaceProperties": "warning",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
