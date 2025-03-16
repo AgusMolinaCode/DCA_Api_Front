@@ -138,7 +138,7 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       setSelectedCrypto(crypto);
       
     } catch (err) {
-      setSearchError(err instanceof Error ? err.message : "Error desconocido");
+      setSearchError(err instanceof Error ? err.message : "Error desconocido.");
       // No limpiar los campos para permitir la entrada manual
       form.setValue("ticker", ticker.trim().toUpperCase());
     } finally {

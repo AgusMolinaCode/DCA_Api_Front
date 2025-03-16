@@ -131,7 +131,7 @@ const FormCryptoAdd = ({
                   </Button>
                 </div>
                 <FormDescription>
-                  Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin)
+                  Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin, ETH para Ethereum, etc.)
                 </FormDescription>
                 <FormMessage />
               </FormItem>

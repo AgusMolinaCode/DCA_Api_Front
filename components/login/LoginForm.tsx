@@ -314,12 +314,12 @@ export function LoginForm({
           60 * 60 * 24 * 7
         }; SameSite=Strict`;
         
-        // Establecer cookie de expiración de sesión (5 horas)
-        const expirationTime = new Date().getTime() + (5 * 60 * 60 * 1000); // Tiempo actual + 5 horas
+        // Establecer cookie de expiración de sesión (1 hora)
+        const expirationTime = new Date().getTime() + (1 * 60 * 60 * 1000); // Tiempo actual + 1 hora
         document.cookie = `session_expiration=${expirationTime}; path=/; max-age=${
           60 * 60 * 24 * 7
         }; SameSite=Strict`;
-        console.log("Sesión iniciada, expirará en 5 horas");
+        console.log("Sesión iniciada, expirará en 1 hora");
       }
 
       if (isPasswordRecovery) {

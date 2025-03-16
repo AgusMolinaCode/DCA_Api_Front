@@ -77,7 +77,7 @@ export function DashboardContentLogin() {
   }
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto pb-18">
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-bold text-gray-500 gap-2">
           <span className="text-2xl text-black font-bold ">{userName}</span>{" "}

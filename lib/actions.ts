@@ -84,6 +84,44 @@ export async function createTransaction(data: CryptoData) {
 }
 
 /**
+ * Obtiene todas las transacciones del usuario agrupados por criptomoneda
+ * @returns Lista de transacciones agrupadas
+ */
+export async function getTrasactionsDashboard() {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        data: [] 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/dashboard`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error al obtener las transacciones: ${response.status} ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    
+    return { success: true, data: result };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al obtener las transacciones",
+      data: [] 
+    };
+  }
+}
+
+/**
  * Obtiene todas las transacciones del usuario
  * @returns Lista de transacciones
  */
