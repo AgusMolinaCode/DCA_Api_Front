@@ -9,6 +9,15 @@ import {
 import { getTrasactionsDashboard } from "@/lib/actions";
 import { DashboardItem } from "@/lib/inteface";
 import Image from "next/image";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("es-AR", {
@@ -45,58 +54,94 @@ async function DashboardBalance() {
             </div>
           ) : (
             <div className="space-y-3">
-              {dashboardData.map((item: DashboardItem, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-2 border-b last:border-0 hover:bg-muted/50 rounded-md transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={item.image_url}
-                      alt={item.crypto_name}
-                      width={44}
-                      height={44}
-                      className="object-contain"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{item.crypto_name}</h3>
-                        {/* <p className="text-sm text-muted-foreground">{item.ticker}</p> */}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {item.ticker}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p>
-                        Precio promedio: {formatCurrency(item.avg_price)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="font-medium">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="md:w-[200px]">Criptomoneda</TableHead>
+                    <TableHead>Total Invertido</TableHead>
+                    <TableHead>Precio Actual</TableHead>
+                    <TableHead>Diferencia Precio</TableHead>
+                    <TableHead>Precio Promedio</TableHead>
+                    <TableHead>Profit Actual</TableHead>
+                    <TableHead>Tenencias</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dashboardData.map((item: DashboardItem, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-semibold">
+                        <Image
+                          src={item.image_url}
+                          alt={item.crypto_name}
+                          width={44}
+                          height={44}
+                          className="object-contain"
+                        />
+                        {item.crypto_name}
+                      </TableCell>
+                      <TableCell className="font-bold">
                         {formatCurrency(item.total_invested)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Precio promedio: {formatCurrency(item.avg_price)}
-                      </p>
-                    </div>
-                    <div
-                      className={`flex items-center justify-center rounded-full px-2 py-1 ${
-                        item.profit_percent >= 0
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      <span className="text-xs font-medium">
-                        {item.profit_percent >= 0 ? "+" : ""}
-                        {item.profit_percent.toFixed(2)}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                      </TableCell>
+                      <TableCell className="font-bold">
+                        {formatCurrency(item.current_price)}
+                      </TableCell>
+                      <TableCell className="font-bold">
+                        <span
+                          className={`${
+                            item.current_price - item.avg_price >= 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {formatCurrency(item.current_price - item.avg_price)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-bold">
+                        {formatCurrency(item.avg_price)}
+                      </TableCell>
+                      <TableCell className="font-bold">
+                        <div className="flex flex-col">
+                          <span
+                            className={`${
+                              item.current_profit >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {formatCurrency(item.current_profit)}
+                          </span>
+                          <span
+                            className={`text-sm ${
+                              item.profit_percent >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {item.profit_percent.toFixed(2)}%
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-bold">
+                        <div className="flex flex-col">
+                          <span
+                            className={`${
+                              item.holdings * item.current_price >=
+                              item.total_invested
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {formatCurrency(item.holdings * item.current_price)}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {item.holdings} {item.ticker}
+                          </span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
