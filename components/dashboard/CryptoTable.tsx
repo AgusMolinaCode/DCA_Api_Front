@@ -12,7 +12,9 @@ import {
 import Image from "next/image";
 import { DashboardItem } from "@/lib/inteface";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown  , } from "lucide-react";
+import { ArrowUp, ArrowDown } from "lucide-react";
+import { TokenIcon } from "@web3icons/react";
+
 import {
   ColumnDef,
   flexRender,
@@ -41,18 +43,54 @@ const CryptoIcon = ({
 }) => {
   return (
     <div className="relative w-8 h-8">
-      <Image
-        src={imageUrl || "/images/cripto.png"}
-        alt={ticker}
-        width={32}
-        height={32}
-        className="object-contain"
+      <TokenIcon
+        name={ticker.toUpperCase()}
+        fallback={
+          <Image
+            src={imageUrl || "/images/cripto.png"}
+            alt={ticker}
+            width={32}
+            height={32}
+            className="object-contain"
+          />
+        }
       />
     </div>
   );
 };
 
 const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
+  // Función para renderizar el encabezado de columna con botón de ordenamiento
+  const renderSortableHeader = (column: any, title: string) => {
+    // Si la columna no está ordenada, establecer el orden descendente por defecto
+    const toggleSorting = () => {
+      const isSorted = column.getIsSorted();
+      if (isSorted === false) {
+        column.toggleSorting(true); // Ordenar descendente si no está ordenado
+      } else {
+        column.toggleSorting(isSorted === "asc"); // Alternar entre asc y desc
+      }
+    };
+
+    return (
+      <div className="flex items-center gap-2">
+        <span>{title}</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSorting}
+          className="ml-1 h-8 w-8 p-0"
+        >
+          {column.getIsSorted() === "asc" ? (
+            <ArrowUp className="h-4 w-4" />
+          ) : (
+            <ArrowDown className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    );
+  };
+
   // Definir las columnas
   const columns: ColumnDef<DashboardItem>[] = [
     {
@@ -70,18 +108,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
     },
     {
       accessorKey: "total_invested",
-      header: ({ column }) => (
-        <div className="flex items-center gap-2">
-          <span>Total Invertido</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => column.toggleSorting()}
-          >
-            {column.getIsSorted() === "asc" ? <ArrowUpDown /> : <ArrowUpDown />}
-          </Button>
-        </div>
-      ),
+      header: ({ column }) => renderSortableHeader(column, "Total Invertido"),
       cell: ({ row }) => (
         <span className="font-bold">
           {formatCurrency(row.original.total_invested)}
@@ -124,18 +151,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
     },
     {
       accessorKey: "current_profit",
-      header: ({ column }) => (
-        <div className="flex items-center gap-2">
-          <span>Profit Actual</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => column.toggleSorting()}
-          >
-            {column.getIsSorted() === "asc" ? <ArrowUpDown /> : <ArrowUpDown />}
-          </Button>
-        </div>
-      ),
+      header: ({ column }) => renderSortableHeader(column, "Profit Actual"),
       cell: ({ row }) => (
         <div className="flex flex-col font-bold">
           <span
