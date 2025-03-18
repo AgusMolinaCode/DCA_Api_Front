@@ -1,0 +1,291 @@
+"use client";
+
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import Image from "next/image";
+import { DashboardItem } from "@/lib/inteface";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown  , } from "lucide-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  SortingState,
+} from "@tanstack/react-table";
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
+const CryptoIcon = ({
+  ticker,
+  imageUrl,
+}: {
+  ticker: string;
+  imageUrl: string;
+}) => {
+  return (
+    <div className="relative w-8 h-8">
+      <Image
+        src={imageUrl || "/images/cripto.png"}
+        alt={ticker}
+        width={32}
+        height={32}
+        className="object-contain"
+      />
+    </div>
+  );
+};
+
+const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
+  // Definir las columnas
+  const columns: ColumnDef<DashboardItem>[] = [
+    {
+      accessorKey: "crypto_name",
+      header: "Criptomoneda",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <CryptoIcon
+            ticker={row.original.ticker}
+            imageUrl={row.original.image_url}
+          />
+          <span className="font-semibold">{row.original.crypto_name}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "total_invested",
+      header: ({ column }) => (
+        <div className="flex items-center gap-2">
+          <span>Total Invertido</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => column.toggleSorting()}
+          >
+            {column.getIsSorted() === "asc" ? <ArrowUpDown /> : <ArrowUpDown />}
+          </Button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <span className="font-bold">
+          {formatCurrency(row.original.total_invested)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "current_price",
+      header: "Precio Actual",
+      cell: ({ row }) => (
+        <span className="font-bold">
+          {formatCurrency(row.original.current_price)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "price_diff",
+      header: "Diferencia Precio",
+      cell: ({ row }) => {
+        const priceDiff = row.original.current_price - row.original.avg_price;
+        return (
+          <span
+            className={`font-bold ${
+              priceDiff >= 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {formatCurrency(priceDiff)}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "avg_price",
+      header: "Precio Promedio",
+      cell: ({ row }) => (
+        <span className="font-bold">
+          {formatCurrency(row.original.avg_price)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "current_profit",
+      header: ({ column }) => (
+        <div className="flex items-center gap-2">
+          <span>Profit Actual</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => column.toggleSorting()}
+          >
+            {column.getIsSorted() === "asc" ? <ArrowUpDown /> : <ArrowUpDown />}
+          </Button>
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="flex flex-col font-bold">
+          <span
+            className={`${
+              row.original.current_profit >= 0
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            {formatCurrency(row.original.current_profit)}
+          </span>
+          <span
+            className={`text-sm ${
+              row.original.profit_percent >= 0
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            {row.original.profit_percent.toFixed(2)}%
+          </span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "holdings",
+      header: "Tenencias",
+      cell: ({ row }) => {
+        const holdingsValue =
+          row.original.holdings * row.original.current_price;
+        return (
+          <div className="flex flex-col font-bold">
+            <span
+              className={`${
+                holdingsValue >= row.original.total_invested
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              {formatCurrency(holdingsValue)}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {row.original.holdings} {row.original.ticker}
+            </span>
+          </div>
+        );
+      },
+    },
+  ];
+
+  const [sorting, setSorting] = React.useState<SortingState>([{
+    id: "total_invested",
+    desc: true
+  }]);
+  
+  // Configurar la tabla con paginación
+  const table = useReactTable({
+    data: dashboardData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 6, // Mostrar 6 criptomonedas por página
+      },
+    },
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+  });
+
+  return (
+    <div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {table
+                .getHeaderGroups()
+                .map((headerGroup) =>
+                  headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))
+                )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No hay resultados.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="text-sm text-muted-foreground">
+          Página {table.getState().pagination.pageIndex + 1} de{" "}
+          {table.getPageCount()}
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Siguiente
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CryptoTable;
