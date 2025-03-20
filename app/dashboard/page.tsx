@@ -6,16 +6,15 @@ import DashboardPerformance from "@/components/dashboard/DashboardPerformance";
 
 export default function DashboardPage() {
   return (
-    <div className="container mx-auto p-2j md:p-8">
+    <div className="max-w-[100rem] mx-auto p-2 md:p-8">
       <DashboardContentLogin />
       <div className="flex justify-between items-center">
         <DashboardHoldings />
         <DashboardPerformance />
       </div>
       <div className="space-y-4">
-      <DashboardBalance />
-      <DashboardContent />
-
+        <DashboardBalance />
+        <DashboardContent />
       </div>
     </div>
   );

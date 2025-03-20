@@ -17,10 +17,10 @@ async function DashboardBalance() {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="bg-zinc-800 border-zinc-600">
         <CardHeader>
-          <CardTitle>Mis Criptomonedas</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-zinc-100">Mis Criptomonedas</CardTitle>
+          <CardDescription className="text-zinc-200">
             Resumen de tus inversiones en criptomonedas
           </CardDescription>
         </CardHeader>

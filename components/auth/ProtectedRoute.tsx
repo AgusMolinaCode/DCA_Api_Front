@@ -107,8 +107,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (!isClient || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Verificando autenticación...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-zinc-100" />
+        <span className="ml-1 text-zinc-100 text-lg md:text-2xl">Verificando autenticación...</span>
       </div>
     );
   }

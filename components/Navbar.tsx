@@ -128,10 +128,10 @@ export const Navbar = () => {
     setIsAuthenticated(true);
     setUserName(name);
 
-    // Establecer la cookie de expiración de sesión (5 horas)
-    const expirationTime = new Date().getTime() + 5 * 60 * 60 * 1000; // Tiempo actual + 5 horas
+    // Establecer la cookie de expiración de sesión (1 hora)
+    const expirationTime = new Date().getTime() + 1 * 60 * 60 * 1000; // Tiempo actual + 1 hora
     setCookieWithExpiration("session_expiration", expirationTime.toString());
-    console.log("Sesión iniciada, expirará en 5 horas");
+    console.log("Sesión iniciada, expirará en 1 hora");
   };
 
   // Función para manejar el logout
@@ -195,13 +195,13 @@ export const Navbar = () => {
     <div className="flex justify-around items-center p-4">
       <div className="flex items-center justify-center gap-4">
         <Link href="/" className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">DCA-app</h1>
+          <h1 className="text-2xl font-bold text-zinc-100">DCA-app</h1>
         </Link>
       </div>
       <div className="flex items-center gap-4">
         {isClient && isAuthenticated ? (
           <div className="flex items-center space-x-4">
-            <Button>
+            <Button className="text-zinc-100 bg-zinc-700 hover:bg-zinc-800 duration-300" >
               <Link href="/dashboard">Dashboard</Link>
             </Button>
             <Button onClick={handleLogout} variant="destructive">
@@ -211,7 +211,7 @@ export const Navbar = () => {
         ) : (
           <Dialog>
             <DialogTrigger asChild>
-              <Button>Acceder</Button>
+              <Button className="text-zinc-100 bg-zinc-700 hover:bg-zinc-800 duration-300">Acceder</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>

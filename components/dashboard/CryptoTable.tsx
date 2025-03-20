@@ -12,7 +12,12 @@ import {
 import Image from "next/image";
 import { DashboardItem } from "@/lib/inteface";
 import { Button } from "@/components/ui/button";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react";
 import { TokenIcon } from "@web3icons/react";
 
 import {
@@ -102,7 +107,9 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
             ticker={row.original.ticker}
             imageUrl={row.original.image_url}
           />
-          <span className="font-semibold">{row.original.crypto_name}</span>
+          <span className="font-semibold text-base">
+            {row.original.crypto_name}
+          </span>
         </div>
       ),
     },
@@ -110,7 +117,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
       accessorKey: "total_invested",
       header: ({ column }) => renderSortableHeader(column, "Total Invertido"),
       cell: ({ row }) => (
-        <span className="font-bold">
+        <span className="font-bold text-base">
           {formatCurrency(row.original.total_invested)}
         </span>
       ),
@@ -119,7 +126,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
       accessorKey: "current_price",
       header: "Precio Actual",
       cell: ({ row }) => (
-        <span className="font-bold">
+        <span className="font-bold text-base">
           {formatCurrency(row.original.current_price)}
         </span>
       ),
@@ -131,7 +138,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
         const priceDiff = row.original.current_price - row.original.avg_price;
         return (
           <span
-            className={`font-bold ${
+            className={`font-bold text-base ${
               priceDiff >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
@@ -144,7 +151,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
       accessorKey: "avg_price",
       header: "Precio Promedio",
       cell: ({ row }) => (
-        <span className="font-bold">
+        <span className="font-bold text-base">
           {formatCurrency(row.original.avg_price)}
         </span>
       ),
@@ -153,9 +160,9 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
       accessorKey: "current_profit",
       header: ({ column }) => renderSortableHeader(column, "Profit Actual"),
       cell: ({ row }) => (
-        <div className="flex flex-col font-bold">
+        <div className="flex flex-col font-semibold">
           <span
-            className={`${
+            className={`text-base ${
               row.original.current_profit >= 0
                 ? "text-green-600"
                 : "text-red-600"
@@ -184,7 +191,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
         return (
           <div className="flex flex-col font-bold">
             <span
-              className={`${
+              className={`text-base ${
                 holdingsValue >= row.original.total_invested
                   ? "text-green-600"
                   : "text-red-600"
@@ -192,7 +199,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
             >
               {formatCurrency(holdingsValue)}
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-zinc-400">
               {row.original.holdings} {row.original.ticker}
             </span>
           </div>
@@ -201,11 +208,13 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
     },
   ];
 
-  const [sorting, setSorting] = React.useState<SortingState>([{
-    id: "total_invested",
-    desc: true
-  }]);
-  
+  const [sorting, setSorting] = React.useState<SortingState>([
+    {
+      id: "total_invested",
+      desc: true,
+    },
+  ]);
+
   // Configurar la tabla con paginación
   const table = useReactTable({
     data: dashboardData,
@@ -226,24 +235,22 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
 
   return (
     <div>
-      <div className="rounded-md border">
+      <div className="rounded-md ">
         <Table>
           <TableHeader>
             <TableRow>
-              {table
-                .getHeaderGroups()
-                .map((headerGroup) =>
-                  headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))
-                )}
+              {table.getHeaderGroups().map((headerGroup) =>
+                headerGroup.headers.map((header) => (
+                  <TableHead className="text-zinc-200" key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -252,6 +259,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="hover:bg-muted/10 text-zinc-200"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -267,7 +275,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-zinc-200"
                 >
                   No hay resultados.
                 </TableCell>
@@ -277,7 +285,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
         </Table>
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-zinc-300">
           Página {table.getState().pagination.pageIndex + 1} de{" "}
           {table.getPageCount()}
         </div>
@@ -288,7 +296,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Anterior
+            <ArrowLeft className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
@@ -296,7 +304,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Siguiente
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </div>

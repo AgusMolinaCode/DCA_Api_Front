@@ -15,12 +15,12 @@ import { AddCryptoModal } from "./AddCryptoModal";
 
 // Función para obtener una cookie
 function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
-  
-  const cookies = document.cookie.split(';');
+  if (typeof document === "undefined") return null;
+
+  const cookies = document.cookie.split(";");
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].trim();
-    if (cookie.startsWith(name + '=')) {
+    if (cookie.startsWith(name + "=")) {
       return cookie.substring(name.length + 1);
     }
   }
@@ -47,7 +47,7 @@ export function DashboardContentLogin() {
       const storedUserName = getCookie("username");
 
       if (!token) {
-        router.push('/');
+        router.push("/");
         return;
       }
 
@@ -57,7 +57,7 @@ export function DashboardContentLogin() {
 
       setIsAuthenticated(true);
     } catch (error) {
-      router.push('/');
+      router.push("/");
     } finally {
       setIsLoading(false);
     }
@@ -79,9 +79,8 @@ export function DashboardContentLogin() {
   return (
     <div className="container mx-auto pb-18">
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-bold text-gray-500 gap-2">
-          <span className="text-2xl text-black font-bold ">{userName}</span>{" "}
-          Dashboard
+        <h1 className="text-lg font-bold text-zinc-300 gap-2">
+          <span className="text-2xl text-zinc-100 font-bold ">{userName}</span>{" "}
         </h1>
         <div className="">
           <AddCryptoModal />
