@@ -34,7 +34,7 @@ async function DashboardBalance() {
               <p>No hay datos disponibles</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 min-h-[493px]">
               <CryptoTable dashboardData={dashboardData} />
             </div>
           )}

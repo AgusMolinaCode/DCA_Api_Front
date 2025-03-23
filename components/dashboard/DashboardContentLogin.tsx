@@ -2,15 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Loader2, Plus } from "lucide-react";
-import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
 import { AddCryptoModal } from "./AddCryptoModal";
 
 // Función para obtener una cookie

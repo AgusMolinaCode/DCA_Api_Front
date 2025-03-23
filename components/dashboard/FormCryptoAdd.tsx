@@ -35,7 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DialogFooter } from "@/components/ui/dialog";
 import { CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { Crypto, CryptoData } from "@/lib/inteface";
+import { Crypto, CryptoData } from "@/lib/interface";
 
 interface FormCryptoAddProps {
   form: UseFormReturn<CryptoFormValues>;
@@ -54,6 +54,7 @@ interface FormCryptoAddProps {
   enableManualMode: () => void;
   searchError: string | null;
   onReset: () => void;
+  isEditMode?: boolean;
 }
 
 const FormCryptoAdd = ({
@@ -73,6 +74,7 @@ const FormCryptoAdd = ({
   enableManualMode,
   searchError,
   onReset,
+  isEditMode,
 }: FormCryptoAddProps) => {
   React.useEffect(() => {
     if (manualMode) {
@@ -97,7 +99,7 @@ const FormCryptoAdd = ({
             name="ticker"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Buscar por ticker</FormLabel>
+                <FormLabel>Ticker</FormLabel>
                 <div className="flex space-x-2">
                   <FormControl>
                     <Input
@@ -113,7 +115,8 @@ const FormCryptoAdd = ({
                           handleTickerSearch();
                         }
                       }}
-                      disabled={manualMode}
+                      disabled={manualMode || isEditMode}
+                      readOnly={isEditMode}
                     />
                   </FormControl>
                   <Button
@@ -121,7 +124,9 @@ const FormCryptoAdd = ({
                     size="icon"
                     variant="outline"
                     onClick={handleTickerSearch}
-                    disabled={isSearching || !field.value || manualMode}
+                    disabled={
+                      isSearching || !field.value || manualMode || isEditMode
+                    }
                   >
                     {isSearching ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -131,7 +136,9 @@ const FormCryptoAdd = ({
                   </Button>
                 </div>
                 <FormDescription>
-                  Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin, ETH para Ethereum, etc.)
+                  {isEditMode
+                    ? "No se puede modificar el ticker en modo edición"
+                    : "Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin, ETH para Ethereum, etc.)"}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -203,7 +210,8 @@ const FormCryptoAdd = ({
                   <Input
                     placeholder="Bitcoin"
                     {...field}
-                    readOnly={!!selectedCrypto && !manualMode}
+                    readOnly={(!!selectedCrypto && !manualMode) || isEditMode}
+                    disabled={isEditMode}
                   />
                 </FormControl>
                 <FormMessage />
@@ -292,10 +300,16 @@ const FormCryptoAdd = ({
 
         <div>
           {/* Campo oculto para la URL de la imagen */}
-          <input 
-            type="hidden" 
-            {...form.register("image_url")} 
-            value={manualMode ? "/images/cripto.png" : (selectedCrypto?.imageUrl || "")} 
+          <input
+            type="hidden"
+            {...form.register("image_url")}
+            value={
+              isEditMode
+                ? form.getValues("image_url") // Mantener el valor original en modo edición
+                : manualMode
+                ? "/images/cripto.png"
+                : selectedCrypto?.imageUrl || ""
+            }
           />
 
           <div className="grid gap-4">

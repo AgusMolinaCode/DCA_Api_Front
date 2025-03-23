@@ -20,18 +20,29 @@ export interface Crypto {
 
   export interface Transaction {
     id: string;
+    user_id?: string;
     crypto_name: string;
     ticker: string;
     amount: number;
     purchase_price: number;
-    image_url?: string;
+    total: number;
     date: string;
+    created_at?: string;
     type: "compra" | "venta";
     note?: string;
+    image_url?: string;
+  }
+  
+  export interface TransactionWithPerformance {
+    transaction: Transaction;
+    current_price: number;
+    current_value: number;
+    gain_loss: number;
+    gain_loss_percent: number;
   }
   
   export interface TransactionListProps {
-    transactions: Transaction[];
+    transactions: TransactionWithPerformance[];
   }
 
   export interface DashboardItem {

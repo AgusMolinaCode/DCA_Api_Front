@@ -89,8 +89,8 @@ export default function DashboardContent() {
   if (!isClient || isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-        <span>Cargando transacciones...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-zinc-100 mr-2" />
+        <span className="text-zinc-100 text-lg">Cargando transacciones...</span>
       </div>
     );
   }

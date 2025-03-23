@@ -26,5 +26,7 @@
         "default": "Jetbrains Mono"
     },
     "css.lint.fontFaceProperties": "warning",
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "zenMode.silentNotifications": false,
+    "githubPullRequests.notifications": "pullRequests"
 }

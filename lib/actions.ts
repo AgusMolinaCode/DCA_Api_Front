@@ -207,7 +207,7 @@ export async function deleteTransaction(id: string) {
     }
     
     // Revalidar la ruta del dashboard para actualizar los datos
-    revalidatePath('/dashboard');
+    // revalidatePath('/dashboard');
     
     return { success: true };
   } catch (error) {
@@ -217,3 +217,45 @@ export async function deleteTransaction(id: string) {
     };
   }
 }
+
+/**
+ * Edita una transacción
+ * @param id ID de la transacción
+ * @param data Datos de la transacción
+ * @returns Resultado de la operación
+ */
+export async function editTransaction(id: string, data: CryptoData) {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/transactions/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error al editar la transacción: ${response.status} ${response.statusText}`);
+    }
+    
+    // Revalidar la ruta del dashboard para actualizar los datos
+    revalidatePath('/dashboard');
+    
+    return { success: true };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al editar la transacción" 
+    };
+  }
+}
+ 

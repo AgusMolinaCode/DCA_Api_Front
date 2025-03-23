@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Image from "next/image";
-import { DashboardItem } from "@/lib/inteface";
+import { DashboardItem } from "@/lib/interface";
 import { Button } from "@/components/ui/button";
 import {
   ArrowUp,
@@ -223,7 +223,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
       pagination: {
-        pageSize: 6, // Mostrar 6 criptomonedas por página
+        pageSize: 10, // Mostrar 10 criptomonedas por página
       },
     },
     onSortingChange: setSorting,
@@ -234,11 +234,11 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
   });
 
   return (
-    <div>
-      <div className="rounded-md ">
+    <div className="flex flex-col h-full min-h-[500px] justify-between">
+      <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               {table.getHeaderGroups().map((headerGroup) =>
                 headerGroup.headers.map((header) => (
                   <TableHead className="text-zinc-200" key={header.id}>
@@ -284,7 +284,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between space-x-2 py-4">
+      <div className="flex items-center justify-between space-x-2 py-4 mt-auto">
         <div className="text-sm text-zinc-300">
           Página {table.getState().pagination.pageIndex + 1} de{" "}
           {table.getPageCount()}
