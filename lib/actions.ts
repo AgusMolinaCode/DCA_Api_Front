@@ -169,6 +169,9 @@ export async function getTransactions() {
         }
       }
     }
+
+    // Revalidar la ruta del dashboard para actualizar los datos
+    revalidatePath('/dashboard');
     
     return { success: true, data: transactions };
   } catch (error) {
@@ -207,7 +210,7 @@ export async function deleteTransaction(id: string) {
     }
     
     // Revalidar la ruta del dashboard para actualizar los datos
-    // revalidatePath('/dashboard');
+    revalidatePath('/dashboard');
     
     return { success: true };
   } catch (error) {

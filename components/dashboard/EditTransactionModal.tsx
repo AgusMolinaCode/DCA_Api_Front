@@ -150,6 +150,16 @@ export default function EditTransactionModal({
         throw new Error(result.error || "Error al actualizar la transacción");
       }
       
+      // Actualizar el objeto transaction con los nuevos valores
+      if (transaction) {
+        transaction.amount = cryptoData.amount;
+        transaction.purchase_price = cryptoData.purchase_price;
+        transaction.total = cryptoData.total;
+        transaction.type = cryptoData.type;
+        transaction.date = new Date(cryptoData.date);
+        transaction.note = cryptoData.note;
+      }
+      
       // Mostrar mensaje de éxito
       setSubmitSuccess(true);
       

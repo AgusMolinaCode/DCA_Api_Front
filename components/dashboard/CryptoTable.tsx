@@ -234,7 +234,7 @@ const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
   });
 
   return (
-    <div className="flex flex-col h-full min-h-[500px] justify-between">
+    <div className="flex flex-col h-full justify-between">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
