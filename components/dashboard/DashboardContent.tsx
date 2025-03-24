@@ -46,13 +46,14 @@ export default function DashboardContent() {
         // Verificar que la URL del backend esté definida
         const apiUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:8080';
 
-        // Realizar la petición al servidor
+        // Realizar la petición al servidor con cache: 'no-store' para evitar caché
         const response = await fetch(`${apiUrl}/transactions`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          cache: 'no-store',
         });
 
         if (!response.ok) {
@@ -110,4 +111,3 @@ export default function DashboardContent() {
 
   return <TransactionList transactions={transactions} />;
 }
-

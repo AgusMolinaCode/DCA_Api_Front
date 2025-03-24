@@ -386,108 +386,26 @@ export function TransactionList({ transactions }: TransactionListProps) {
 
   // Función para manejar la eliminación de una transacción
   const handleTransactionDeleted = () => {
-    // Si tenemos una transacción seleccionada
-    if (selectedTransaction) {
-      // Eliminar la transacción del estado local
-      const updatedTransactions = transactions.filter(
-        (item) => item.transaction.id !== selectedTransaction.transaction.id
-      );
-      
-      // Aplicar los filtros actuales a las transacciones actualizadas
-      let filtered = updatedTransactions;
-      
-      // Filtrar por fecha si hay una fecha seleccionada
-      if (selectedDate) {
-        filtered = filtered.filter((item) => {
-          const transDate = new Date(item.transaction.date);
-          return (
-            transDate.getDate() === selectedDate.getDate() &&
-            transDate.getMonth() === selectedDate.getMonth() &&
-            transDate.getFullYear() === selectedDate.getFullYear()
-          );
-        });
-      }
-      
-      // Filtrar por término de búsqueda (ticker o nombre de criptomoneda)
-      if (searchTerm.trim() !== "") {
-        const searchTermLower = searchTerm.trim().toLowerCase();
-        filtered = filtered.filter(
-          (item) =>
-            item.transaction.ticker.toLowerCase().includes(searchTermLower) ||
-            item.transaction.crypto_name.toLowerCase().includes(searchTermLower)
-        );
-      }
-      
-      // Actualizar el estado filteredData
-      setFilteredData(filtered);
-      
-      // Cerrar el diálogo
-      setIsDialogOpen(false);
-      
-      // Limpiar la transacción seleccionada
-      setSelectedTransaction(null);
-    }
+    // Cerrar el diálogo
+    setIsDialogOpen(false);
+    
+    // Limpiar la transacción seleccionada
+    setSelectedTransaction(null);
+    
+    // Recargar la página para obtener los datos actualizados
+    window.location.reload();
   };
 
   // Función para manejar la actualización de una transacción
   const handleTransactionUpdated = () => {
-    // Si tenemos una transacción seleccionada para editar
-    if (transactionToEdit) {
-      // Cerrar el modal de edición
-      setIsEditModalOpen(false);
-      
-      // Actualizar la transacción en el estado local
-      const updatedTransactions = [...transactions].map((item) => {
-        if (item.transaction.id === transactionToEdit.id) {
-          // Actualizar los valores editables (cantidad, precio, tipo, fecha, nota)
-          // pero mantener el resto de la información igual
-          return {
-            ...item,
-            transaction: {
-              ...item.transaction,
-              amount: parseFloat(transactionToEdit.amount),
-              purchase_price: parseFloat(transactionToEdit.purchase_price),
-              total: parseFloat(transactionToEdit.amount) * parseFloat(transactionToEdit.purchase_price),
-              type: transactionToEdit.type,
-              date: transactionToEdit.date.toISOString(),
-              note: transactionToEdit.note,
-            },
-          };
-        }
-        return item;
-      });
-      
-      // Aplicar los filtros actuales a las transacciones actualizadas
-      let filtered = updatedTransactions;
-      
-      // Filtrar por fecha si hay una fecha seleccionada
-      if (selectedDate) {
-        filtered = filtered.filter((item) => {
-          const transDate = new Date(item.transaction.date);
-          return (
-            transDate.getDate() === selectedDate.getDate() &&
-            transDate.getMonth() === selectedDate.getMonth() &&
-            transDate.getFullYear() === selectedDate.getFullYear()
-          );
-        });
-      }
-      
-      // Filtrar por término de búsqueda (ticker o nombre de criptomoneda)
-      if (searchTerm.trim() !== "") {
-        const searchTermLower = searchTerm.trim().toLowerCase();
-        filtered = filtered.filter(
-          (item) =>
-            item.transaction.ticker.toLowerCase().includes(searchTermLower) ||
-            item.transaction.crypto_name.toLowerCase().includes(searchTermLower)
-        );
-      }
-      
-      // Actualizar el estado filteredData
-      setFilteredData(filtered);
-      
-      // Limpiar la transacción seleccionada para editar
-      setTransactionToEdit(null);
-    }
+    // Cerrar el modal de edición
+    setIsEditModalOpen(false);
+    
+    // Limpiar la transacción seleccionada para editar
+    setTransactionToEdit(null);
+    
+    // Recargar la página para obtener los datos actualizados
+    window.location.reload();
   };
 
   // Función para manejar la edición de una transacción
