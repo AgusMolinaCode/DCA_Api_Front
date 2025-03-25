@@ -8,8 +8,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { TransactionListProps, Transaction } from "@/lib/interface";
-import { Separator } from "@/components/ui/separator";
+import { TransactionListProps } from "@/lib/interface";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -20,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, Search, X, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -32,7 +30,6 @@ import {
 import { TokenIcon } from "@web3icons/react";
 import Image from "next/image";
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
@@ -78,7 +75,7 @@ const CryptoIcon = ({
   );
 };
 
-export function TransactionList({ transactions }: TransactionListProps) {
+export function TransactionList({ transactions, refreshTransactions }: TransactionListProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -392,8 +389,10 @@ export function TransactionList({ transactions }: TransactionListProps) {
     // Limpiar la transacción seleccionada
     setSelectedTransaction(null);
     
-    // Recargar la página para obtener los datos actualizados
-    window.location.reload();
+    // Actualizar los datos
+    if (refreshTransactions) {
+      refreshTransactions();
+    }
   };
 
   // Función para manejar la actualización de una transacción
@@ -404,8 +403,10 @@ export function TransactionList({ transactions }: TransactionListProps) {
     // Limpiar la transacción seleccionada para editar
     setTransactionToEdit(null);
     
-    // Recargar la página para obtener los datos actualizados
-    window.location.reload();
+    // Actualizar los datos
+    if (refreshTransactions) {
+      refreshTransactions();
+    }
   };
 
   // Función para manejar la edición de una transacción

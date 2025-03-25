@@ -46,8 +46,8 @@ export default function EditTransactionModal({
     defaultValues: {
       crypto_name: transaction?.crypto_name || "",
       ticker: transaction?.ticker || "",
-      amount: transaction?.amount || "",
-      purchase_price: transaction?.purchase_price || "",
+      amount: transaction?.amount?.toString() || "",
+      purchase_price: transaction?.purchase_price?.toString() || "",
       note: transaction?.note || "",
       type: transaction?.type || "compra",
       image_url: transaction?.image_url || "/images/cripto.png",
@@ -60,8 +60,8 @@ export default function EditTransactionModal({
       form.reset({
         crypto_name: transaction.crypto_name || "",
         ticker: transaction.ticker || "",
-        amount: transaction.amount || "",
-        purchase_price: transaction.purchase_price || "",
+        amount: transaction.amount?.toString() || "",
+        purchase_price: transaction.purchase_price?.toString() || "",
         note: transaction.note || "",
         type: transaction.type || "compra",
         image_url: transaction.image_url || "/images/cripto.png",
@@ -93,8 +93,8 @@ export default function EditTransactionModal({
       form.reset({
         crypto_name: transaction.crypto_name || "",
         ticker: transaction.ticker || "",
-        amount: transaction.amount || "",
-        purchase_price: transaction.purchase_price || "",
+        amount: transaction.amount?.toString() || "",
+        purchase_price: transaction.purchase_price?.toString() || "",
         note: transaction.note || "",
         type: transaction.type || "compra",
         image_url: transaction.image_url || "/images/cripto.png",
@@ -131,15 +131,14 @@ export default function EditTransactionModal({
         // Mantener los valores originales para estos campos
         crypto_name: transaction.crypto_name,
         ticker: transaction.ticker,
-        // Usar siempre la imagen original de la transacción
         image_url: transaction.image_url || "/images/cripto.png",
+        type: transaction.type, // Mantener el tipo original
         // Campos editables
         amount: parseFloat(values.amount),
         purchase_price: parseFloat(values.purchase_price),
         total: parseFloat(values.amount) * parseFloat(values.purchase_price),
         date: date.toISOString(),
         added_manually: true,
-        type: values.type as "compra" | "venta",
         note: values.note,
       };
       
@@ -155,7 +154,6 @@ export default function EditTransactionModal({
         transaction.amount = cryptoData.amount;
         transaction.purchase_price = cryptoData.purchase_price;
         transaction.total = cryptoData.total;
-        transaction.type = cryptoData.type;
         transaction.date = new Date(cryptoData.date);
         transaction.note = cryptoData.note;
       }
@@ -213,7 +211,7 @@ export default function EditTransactionModal({
           isSearching={isSearching}
           enableManualMode={enableManualMode}
           searchError={searchError}
-          onReset={handleReset}
+          onReset={() => onOpenChange(false)}
           isEditMode={true} // Indicar que estamos en modo edición
         />
       </DialogContent>

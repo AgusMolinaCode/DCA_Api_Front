@@ -43,6 +43,7 @@ export interface Crypto {
   
   export interface TransactionListProps {
     transactions: TransactionWithPerformance[];
+    refreshTransactions?: () => void;
   }
 
   export interface DashboardItem {

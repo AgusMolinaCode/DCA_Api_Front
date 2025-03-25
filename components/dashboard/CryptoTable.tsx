@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -46,25 +46,44 @@ const CryptoIcon = ({
   ticker: string;
   imageUrl: string;
 }) => {
+  // Estado para controlar si hay un error al cargar el TokenIcon
+  const [iconError, setIconError] = useState(false);
+
   return (
     <div className="relative w-8 h-8">
-      <TokenIcon
-        name={ticker.toUpperCase()}
-        fallback={
-          <Image
-            src={imageUrl || "/images/cripto.png"}
-            alt={ticker}
-            width={32}
-            height={32}
-            className="object-contain"
-          />
-        }
-      />
+      {!iconError ? (
+        <TokenIcon
+          name={ticker.toUpperCase()}
+          onError={() => setIconError(true)}
+          fallback={
+            <Image
+              src={imageUrl || "/images/cripto.png"}
+              alt={ticker}
+              width={32}
+              height={32}
+              className="object-contain"
+            />
+          }
+        />
+      ) : (
+        <Image
+          src={imageUrl || "/images/cripto.png"}
+          alt={ticker}
+          width={32}
+          height={32}
+          className="object-contain"
+        />
+      )}
     </div>
   );
 };
 
-const CryptoTable = ({ dashboardData }: { dashboardData: DashboardItem[] }) => {
+interface CryptoTableProps {
+  dashboardData: DashboardItem[];
+  refreshData?: () => void;
+}
+
+const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
   // Función para renderizar el encabezado de columna con botón de ordenamiento
   const renderSortableHeader = (column: any, title: string) => {
     // Si la columna no está ordenada, establecer el orden descendente por defecto

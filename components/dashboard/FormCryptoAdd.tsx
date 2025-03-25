@@ -94,58 +94,65 @@ const FormCryptoAdd = ({
     <Form {...form}>
       <form onSubmit={handleFormSubmit} className="space-y-4">
         <div className="mb-4">
-          <FormField
-            control={form.control}
-            name="ticker"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ticker</FormLabel>
-                <div className="flex space-x-2">
-                  <FormControl>
-                    <Input
-                      placeholder="BTC, ETH, SOL..."
-                      {...field}
-                      onChange={(e) => {
-                        handleTickerChange(e.target.value);
-                      }}
-                      onBlur={handleTickerSearch}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleTickerSearch();
-                        }
-                      }}
-                      disabled={manualMode || isEditMode}
-                      readOnly={isEditMode}
-                    />
-                  </FormControl>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={handleTickerSearch}
-                    disabled={
-                      isSearching || !field.value || manualMode || isEditMode
-                    }
-                  >
-                    {isSearching ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Search className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                <FormDescription>
-                  {isEditMode
-                    ? "No se puede modificar el ticker en modo edición"
-                    : "Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin, ETH para Ethereum, etc.)"}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Mostrar el campo de ticker solo si NO estamos en modo edición */}
+          {!isEditMode ? (
+            <FormField
+              control={form.control}
+              name="ticker"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ticker</FormLabel>
+                  <div className="flex space-x-2">
+                    <FormControl>
+                      <Input
+                        placeholder="BTC, ETH, SOL..."
+                        {...field}
+                        onChange={(e) => {
+                          handleTickerChange(e.target.value);
+                        }}
+                        onBlur={handleTickerSearch}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleTickerSearch();
+                          }
+                        }}
+                        disabled={manualMode}
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      onClick={handleTickerSearch}
+                      disabled={
+                        isSearching || !field.value || manualMode
+                      }
+                    >
+                      {isSearching ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Search className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <FormDescription>
+                    Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin, ETH para Ethereum, etc.)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            /* Campo oculto para el ticker en modo edición */
+            <input
+              type="hidden"
+              {...form.register("ticker")}
+              value={form.getValues("ticker")}
+            />
+          )}
 
-          {searchError && !manualMode && (
+          {searchError && !manualMode && !isEditMode && (
             <Alert variant="destructive" className="mt-2">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex justify-between items-center">
@@ -162,7 +169,7 @@ const FormCryptoAdd = ({
             </Alert>
           )}
 
-          {manualMode && (
+          {manualMode && !isEditMode && (
             <Alert className="mt-2 bg-yellow-50 text-yellow-800 border-yellow-200">
               <AlertDescription>
                 Modo manual activado. Ingresa los datos de la criptomoneda.
@@ -199,45 +206,75 @@ const FormCryptoAdd = ({
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="crypto_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Bitcoin"
-                    {...field}
-                    readOnly={(!!selectedCrypto && !manualMode) || isEditMode}
-                    disabled={isEditMode}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* En modo edición, mostrar un resumen de la criptomoneda en lugar del campo de nombre */}
+        {isEditMode ? (
+          <div className="bg-muted p-4 rounded-md mb-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 mr-3">
+                <img 
+                  src={form.getValues("image_url") || "/images/cripto.png"}
+                  alt={form.getValues("crypto_name")}
+                  className="w-8 h-8"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images/cripto.png";
+                  }}
+                />
+              </div>
+              <div>
+                <h3 className="font-medium">{form.getValues("crypto_name")}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {form.getValues("ticker")}
+                </p>
+              </div>
+              <div className="ml-auto">
+                <p className="text-sm text-muted-foreground">
+                  Tipo: {form.getValues("type") === "compra" ? "Compra" : "Venta"}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="crypto_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombre</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Bitcoin"
+                      {...field}
+                      readOnly={(!!selectedCrypto && !manualMode) || isEditMode}
+                      disabled={isEditMode}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="amount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cantidad</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.00000001"
-                    placeholder="0.5"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+          </div>
+        )}
+        
+        <FormField
+          control={form.control}
+          name="amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cantidad</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.00000001"
+                  placeholder="0.5"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -248,23 +285,10 @@ const FormCryptoAdd = ({
                 <FormLabel>Precio de compra</FormLabel>
                 <FormControl>
                   <Input
-                    {...field}
                     type="number"
                     step="0.01"
-                    placeholder="0.00 USD"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value) {
-                        const numValue = parseFloat(value);
-                        if (!isNaN(numValue)) {
-                          field.onChange(value);
-                        } else {
-                          field.onChange(value);
-                        }
-                      } else {
-                        field.onChange("");
-                      }
-                    }}
+                    placeholder="20000"
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -272,30 +296,12 @@ const FormCryptoAdd = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl className="w-full">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un tipo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="w-full">
-                    <SelectItem value="compra">Compra</SelectItem>
-                    <SelectItem value="venta">Venta</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div>
+            <FormLabel className="text-sm pb-1">Total</FormLabel>
+            <div className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+              ${total.toFixed(2)}
+            </div>
+          </div>
         </div>
 
         <div>
@@ -304,17 +310,31 @@ const FormCryptoAdd = ({
             type="hidden"
             {...form.register("image_url")}
             value={
-              isEditMode
-                ? form.getValues("image_url") // Mantener el valor original en modo edición
-                : manualMode
-                ? "/images/cripto.png"
-                : selectedCrypto?.imageUrl || ""
+              selectedCrypto && !manualMode
+                ? selectedCrypto?.imageUrl
+                : "/images/cripto.png"
             }
           />
 
-          <div className="grid gap-4">
+          {/* Campo oculto para el tipo - Siempre establecido como "compra" */}
+          <input
+            type="hidden"
+            {...form.register("type")}
+            value={isEditMode ? form.getValues("type") : "compra"}
+          />
+
+          {/* Campo oculto para el nombre en modo edición */}
+          {isEditMode && (
+            <input
+              type="hidden"
+              {...form.register("crypto_name")}
+              value={form.getValues("crypto_name")}
+            />
+          )}
+
+          <div className="grid gap-4 pb-4">
             <div>
-              <FormLabel>Fecha</FormLabel>
+              <FormLabel className="text-sm pb-1">Fecha</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -349,11 +369,11 @@ const FormCryptoAdd = ({
             name="note"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nota</FormLabel>
+                <FormLabel>Nota (opcional)</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Agrega una nota sobre esta transacción"
-                    className="resize-none h-[48px]"
+                    className="resize-none"
                     {...field}
                   />
                 </FormControl>
@@ -363,46 +383,46 @@ const FormCryptoAdd = ({
           />
         </div>
 
-        <div className="bg-muted p-3 rounded-md">
-          <div className="flex justify-between items-center">
-            <span className="font-medium">Total:</span>
-            <span className="font-bold text-lg">${total.toFixed(2)} USD</span>
-          </div>
-        </div>
-
         {submitSuccess && (
           <Alert className="bg-green-50 text-green-800 border-green-200">
-            <AlertDescription className="flex items-center">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Transacción guardada exitosamente
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              {isEditMode
+                ? "Transacción actualizada correctamente"
+                : "Transacción agregada correctamente"}
             </AlertDescription>
           </Alert>
         )}
 
         {submitError && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4 mr-2" />
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>{submitError}</AlertDescription>
           </Alert>
         )}
 
-        <div className="flex gap-2 pt-2">
-          <Button type="submit" className="flex-1" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              "Guardar"
-            )}
-          </Button>
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"
             onClick={onReset}
             disabled={isSubmitting}
           >
-            Limpiar
+            Cancelar
           </Button>
-        </div>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditMode ? "Actualizando..." : "Guardando..."}
+              </>
+            ) : isEditMode ? (
+              "Actualizar"
+            ) : (
+              "Guardar"
+            )}
+          </Button>
+        </DialogFooter>
       </form>
     </Form>
   );

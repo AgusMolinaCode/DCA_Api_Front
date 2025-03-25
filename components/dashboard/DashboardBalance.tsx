@@ -9,7 +9,7 @@ import {
 import { getTrasactionsDashboard } from "@/lib/actions";
 import CryptoTable from "./CryptoTable";
 
-async function DashboardBalance() {
+async function DashboardBalance({ refreshData }: { refreshData?: () => void }) {
   const response = await getTrasactionsDashboard();
   const dashboardData =
     response.success && response.data ? response.data.dashboard || [] : [];
@@ -35,7 +35,7 @@ async function DashboardBalance() {
             </div>
           ) : (
             <div className="space-y-3">
-              <CryptoTable dashboardData={dashboardData} />
+              <CryptoTable dashboardData={dashboardData} refreshData={refreshData} />
             </div>
           )}
         </CardContent>

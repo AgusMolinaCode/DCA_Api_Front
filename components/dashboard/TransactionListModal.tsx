@@ -257,7 +257,7 @@ const TransactionListModal = ({
               <Button
                 onClick={handleEditClick}
                 variant="outline"
-                className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300"
+                className="bg-blue-500/20 hover:bg-blue-500/30 text-zinc-100 hover:text-zinc-100"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Editar
@@ -270,7 +270,7 @@ const TransactionListModal = ({
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
-                    className="bg-red-500/20 hover:bg-red-500/30 text-red-300"
+                    className="bg-red-500/20 hover:bg-red-500/30 text-zinc-100 hover:text-zinc-100"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Eliminar
