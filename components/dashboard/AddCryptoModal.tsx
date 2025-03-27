@@ -198,6 +198,12 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
     setSubmitError(null);
   };
 
+  // Cancelar y cerrar el modal
+  const handleCancel = () => {
+    handleReset();
+    setOpen(false);
+  };
+
   // Calcular el total cuando cambian amount o purchase_price
   const amount = parseFloat(form.watch("amount") || "0");
   const purchasePrice = parseFloat(form.watch("purchase_price") || "0");
@@ -311,6 +317,7 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
           enableManualMode={enableManualMode}
           searchError={searchError}
           onReset={handleReset}
+          onCancel={handleCancel}
         />
       </DialogContent>
     </Dialog>

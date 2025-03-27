@@ -212,6 +212,7 @@ export default function EditTransactionModal({
           enableManualMode={enableManualMode}
           searchError={searchError}
           onReset={() => onOpenChange(false)}
+          onCancel={() => onOpenChange(false)}
           isEditMode={true} // Indicar que estamos en modo edición
         />
       </DialogContent>

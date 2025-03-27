@@ -54,6 +54,7 @@ interface FormCryptoAddProps {
   enableManualMode: () => void;
   searchError: string | null;
   onReset: () => void;
+  onCancel?: () => void; // Nueva propiedad opcional para cancelar y cerrar el modal
   isEditMode?: boolean;
 }
 
@@ -74,6 +75,7 @@ const FormCryptoAdd = ({
   enableManualMode,
   searchError,
   onReset,
+  onCancel,
   isEditMode,
 }: FormCryptoAddProps) => {
   React.useEffect(() => {
@@ -125,9 +127,7 @@ const FormCryptoAdd = ({
                       size="icon"
                       variant="outline"
                       onClick={handleTickerSearch}
-                      disabled={
-                        isSearching || !field.value || manualMode
-                      }
+                      disabled={isSearching || !field.value || manualMode}
                     >
                       {isSearching ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -137,7 +137,8 @@ const FormCryptoAdd = ({
                     </Button>
                   </div>
                   <FormDescription>
-                    Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin, ETH para Ethereum, etc.)
+                    Ingresa el ticker de la criptomoneda (ej: BTC para Bitcoin,
+                    ETH para Ethereum, etc.)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -208,30 +209,53 @@ const FormCryptoAdd = ({
 
         {/* En modo edición, mostrar un resumen de la criptomoneda en lugar del campo de nombre */}
         {isEditMode ? (
-          <div className="bg-muted p-4 rounded-md mb-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 mr-3">
-                <img 
-                  src={form.getValues("image_url") || "/images/cripto.png"}
-                  alt={form.getValues("crypto_name")}
-                  className="w-8 h-8"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/images/cripto.png";
-                  }}
-                />
-              </div>
-              <div>
-                <h3 className="font-medium">{form.getValues("crypto_name")}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {form.getValues("ticker")}
-                </p>
-              </div>
-              <div className="ml-auto">
-                <p className="text-sm text-muted-foreground">
-                  Tipo: {form.getValues("type") === "compra" ? "Compra" : "Venta"}
-                </p>
+          <div>
+            <div className="bg-muted p-4 rounded-md mb-4">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 mr-3">
+                  <img
+                    src={form.getValues("image_url") || "/images/cripto.png"}
+                    alt={form.getValues("crypto_name")}
+                    className="w-8 h-8"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/images/cripto.png";
+                    }}
+                  />
+                </div>
+                <div>
+                  <h3 className="font-medium">
+                    {form.getValues("crypto_name")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {form.getValues("ticker")}
+                  </p>
+                </div>
+                <div className="ml-auto">
+                  <p className="text-sm text-muted-foreground">
+                    Tipo:{" "}
+                    {form.getValues("type") === "compra" ? "Compra" : "Venta"}
+                  </p>
+                </div>
               </div>
             </div>
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cantidad</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.00000001"
+                      placeholder="0.5"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4">
@@ -254,27 +278,26 @@ const FormCryptoAdd = ({
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cantidad</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.00000001"
+                      placeholder="0.5"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         )}
-        
-        <FormField
-          control={form.control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cantidad</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.00000001"
-                  placeholder="0.5"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -405,7 +428,7 @@ const FormCryptoAdd = ({
           <Button
             type="button"
             variant="outline"
-            onClick={onReset}
+            onClick={onCancel}
             disabled={isSubmitting}
           >
             Cancelar
