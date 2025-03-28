@@ -56,6 +56,26 @@ export const cryptoFormSchema = z.object({
 
 export type CryptoFormValues = z.infer<typeof cryptoFormSchema>;
 
+// Esquema de validación para el formulario de venta
+export const sellCryptoSchema = z.object({
+  amount: z
+    .string()
+    .min(1, "La cantidad es requerida")
+    .refine((val) => !isNaN(parseFloat(val)), "Debe ser un número válido")
+    .refine((val) => parseFloat(val) > 0, "La cantidad debe ser mayor a 0"),
+  sell_price: z
+    .string()
+    .min(1, "El precio de venta es requerido")
+    .refine((val) => !isNaN(parseFloat(val)), "Debe ser un número válido")
+    .refine((val) => parseFloat(val) > 0, "El precio de venta debe ser mayor a 0"),
+  note: z
+    .string()
+    .max(200, "La nota no puede exceder los 200 caracteres")
+    .optional(),
+});
+
+export type SellCryptoFormValues = z.infer<typeof sellCryptoSchema>;
+
 export const resetPasswordSchema = z.object({
     password: z.string().min(6, {
       message: "La contraseña debe tener al menos 6 caracteres.",

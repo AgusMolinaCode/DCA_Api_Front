@@ -19,6 +19,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { TokenIcon } from "@web3icons/react";
+import { SellCryptoModal } from "./SellCryptoModal";
 
 import {
   ColumnDef,
@@ -84,6 +85,16 @@ interface CryptoTableProps {
 }
 
 const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
+
+   // Estado para el modal de venta
+   const [sellModalOpen, setSellModalOpen] = useState(false);
+   const [selectedCrypto, setSelectedCrypto] = useState<DashboardItem | null>(null);
+ 
+   // Función para abrir el modal de venta con la criptomoneda seleccionada
+   const handleSellClick = (crypto: DashboardItem) => {
+     setSelectedCrypto(crypto);
+     setSellModalOpen(true);
+   };
   // Función para renderizar el encabezado de columna con botón de ordenamiento
   const renderSortableHeader = (column: any, title: string) => {
     // Si la columna no está ordenada, establecer el orden descendente por defecto
@@ -117,6 +128,20 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
 
   // Definir las columnas
   const columns: ColumnDef<DashboardItem>[] = [
+    {
+      id: "actions",
+      header: "Acciones",
+      cell: ({ row }) => (
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => handleSellClick(row.original)}
+          disabled={row.original.holdings <= 0}
+        >
+          Vender
+        </Button>
+      ),
+    },
     {
       accessorKey: "crypto_name",
       header: "Criptomoneda",
@@ -255,6 +280,12 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
   return (
     <div className="flex flex-col h-full justify-between">
       <div className="overflow-x-auto">
+        <SellCryptoModal
+          open={sellModalOpen}
+          onOpenChange={setSellModalOpen}
+          crypto={selectedCrypto}
+          onTransactionComplete={refreshData}
+        />
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
