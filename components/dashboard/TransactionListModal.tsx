@@ -254,14 +254,16 @@ const TransactionListModal = ({
 
           <DialogFooter className="flex justify-between gap-2">
             <div className="flex gap-2">
-              <Button
-                onClick={handleEditClick}
-                variant="outline"
-                className="bg-blue-500/20 hover:bg-blue-500/30 text-zinc-100 hover:text-zinc-100"
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Editar
-              </Button>
+              {selectedTransaction.transaction.type === "compra" || selectedTransaction.transaction.image_url === "/images/cripto.png" && (
+                <Button
+                  onClick={handleEditClick}
+                  variant="outline"
+                  className="bg-blue-500/20 hover:bg-blue-500/30 text-zinc-100 hover:text-zinc-100"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+              )}
 
               <Dialog
                 open={showDeleteConfirm}
