@@ -217,7 +217,7 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
       },
       {
         accessorKey: "purchase_price",
-        header: "Precio",
+        header: "Precio C ó V",
         cell: ({ row }) => (
           <div className="min-w-[120px] text-left">
             <span className="font-medium text-base text-zinc-100">
@@ -228,7 +228,7 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
       },
       {
         id: "current_price",
-        header: "Precio Actual",
+        header: "Precio de Mercado",
         cell: ({ row }) => {
           return (
             <div className="min-w-[120px] text-left">
@@ -241,7 +241,7 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
       },
       {
         accessorKey: "total",
-        header: "Total",
+        header: "Total Invertido/Recibido",
         cell: ({ row }) => {
           return (
             <div className="min-w-[120px] text-left">
@@ -254,7 +254,7 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
       },
       {
         id: "current_value",
-        header: "Valor Actual",
+        header: "Valor de Mercado",
         cell: ({ row }) => {
           return (
             <div className="min-w-[120px] text-left">
@@ -291,9 +291,20 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
             </Button>
           </div>
         ),
-        accessorFn: (row) => row.gain_loss,
+        accessorFn: (row) => row.transaction.type === "venta" ? row.transaction.total - (row.current_price * row.transaction.amount) : row.gain_loss,
         cell: ({ row }) => {
-          const isProfit = row.original.gain_loss >= 0;
+          // Para ventas, calculamos la ganancia como total - (precio_actual * cantidad)
+          const currentMarketValue = row.original.current_price * row.original.transaction.amount;
+          
+          const gainLoss = row.original.transaction.type === "venta"
+            ? row.original.transaction.total - currentMarketValue
+            : row.original.gain_loss;
+          
+          const gainLossPercent = row.original.transaction.type === "venta"
+            ? ((gainLoss / row.original.transaction.total) * 100)
+            : row.original.gain_loss_percent;
+          
+          const isProfit = gainLoss >= 0;
           return (
             <div className="max-w-[190px] text-left">
               <div className="flex flex-col items-start">
@@ -302,7 +313,7 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
                     isProfit ? "text-green-500" : "text-red-500"
                   }`}
                 >
-                  {formatCurrency(row.original.gain_loss)}
+                  {formatCurrency(gainLoss)}
                 </span>
                 <span
                   className={`text-sm ${
@@ -310,7 +321,7 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
                   }`}
                 >
                   {isProfit ? "+" : ""}
-                  {row.original.gain_loss_percent.toFixed(2)}%
+                  {gainLossPercent.toFixed(2)}%
                 </span>
               </div>
             </div>
