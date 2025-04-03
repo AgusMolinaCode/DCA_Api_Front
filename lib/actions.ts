@@ -258,4 +258,42 @@ export async function editTransaction(id: string, data: CryptoData) {
     };
   }
 }
- 
+
+/**
+ * Eliminamos todas las transacciones de un Ticker en especifico
+ * @param ticker Ticker de la criptomoneda
+ * @returns Resultado de la operación
+ */
+export async function deleteTransactionsByTicker(ticker: string) {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/transactions/ticker/${ticker}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error al eliminar las transacciones: ${response.status} ${response.statusText}`);
+    }
+    
+    // Revalidar la ruta del dashboard para actualizar los datos
+    revalidatePath('/dashboard');
+    
+    return { success: true };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al eliminar las transacciones" 
+    };
+  }
+}
+    

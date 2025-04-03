@@ -241,7 +241,7 @@ export function TransactionList({ transactions, refreshTransactions }: Transacti
       },
       {
         accessorKey: "total",
-        header: "Total Invertido/Recibido",
+        header: "Total Invertido",
         cell: ({ row }) => {
           return (
             <div className="min-w-[120px] text-left">

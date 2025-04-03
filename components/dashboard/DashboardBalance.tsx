@@ -31,7 +31,7 @@ async function DashboardBalance({ refreshData }: { refreshData?: () => void }) {
             </div>
           ) : dashboardData.length === 0 ? (
             <div className="flex justify-center py-4">
-              <p>No hay datos disponibles</p>
+              <p className="text-zinc-100 text-xl md:text-2xl">No hay datos disponibles</p>
             </div>
           ) : (
             <div className="space-y-3">

@@ -95,6 +95,7 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
      setSelectedCrypto(crypto);
      setSellModalOpen(true);
    };
+
   // Función para renderizar el encabezado de columna con botón de ordenamiento
   const renderSortableHeader = (column: any, title: string) => {
     // Si la columna no está ordenada, establecer el orden descendente por defecto
@@ -128,20 +129,6 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
 
   // Definir las columnas
   const columns: ColumnDef<DashboardItem>[] = [
-    {
-      id: "actions",
-      header: "Acciones",
-      cell: ({ row }) => (
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => handleSellClick(row.original)}
-          disabled={row.original.holdings <= 0}
-        >
-          Vender
-        </Button>
-      ),
-    },
     {
       accessorKey: "crypto_name",
       header: "Criptomoneda",
@@ -309,7 +296,8 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-muted/10 text-zinc-200"
+                  className="hover:bg-muted/10 text-zinc-200 cursor-pointer"
+                  onClick={() => row.original.holdings > 0 && handleSellClick(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
