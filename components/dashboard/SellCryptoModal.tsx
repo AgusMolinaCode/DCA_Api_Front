@@ -63,7 +63,7 @@ export function SellCryptoModal({
     if (open && crypto) {
       form.reset({
         amount: "",
-        sell_price: crypto.current_price.toString(),
+        sell_price: crypto.current_price.toFixed(2),
         note: "",
       });
       setSubmitSuccess(false);
@@ -249,7 +249,7 @@ export function SellCryptoModal({
                 <p className="text-sm text-muted-foreground">{crypto.ticker}</p>
               </div>
               <div className="ml-auto">
-                <p className="font-medium">${crypto.current_price.toFixed(2)} USD</p>
+                <p className="font-medium">${crypto.current_price.toFixed(3)} USD</p>
                 <p className="text-sm text-muted-foreground">
                   Tenencias: {crypto.holdings} {crypto.ticker}
                 </p>
@@ -270,7 +270,7 @@ export function SellCryptoModal({
                         <Input
                           type="number"
                           step="0.00000001"
-                          placeholder={`0.0 (max: ${crypto.holdings})`}
+                          placeholder={`0.0 (max: ${crypto.holdings.toFixed(3)})`}
                           {...field}
                         />
                       </FormControl>
@@ -288,8 +288,8 @@ export function SellCryptoModal({
                       <FormControl>
                         <Input
                           type="number"
-                          step="0.01"
-                          placeholder="0.00"
+                          step="0.001"
+                          placeholder="0.000"
                           {...field}
                         />
                       </FormControl>
@@ -302,7 +302,7 @@ export function SellCryptoModal({
               <div>
                 <FormLabel className="text-sm pb-1">Total a recibir</FormLabel>
                 <div className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
-                  ${total.toFixed(2)}
+                  ${total.toFixed(3)}
                 </div>
               </div>
               

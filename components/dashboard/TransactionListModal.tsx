@@ -254,7 +254,9 @@ const TransactionListModal = ({
 
           <DialogFooter className="flex justify-between gap-2">
             <div className="flex gap-2">
-              {selectedTransaction.transaction.type === "compra" || selectedTransaction.transaction.image_url === "/images/cripto.png" && (
+              {selectedTransaction.transaction.type === "compra" && 
+               selectedTransaction.transaction.ticker.toUpperCase() !== "USDT" && 
+               selectedTransaction.transaction.ticker.toUpperCase() !== "TETHER" && (
                 <Button
                   onClick={handleEditClick}
                   variant="outline"
