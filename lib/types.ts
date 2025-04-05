@@ -19,3 +19,12 @@ export interface CryptoData {
   added_manually: boolean;
   image_url: string;
 } 
+
+export const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
