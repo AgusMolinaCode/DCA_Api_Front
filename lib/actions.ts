@@ -296,4 +296,41 @@ export async function deleteTransactionsByTicker(ticker: string) {
     };
   }
 }
+
+/**
+ * Obtiene los datos de distribución de holdings para el gráfico
+ * @returns Datos de holdings para visualización en gráficos
+ */
+export async function getHoldingsChart() {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        data: null 
+      };
+    }
     
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/holdings`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error al obtener los datos de holdings: ${response.status} ${response.statusText}`);
+    }
+    
+    const chartData = await response.json();
+    
+    return { success: true, data: chartData };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al obtener los datos de holdings",
+      data: null 
+    };
+  }
+}

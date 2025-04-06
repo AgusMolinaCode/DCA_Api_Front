@@ -61,3 +61,27 @@ export interface Crypto {
   export interface DashboardData {   
     dashboard: DashboardItem[];
   }
+
+  export interface Chart {
+    total_current_value: number;
+    total_invested:      number;
+    total_profit:        number;
+    profit_percentage:   number;
+    distribution:        Distribution[];
+    chart_data:          ChartData;
+}
+
+export interface ChartData {
+    labels:   string[];
+    values:   number[];
+    colors:   string[];
+    currency: string;
+}
+
+export interface Distribution {
+    ticker: string;
+    name:   string;
+    value:  number;
+    weight: number;
+    color:  string;
+}

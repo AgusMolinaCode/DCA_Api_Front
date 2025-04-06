@@ -1,7 +1,7 @@
 import DashboardBalance from "@/components/dashboard/DashboardBalance";
 import DashboardContent from "@/components/dashboard/DashboardContent";
 import { DashboardContentLogin } from "@/components/dashboard/DashboardContentLogin";
-import DashboardHoldings from "@/components/dashboard/DashboardHoldings";
+import DashboardHoldings from "@/components/dashboard/holdings/DashboardHoldings";
 import DashboardPerformance from "@/components/dashboard/DashboardPerformance";
 
 export default function DashboardPage() {
