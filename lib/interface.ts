@@ -84,4 +84,13 @@ export interface Distribution {
     value:  number;
     weight: number;
     color:  string;
+    is_others?: boolean;
+    others_detail?: OthersDetail[];
+}
+
+export interface OthersDetail {
+  ticker: string;
+  name:   string;
+  value:  number;
+  weight: number;
 }

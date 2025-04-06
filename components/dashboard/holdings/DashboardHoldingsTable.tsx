@@ -25,15 +25,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Chart, Distribution } from "@/lib/interface"
+import { Chart, Distribution, OthersDetail } from "@/lib/interface"
 import { formatCurrency } from "@/lib/types"
 
 // Definimos un tipo para los datos del gráfico
 type ChartDataItem = {
   ticker: string;
-  value: number;
-  fill: string;
   name: string;
+  value: number;
+  weight: number;
+  fill: string;
+  isOthers?: boolean;
+  othersDetail?: OthersDetail[];
 }
 
 // Función para generar la configuración del gráfico a partir de los datos
@@ -63,16 +66,24 @@ interface DashboardHoldingsTableProps {
 export default function DashboardHoldingsTable({ data: chartData }: DashboardHoldingsTableProps) {
   const id = "crypto-holdings-pie"
   
-  // Preparamos los datos para el gráfico
-  const pieData: ChartDataItem[] = chartData.distribution.map((item) => ({
-    ticker: item.ticker,
-    name: item.name,
-    value: item.weight,
-    fill: item.color,
-  }));
+  // Preparamos los datos para el gráfico usando directamente los datos de la API
+  const pieData: ChartDataItem[] = React.useMemo(() => {
+    return chartData.distribution.map((item) => ({
+      ticker: item.ticker,
+      name: item.name,
+      value: item.value,
+      weight: item.weight,
+      fill: item.color,
+      isOthers: item.is_others || false,
+      othersDetail: item.others_detail || [],
+    }));
+  }, [chartData.distribution]);
   
   // Generamos la configuración del gráfico
-  const chartConfig = generateChartConfig(chartData.distribution);
+  const chartConfig = React.useMemo(() => {
+    const config = generateChartConfig(chartData.distribution);
+    return config;
+  }, [chartData.distribution]);
   
   // Estado para el elemento activo
   const [activeTicker, setActiveTicker] = React.useState<string>(pieData[0]?.ticker || "");
@@ -92,20 +103,17 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
   const formattedProfit = formatCurrency(chartData.total_profit);
   const profitPercentage = chartData.profit_percentage.toFixed(2);
   
+  // Obtenemos el elemento activo
+  const activeItem = pieData[activeIndex];
+  
   return (
-    <Card data-chart={id} className="flex flex-col">
+    <Card data-chart={id} className="flex flex-col w-full max-w-xs">
       <ChartStyle id={id} config={chartConfig} />
-      <CardHeader className="flex-row items-start space-y-0 pb-0">
-        <div className="grid gap-1">
-          <CardTitle>Distribución de Criptomonedas</CardTitle>
-          <CardDescription>
-            Total: {formattedTotalValue} | Invertido: {formattedTotalInvested} | 
-            Ganancia: {formattedProfit} ({profitPercentage}%)
-          </CardDescription>
-        </div>
+      <div className="px-4 pt-4 pb-2 flex justify-between items-center">
+        <h3 className="text-sm font-medium">Distribución</h3>
         <Select value={activeTicker} onValueChange={setActiveTicker}>
           <SelectTrigger
-            className="ml-auto h-7 w-[130px] rounded-lg pl-2.5"
+            className="h-7 w-[230px] rounded-lg pl-2.5"
             aria-label="Seleccionar criptomoneda"
           >
             <SelectValue placeholder="Seleccionar" />
@@ -128,30 +136,57 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                         backgroundColor: item.fill,
                       }}
                     />
-                    {item.name} ({ticker})
+                    {ticker === "OTROS" ? "Otros" : `${item.name} (${ticker})`}
                   </div>
                 </SelectItem>
               )
             })}
           </SelectContent>
         </Select>
-      </CardHeader>
-      <CardContent className="flex flex-1 justify-center pb-0">
+      </div>
+      
+      <CardContent className="flex flex-col items-center pt-0 pb-4">
         <ChartContainer
           id={id}
           config={chartConfig}
-          className="mx-auto aspect-square w-full max-w-[300px]"
+          className="aspect-square w-full max-w-[250px]"
         >
           <PieChart>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const data = payload[0].payload as ChartDataItem;
+                  return (
+                    <div className="rounded-lg border bg-background p-2 shadow-sm">
+                      <div className="grid gap-1">
+                        <div className="flex items-center gap-1">
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: data.fill }}
+                          />
+                          <span className="font-medium">{data.name}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="text-muted-foreground">Valor:</div>
+                          <div className="text-right font-medium">{formatCurrency(data.value)}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="text-muted-foreground">Porcentaje:</div>
+                          <div className="text-right font-medium">{data.weight.toFixed(2)}%</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
             <Pie
               data={pieData}
-              dataKey="value"
+              dataKey="weight"
               nameKey="ticker"
-              innerRadius={60}
+              innerRadius={66}
               strokeWidth={5}
               activeIndex={activeIndex}
               activeShape={({
@@ -159,11 +194,11 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                 ...props
               }: PieSectorDataItem) => (
                 <g>
-                  <Sector {...props} outerRadius={outerRadius + 10} />
+                  <Sector {...props} outerRadius={outerRadius + 8} />
                   <Sector
                     {...props}
-                    outerRadius={outerRadius + 25}
-                    innerRadius={outerRadius + 12}
+                    outerRadius={outerRadius + 16}
+                    innerRadius={outerRadius + 10}
                   />
                 </g>
               )}
@@ -171,29 +206,32 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
               <Label
                 content={({ viewBox }) => {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    const activeItem = pieData[activeIndex];
                     if (!activeItem) return null;
+                    
+                    const isOthers = activeItem.ticker === "OTROS";
+                    const cx = viewBox.cx || 0;
+                    const cy = viewBox.cy || 0;
                     
                     return (
                       <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
+                        x={cx}
+                        y={cy}
                         textAnchor="middle"
                         dominantBaseline="middle"
                       >
                         <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          x={cx}
+                          y={cy - 10}
+                          className="fill-foreground text-lg font-bold"
                         >
-                          {activeItem.value.toFixed(2)}%
+                          {formatCurrency(activeItem.value)}
                         </tspan>
                         <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
+                          x={cx}
+                          y={cy + 15}
+                          className="fill-muted-foreground text-sm"
                         >
-                          {activeItem.name}
+                          {activeItem.weight.toFixed(2)}%
                         </tspan>
                       </text>
                     )
@@ -204,6 +242,44 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
             </Pie>
           </PieChart>
         </ChartContainer>
+        
+        {/* Lista de criptomonedas con porcentajes */}
+        <div className="w-full mt-4 space-y-2.5 px-2">
+          {pieData.map((item) => (
+            <div 
+              key={item.ticker} 
+              className={`flex items-center justify-between py-1 cursor-pointer hover:bg-muted/50 rounded-md transition-colors ${item.ticker === activeTicker ? 'bg-muted/70 rounded-md' : ''}`}
+              onClick={() => setActiveTicker(item.ticker)}
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="flex h-3 w-3 shrink-0 rounded-full"
+                  style={{ backgroundColor: item.fill }}
+                />
+                <span className="font-medium">{item.ticker}</span>
+              </div>
+              <span className="font-bold">{item.weight.toFixed(2)}%</span>
+            </div>
+          ))}
+        </div>
+        
+        {/* Mostrar detalles de la categoría "Otros" si está seleccionada */}
+        {activeItem?.isOthers && activeItem.othersDetail && activeItem.othersDetail.length > 0 && (
+          <div className="mt-4 p-3 bg-muted rounded-md w-full">
+            <h4 className="text-sm font-medium mb-2">Detalle de Otros ({formatCurrency(activeItem.value)})</h4>
+            <div className="space-y-2">
+              {activeItem.othersDetail.map((detail) => (
+                <div key={detail.ticker} className="flex justify-between text-xs">
+                  <span className="font-medium">{detail.name} ({detail.ticker})</span>
+                  <div>
+                    <span className="mr-2">{formatCurrency(detail.value)}</span>
+                    <span className="text-muted-foreground">({detail.weight.toFixed(4)}%)</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
