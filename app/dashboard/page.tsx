@@ -8,7 +8,7 @@ export default function DashboardPage() {
   return (
     <div className="max-w-[100rem] mx-auto p-2 md:p-8">
       <DashboardContentLogin />
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center py-2">
         <DashboardHoldings />
         <DashboardPerformance />
       </div>
