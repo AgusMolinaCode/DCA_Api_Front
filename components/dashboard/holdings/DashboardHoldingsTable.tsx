@@ -1,32 +1,29 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Label, Pie, PieChart, Sector } from "recharts"
-import { PieSectorDataItem } from "recharts/types/polar/Pie"
+import * as React from "react";
+import { Label, Pie, PieChart, Sector } from "recharts";
+import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartStyle,
   ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Chart, Distribution, OthersDetail } from "@/lib/interface"
-import { formatCurrency } from "@/lib/types"
+} from "@/components/ui/select";
+import { Chart, Distribution, OthersDetail } from "@/lib/interface";
+import { formatCurrency } from "@/lib/types";
+import { generateDynamicColors } from "@/lib/chartColor";
 
 // Definimos un tipo para los datos del gráfico
 type ChartDataItem = {
@@ -37,10 +34,13 @@ type ChartDataItem = {
   fill: string;
   isOthers?: boolean;
   othersDetail?: OthersDetail[];
-}
+};
 
 // Función para generar la configuración del gráfico a partir de los datos
-const generateChartConfig = (distribution: Distribution[]): ChartConfig => {
+const generateChartConfig = (
+  distribution: Distribution[],
+  colorMap: Record<string, string>
+): ChartConfig => {
   const config: Record<string, { label: string; color: string }> = {
     value: {
       label: "Valor",
@@ -52,7 +52,7 @@ const generateChartConfig = (distribution: Distribution[]): ChartConfig => {
   distribution.forEach((item) => {
     config[item.ticker] = {
       label: item.name,
-      color: item.color,
+      color: colorMap[item.ticker] || item.color, // Usar el color dinámico o el original como respaldo
     };
   });
 
@@ -63,9 +63,23 @@ interface DashboardHoldingsTableProps {
   data: Chart;
 }
 
-export default function DashboardHoldingsTable({ data: chartData }: DashboardHoldingsTableProps) {
-  const id = "crypto-holdings-pie"
-  
+export default function DashboardHoldingsTable({
+  data: chartData,
+}: DashboardHoldingsTableProps) {
+  const id = "crypto-holdings-pie";
+
+  // Obtenemos la lista de tickers
+  const tickers = React.useMemo(
+    () => chartData.distribution.map((item) => item.ticker),
+    [chartData.distribution]
+  );
+
+  // Generamos colores dinámicos para los tickers
+  const dynamicColors = React.useMemo(
+    () => generateDynamicColors(tickers),
+    [tickers]
+  );
+
   // Preparamos los datos para el gráfico usando directamente los datos de la API
   const pieData: ChartDataItem[] = React.useMemo(() => {
     return chartData.distribution.map((item) => ({
@@ -73,46 +87,51 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
       name: item.name,
       value: item.value,
       weight: item.weight,
-      fill: item.color,
+      fill: dynamicColors[item.ticker] || item.color, // Usar color dinámico o el original como respaldo
       isOthers: item.is_others || false,
       othersDetail: item.others_detail || [],
     }));
-  }, [chartData.distribution]);
-  
+  }, [chartData.distribution, dynamicColors]);
+
   // Generamos la configuración del gráfico
   const chartConfig = React.useMemo(() => {
-    const config = generateChartConfig(chartData.distribution);
+    const config = generateChartConfig(chartData.distribution, dynamicColors);
     return config;
-  }, [chartData.distribution]);
-  
+  }, [chartData.distribution, dynamicColors]);
+
   // Estado para el elemento activo
-  const [activeTicker, setActiveTicker] = React.useState<string | null>(pieData[0]?.ticker || null);
-  
+  const [activeTicker, setActiveTicker] = React.useState<string | null>(
+    pieData[0]?.ticker || null
+  );
+
   // Calculamos el índice activo
   const activeIndex = React.useMemo(
-    () => activeTicker ? pieData.findIndex((item) => item.ticker === activeTicker) : -1,
+    () =>
+      activeTicker
+        ? pieData.findIndex((item) => item.ticker === activeTicker)
+        : -1,
     [activeTicker, pieData]
   );
-  
-  // Obtenemos la lista de tickers
-  const tickers = React.useMemo(() => pieData.map((item) => item.ticker), [pieData]);
-  
+
   // Formateamos los valores para mostrar
   const formattedTotalValue = formatCurrency(chartData.total_current_value);
   const formattedTotalInvested = formatCurrency(chartData.total_invested);
   const formattedProfit = formatCurrency(chartData.total_profit);
   const profitPercentage = chartData.profit_percentage.toFixed(2);
-  
+
   // Obtenemos el elemento activo
   const activeItem = activeIndex !== -1 ? pieData[activeIndex] : null;
-  
+
   return (
-    <Card data-chart={id} className="flex flex-col w-full max-w-xs bg-zinc-800 border-zinc-600">
+    <Card
+      data-chart={id}
+      className="flex flex-col w-full max-w-xs bg-zinc-800 border-zinc-600"
+    >
       <ChartStyle id={id} config={chartConfig} />
       <div className="px-4 pt-4 pb-2 grid gap-2 items-center">
         <h3 className="text-zinc-100 text-xl font-bold">Tenencias</h3>
-        <Select 
-          value={activeTicker || ""} 
+        <Select
+          value={activeTicker || ""}
           onValueChange={(value) => {
             // Si seleccionamos el mismo valor que ya está activo, lo desactivamos
             if (value === activeTicker) {
@@ -128,8 +147,8 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
           >
             <SelectValue placeholder="Seleccionar" />
           </SelectTrigger>
-          <SelectContent 
-            align="end" 
+          <SelectContent
+            align="end"
             className="rounded-xl bg-zinc-800 border-zinc-700"
           >
             <style jsx global>{`
@@ -150,9 +169,9 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
               }
             `}</style>
             {tickers.map((ticker) => {
-              const item = pieData.find(d => d.ticker === ticker);
+              const item = pieData.find((d) => d.ticker === ticker);
               if (!item) return null;
-              
+
               return (
                 <SelectItem
                   key={ticker}
@@ -169,12 +188,12 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                     {ticker === "OTROS" ? "Otros" : `${item.name}`}
                   </div>
                 </SelectItem>
-              )
+              );
             })}
           </SelectContent>
         </Select>
       </div>
-      
+
       <CardContent className="flex flex-col items-center pt-0 pb-4">
         <ChartContainer
           id={id}
@@ -199,11 +218,17 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div className="text-muted-foreground">Valor:</div>
-                          <div className="text-right font-medium">{formatCurrency(data.value)}</div>
+                          <div className="text-right font-medium">
+                            {formatCurrency(data.value)}
+                          </div>
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div className="text-muted-foreground">Porcentaje:</div>
-                          <div className="text-right font-medium">{data.weight.toFixed(2)}%</div>
+                          <div className="text-muted-foreground">
+                            Porcentaje:
+                          </div>
+                          <div className="text-right font-medium">
+                            {data.weight.toFixed(2)}%
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -219,19 +244,20 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
               innerRadius={78}
               strokeWidth={10}
               activeIndex={activeIndex !== -1 ? activeIndex : undefined}
-              activeShape={activeIndex !== -1 ? ({
-                outerRadius = 0,
-                ...props
-              }: PieSectorDataItem) => (
-                <g>
-                  <Sector {...props} outerRadius={outerRadius + 8} />
-                  <Sector
-                    {...props}
-                    outerRadius={outerRadius + 16}
-                    innerRadius={outerRadius + 10}
-                  />
-                </g>
-              ) : undefined}
+              activeShape={
+                activeIndex !== -1
+                  ? ({ outerRadius = 0, ...props }: PieSectorDataItem) => (
+                      <g>
+                        <Sector {...props} outerRadius={outerRadius + 8} />
+                        <Sector
+                          {...props}
+                          outerRadius={outerRadius + 16}
+                          innerRadius={outerRadius + 10}
+                        />
+                      </g>
+                    )
+                  : undefined
+              }
             >
               <Label
                 content={({ viewBox }) => {
@@ -240,7 +266,7 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                       // Si no hay elemento activo, mostrar el valor total
                       const cx = viewBox.cx || 0;
                       const cy = viewBox.cy || 0;
-                      
+
                       return (
                         <text
                           x={cx}
@@ -263,13 +289,13 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                             Total
                           </tspan>
                         </text>
-                      )
+                      );
                     }
-                    
+
                     const isOthers = activeItem.ticker === "OTROS";
                     const cx = viewBox.cx || 0;
                     const cy = viewBox.cy || 0;
-                    
+
                     return (
                       <text
                         x={cx}
@@ -293,7 +319,7 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                           {activeItem.weight.toFixed(2)}%
                         </tspan>
                       </text>
-                    )
+                    );
                   }
                   return null;
                 }}
@@ -301,14 +327,20 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
             </Pie>
           </PieChart>
         </ChartContainer>
-        
+
         {/* Lista de criptomonedas con porcentajes */}
         <div className="w-full grid grid-cols-2 mt-4 space-y-2.5 gap-2">
           {pieData.map((item) => (
-            <div 
-              key={item.ticker} 
-              className={`flex items-center justify-between py-1 cursor-pointer hover:bg-zinc-700 p-1 rounded-md transition-colors ${item.ticker === activeTicker ? 'bg-zinc-700 p-1 rounded-md' : ''}`}
-              onClick={() => setActiveTicker(item.ticker === activeTicker ? null : item.ticker)}
+            <div
+              key={item.ticker}
+              className={`flex items-center justify-between py-1 cursor-pointer hover:bg-zinc-700 p-1 rounded-md transition-colors ${
+                item.ticker === activeTicker ? "bg-zinc-700 p-1 rounded-md" : ""
+              }`}
+              onClick={() =>
+                setActiveTicker(
+                  item.ticker === activeTicker ? null : item.ticker
+                )
+              }
             >
               <div className="flex items-center gap-1">
                 <span
@@ -317,29 +349,44 @@ export default function DashboardHoldingsTable({ data: chartData }: DashboardHol
                 />
                 <span className="font-medium text-zinc-100">{item.ticker}</span>
               </div>
-              <span className="font-bold text-zinc-100">{item.weight.toFixed(2)}%</span>
+              <span className="font-bold text-zinc-100">
+                {item.weight.toFixed(2)}%
+              </span>
             </div>
           ))}
         </div>
-        
+
         {/* Mostrar detalles de la categoría "Otros" si está seleccionada */}
-        {activeItem?.isOthers && activeItem.othersDetail && activeItem.othersDetail.length > 0 && (
-          <div className="mt-4 p-3 bg-zinc-700 border border-zinc-600 rounded-md w-full">
-            <h4 className="text-sm font-medium mb-2 text-zinc-100">Detalle de Otros ({formatCurrency(activeItem.value)})</h4>
-            <div className="space-y-2">
-              {activeItem.othersDetail.map((detail) => (
-                <div key={detail.ticker} className="flex justify-between text-xs">
-                  <span className="font-medium text-zinc-100">{detail.name}</span>
-                  <div>
-                    <span className="mr-2 text-zinc-100">{formatCurrency(detail.value)}</span>
-                    <span className="text-zinc-100">({detail.weight.toFixed(2)}%)</span>
+        {activeItem?.isOthers &&
+          activeItem.othersDetail &&
+          activeItem.othersDetail.length > 0 && (
+            <div className="mt-4 p-3 bg-zinc-700 border border-zinc-600 rounded-md w-full">
+              <h4 className="text-sm font-medium mb-2 text-zinc-100">
+                Detalle de Otros ({formatCurrency(activeItem.value)})
+              </h4>
+              <div className="space-y-2">
+                {activeItem.othersDetail.map((detail) => (
+                  <div
+                    key={detail.ticker}
+                    className="flex justify-between text-xs"
+                  >
+                    <span className="font-medium text-zinc-100">
+                      {detail.name}
+                    </span>
+                    <div>
+                      <span className="mr-2 text-zinc-100">
+                        {formatCurrency(detail.value)}
+                      </span>
+                      <span className="text-zinc-100">
+                        ({detail.weight.toFixed(2)}%)
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </CardContent>
     </Card>
-  )
+  );
 }
