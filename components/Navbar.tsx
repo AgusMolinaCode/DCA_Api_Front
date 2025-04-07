@@ -195,7 +195,7 @@ export const Navbar = () => {
     <div className="flex justify-around items-center p-4">
       <div className="flex items-center justify-center gap-4">
         <Link href="/" className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-zinc-100">DCA-app</h1>
+          <h1 className="text-lg sm:text-2xl font-bold text-zinc-100">DCA-app</h1>
         </Link>
       </div>
       <div className="flex items-center gap-4">
