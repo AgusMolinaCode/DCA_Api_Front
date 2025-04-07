@@ -125,7 +125,7 @@ export default function DashboardHoldingsTable({
   return (
     <Card
       data-chart={id}
-      className="flex flex-col w-full max-w-xs bg-zinc-800 border-zinc-600"
+      className="flex flex-col w-full sm:max-w-xs bg-zinc-800 border-zinc-600 h-[31rem] overflow-y-auto custom-scrollbar"
     >
       <ChartStyle id={id} config={chartConfig} />
       <div className="px-4 pt-4 pb-2 grid gap-2 items-center">
@@ -329,32 +329,51 @@ export default function DashboardHoldingsTable({
         </ChartContainer>
 
         {/* Lista de criptomonedas con porcentajes */}
-        <div className="w-full grid grid-cols-2 mt-4 space-y-2.5 gap-2">
-          {pieData.map((item) => (
-            <div
-              key={item.ticker}
-              className={`flex items-center justify-between py-1 cursor-pointer hover:bg-zinc-700 p-1 rounded-md transition-colors ${
-                item.ticker === activeTicker ? "bg-zinc-700 p-1 rounded-md" : ""
-              }`}
-              onClick={() =>
-                setActiveTicker(
-                  item.ticker === activeTicker ? null : item.ticker
-                )
-              }
-            >
-              <div className="flex items-center gap-1">
-                <span
-                  className="flex h-3 w-3 shrink-0 rounded-full text-zinc-100"
-                  style={{ backgroundColor: item.fill }}
-                />
-                <span className="font-medium text-zinc-100">{item.ticker}</span>
+        <div className="w-full mt-4 px-2 overflow-y-auto custom-scrollbar" style={{ maxHeight: '8rem', minHeight: '8rem' }}>
+          <div className="grid grid-cols-2 gap-2">
+            {pieData.map((item) => (
+              <div
+                key={item.ticker}
+                className={`flex items-center justify-between py-1 cursor-pointer hover:bg-zinc-700 p-1 rounded-md transition-colors ${
+                  item.ticker === activeTicker ? "bg-zinc-700 p-1 rounded-md" : ""
+                }`}
+                onClick={() =>
+                  setActiveTicker(
+                    item.ticker === activeTicker ? null : item.ticker
+                  )
+                }
+              >
+                <div className="flex items-center gap-1">
+                  <span
+                    className="flex h-3 w-3 shrink-0 rounded-full text-zinc-100"
+                    style={{ backgroundColor: item.fill }}
+                  />
+                  <span className="font-medium text-zinc-100">{item.ticker}</span>
+                </div>
+                <span className="font-bold text-zinc-100">
+                  {item.weight.toFixed(2)}%
+                </span>
               </div>
-              <span className="font-bold text-zinc-100">
-                {item.weight.toFixed(2)}%
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        {/* Agregar estilos para el scrollbar */}
+        <style jsx global>{
+          `
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: #27272a;
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #52525b;
+            border-radius: 3px;
+          }
+          `
+        }</style>
 
         {/* Mostrar detalles de la categoría "Otros" si está seleccionada */}
         {activeItem?.isOthers &&

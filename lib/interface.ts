@@ -94,3 +94,28 @@ export interface OthersDetail {
   value:  number;
   weight: number;
 }
+
+
+export interface DashboardMainBalanceProps {
+  profit_percentage:   number;
+  total_current_value: number;
+  total_invested:      number;
+  total_profit:        number;
+}
+
+export interface PerformanceProps {
+  performance: Performance;
+}
+
+export interface Performance {
+  top_gainer: Top;
+  top_loser:  Top;
+}
+
+export interface Top {
+  ticker:             string;
+  change_percent_24h: number;
+  price_change:       number;
+  image_url:          string;
+}
+

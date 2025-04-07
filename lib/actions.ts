@@ -334,3 +334,83 @@ export async function getHoldingsChart() {
     };
   }
 }
+
+/**
+ * Obtiene los datos del balance principal del usuario
+ * @returns Datos del balance principal
+ */
+export async function getCurrentBalance() {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        data: null 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/current-balance`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al obtener el balance principal: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
+    const data = await response.json();
+    
+    return { success: true, data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al obtener el balance principal",
+      data: null 
+    };
+  }
+}
+
+/**
+ * Obtiene los datos de rendimiento (mejor y peor criptomoneda)
+ * @returns Datos de rendimiento
+ */
+export async function getPerformance() {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        data: null 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/performance`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al obtener los datos de rendimiento: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
+    const data = await response.json();
+    
+    return { success: true, data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al obtener los datos de rendimiento",
+      data: null 
+    };
+  }
+}
