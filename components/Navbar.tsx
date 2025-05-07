@@ -112,7 +112,7 @@ export const Navbar = () => {
     return () => clearInterval(checkInterval);
   }, [isClient]);
 
-  // Función para cambiar entre modos de login y registro
+  // Función para cambiar entre modos de login y registro.
   const handleModeChange = (isLogin: boolean) => {
     setIsLoginMode(isLogin);
     setIsPasswordRecovery(false);

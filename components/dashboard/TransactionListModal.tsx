@@ -285,7 +285,7 @@ const TransactionListModal = ({
                     <DialogTitle>Confirmar eliminación</DialogTitle>
                     <DialogDescription className="text-zinc-300">
                       ¿Estás seguro de que deseas eliminar esta transacción?
-                      Esta acción no se puede deshacer.
+                      Esta acción no se puede deshacer
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
