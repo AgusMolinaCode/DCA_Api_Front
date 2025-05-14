@@ -329,7 +329,7 @@ export async function getHoldingsChart() {
   } catch (error) {
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : "Error desconocido al obtener los datos de holdings.",
+      error: error instanceof Error ? error.message : "Error desconocido al obtener los datos de holdings ",
       data: null 
     };
   }
