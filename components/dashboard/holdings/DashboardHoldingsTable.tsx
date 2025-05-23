@@ -335,7 +335,7 @@ export default function DashboardHoldingsTable({
               <div
                 key={item.ticker}
                 className={`flex items-center justify-between py-1 cursor-pointer hover:bg-zinc-700 p-1 rounded-md transition-colors ${
-                  item.ticker === activeTicker ? "bg-zinc-700 p-1 rounded-md" : ""
+                  item.ticker === activeTicker ? "p-2 rounded-md hover:bg-zinc-600" : ""
                 }`}
                 onClick={() =>
                   setActiveTicker(
@@ -345,12 +345,12 @@ export default function DashboardHoldingsTable({
               >
                 <div className="flex items-center gap-1">
                   <span
-                    className="flex h-3 w-3 shrink-0 rounded-full text-zinc-100"
+                    className="flex h-4 w-4 shrink-0 rounded-full text-zinc-100"
                     style={{ backgroundColor: item.fill }}
                   />
-                  <span className="font-medium text-zinc-100">{item.ticker}</span>
+                  <span className="font-medium text-sm text-zinc-100">{item.ticker}</span>
                 </div>
-                <span className="font-bold text-zinc-100">
+                <span className="font-bold text-zinc-100 ml-1 text-sm">
                   {item.weight.toFixed(2)}%
                 </span>
               </div>

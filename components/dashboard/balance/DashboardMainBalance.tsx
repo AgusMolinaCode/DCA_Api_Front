@@ -3,8 +3,6 @@ import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCurrentBalance } from "@/lib/actions";
 import { DashboardMainBalanceProps } from "@/lib/interface";
-import { formatCurrency } from "@/lib/types";
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import MainBalanceDisplay from "./MainBalanceDisplay";
 
 
@@ -24,8 +22,16 @@ export async function DashboardMainBalance() {
     );
   }
   
+  // Mapear los datos de la API al formato esperado por MainBalanceDisplay
+  const mappedData: DashboardMainBalanceProps = {
+    total_current_value: response.data.total_balance || 0,
+    total_invested: response.data.total_invested || 0,
+    total_profit: response.data.total_profit || 0,
+    profit_percentage: response.data.profit_percentage || 0
+  };
+  
   return (
-    <MainBalanceDisplay data={response.data} />
+    <MainBalanceDisplay data={mappedData} />
   );
 }
 
