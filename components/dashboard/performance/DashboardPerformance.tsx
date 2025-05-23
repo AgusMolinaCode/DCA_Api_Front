@@ -20,8 +20,16 @@ export async function DashboardPerformance() {
     );
   }
   
+  // Mapear los datos de la API a la estructura que espera PerformanceDisplay
+  const mappedData: PerformanceProps = {
+    performance: {
+      top_gainer: response.data.top_gainer || null,
+      top_loser: response.data.top_loser || null
+    }
+  };
+  
   return (
-    <PerformanceDisplay data={response.data} />
+    <PerformanceDisplay data={mappedData} />
   );
 }
 
