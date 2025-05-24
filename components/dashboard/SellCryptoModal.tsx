@@ -19,7 +19,7 @@ import { TokenIcon } from "@web3icons/react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { AlertCircle, CheckCircle, Loader2, Trash2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { sellCryptoSchema, type SellCryptoFormValues } from "@/lib/validation";
@@ -50,6 +50,7 @@ export function SellCryptoModal({
       amount: "",
       sell_price: "",
       note: "",
+      add_to_wallet: false,
     },
   });
   
@@ -88,9 +89,11 @@ export function SellCryptoModal({
   async function onSubmit(values: SellCryptoFormValues) {
     if (!crypto) return;
     
+    // Establecer isSubmitting a true inmediatamente para bloquear el botón
+    setIsSubmitting(true);
+    setSubmitError(null);
+    
     try {
-      setIsSubmitting(true);
-      setSubmitError(null);
       
       // Crear objeto de transacción de venta
       const sellTransaction = {
@@ -109,6 +112,30 @@ export function SellCryptoModal({
       // Enviar la transacción al servidor
       const response = await createTransaction(sellTransaction);
       
+      // Si el usuario eligió agregar USDT a la cartera, crear una transacción de compra de USDT
+      if (values.add_to_wallet) {
+        const usdtTransaction = {
+          crypto_name: "USDT",
+          ticker: "USDT",
+          amount: total, // El total de la venta en USD
+          purchase_price: 1, // 1 USDT = 1 USD
+          total: total,
+          date: new Date().toISOString(),
+          note: `USDT recibidos por venta de ${crypto.ticker}`,
+          type: "compra" as const,
+          added_manually: false,
+          image_url: "https://www.cryptocompare.com/media/37746338/usdt.png", // Imagen de USDT
+        };
+        
+        // Enviar la transacción de USDT al servidor
+        const usdtResponse = await createTransaction(usdtTransaction);
+        
+        if (!usdtResponse.success) {
+          console.warn("Error al registrar USDT en cartera:", usdtResponse.error);
+          // No interrumpir el flujo principal si falla la adición de USDT
+        }
+      }
+      
       if (!response.success) {
         throw new Error(response.error || "Error al registrar la venta");
       }
@@ -116,7 +143,10 @@ export function SellCryptoModal({
       setSubmitSuccess(true);
       
       // Esperar 1.5 segundos y cerrar el modal
+      // Mantener isSubmitting en true hasta que se cierre el modal
       setTimeout(() => {
+        // Resetear el estado solo cuando se cierra el modal
+        setIsSubmitting(false);
         onOpenChange(false);
         if (onTransactionComplete) {
           onTransactionComplete();
@@ -125,7 +155,7 @@ export function SellCryptoModal({
       
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Error al procesar la venta");
-    } finally {
+      // Solo desactivar isSubmitting si hay un error
       setIsSubmitting(false);
     }
   }
@@ -305,6 +335,31 @@ export function SellCryptoModal({
                   ${total.toFixed(3)}
                 </div>
               </div>
+              
+              <FormField
+                control={form.control}
+                name="add_to_wallet"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Agregar USDT a cartera</FormLabel>
+                      <FormDescription>
+                        Registrar los USDT obtenidos de la venta en tu cartera
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          checked={field.value}
+                          onChange={field.onChange}
+                        />
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               
               <FormField
                 control={form.control}

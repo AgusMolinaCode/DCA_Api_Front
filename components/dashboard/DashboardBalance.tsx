@@ -11,8 +11,13 @@ import CryptoTable from "./CryptoTable";
 
 async function DashboardBalance({ refreshData }: { refreshData?: () => void }) {
   const response = await getTrasactionsDashboard();
+  // Verificar si response.data es un array o si tiene una propiedad dashboard
   const dashboardData =
-    response.success && response.data ? response.data.dashboard || [] : [];
+    response.success && response.data
+      ? Array.isArray(response.data)
+        ? response.data
+        : response.data.dashboard || []
+      : [];
   const error = !response.success ? response.error : null;
 
   return (

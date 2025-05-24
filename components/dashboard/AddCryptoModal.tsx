@@ -268,14 +268,10 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
         onAddCrypto(cryptoData);
       }
       
-      // Mostrar mensaje de éxito
+      // Mostrar mensaje de éxito y cerrar el modal inmediatamente
       setSubmitSuccess(true);
-      
-      // Cerrar el modal y resetear el formulario después de un breve retraso
-      setTimeout(() => {
-        setOpen(false);
-        handleReset();
-      }, 1500);
+      setOpen(false);
+      handleReset();
       
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Error al procesar los datos del formulario");

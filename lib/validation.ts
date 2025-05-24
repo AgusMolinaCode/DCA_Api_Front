@@ -72,6 +72,10 @@ export const sellCryptoSchema = z.object({
     .string()
     .max(200, "La nota no puede exceder los 200 caracteres")
     .optional(),
+  add_to_wallet: z
+    .boolean()
+    .default(false)
+    .optional(),
 });
 
 export type SellCryptoFormValues = z.infer<typeof sellCryptoSchema>;
