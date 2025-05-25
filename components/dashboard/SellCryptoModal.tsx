@@ -62,10 +62,12 @@ export function SellCryptoModal({
   // Resetear el formulario cuando se abre o cierra el modal
   useEffect(() => {
     if (open && crypto) {
+      // Asegurarse de que todos los valores estén definidos correctamente
       form.reset({
         amount: "",
         sell_price: crypto.current_price.toFixed(2),
         note: "",
+        add_to_wallet: false,
       });
       setSubmitSuccess(false);
       setSubmitError(null);
@@ -351,10 +353,16 @@ export function SellCryptoModal({
                       <div className="flex items-center space-x-2">
                         <input
                           type="checkbox"
+                          id="add-to-wallet"
                           className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                          checked={field.value}
-                          onChange={field.onChange}
+                          checked={field.value === true}
+                          onChange={(e) => {
+                            field.onChange(e.target.checked);
+                          }}
                         />
+                        <label htmlFor="add-to-wallet" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          Activar
+                        </label>
                       </div>
                     </FormControl>
                   </FormItem>

@@ -10,16 +10,27 @@ export default function DashboardPage() {
   return (
     <div className="max-w-[100rem] mx-auto p-2 md:p-8">
       <DashboardContentLogin />
-      <div className="sm:flex justify-start gap-2 items-center h-[32rem]">
-        <DashboardHoldings />
-        <div className="flex flex-col items-center gap-2 py-2">
+      
+      {/* Layout principal - se apila en móvil, flex en pantallas medianas y grandes */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-4">
+        {/* Gráfico de holdings - ancho completo en móvil, 1/3 en pantallas grandes */}
+        <div className="w-full lg:w-1/3 h-auto">
+          <DashboardHoldings />
+        </div>
+        
+        {/* Balance y rendimiento - ancho completo en móvil, 1/3 en pantallas grandes */}
+        <div className="w-full lg:w-1/3 flex flex-col md:flex-row lg:flex-col gap-4 h-auto">
           <DashboardMainBalance />
           <DashboardPerformance />
         </div>
-        <div className="py-2 h-full w-full">
+        
+        {/* Gráfico de línea - ancho completo en móvil, 1/3 en pantallas grandes */}
+        <div className="w-full lg:w-3/4 h-auto">
           <DashboardLineChart />
         </div>
       </div>
+      
+      {/* Sección inferior - siempre apilada */}
       <div className="space-y-4">
         <DashboardBalance />
         <DashboardContent />

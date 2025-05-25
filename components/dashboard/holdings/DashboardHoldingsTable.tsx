@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Label, Pie, PieChart, Sector } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
+import { Plus } from "lucide-react";
 
 import {
   Card,
@@ -21,9 +22,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Chart, Distribution, OthersDetail } from "@/lib/interface";
 import { formatCurrency } from "@/lib/types";
 import { generateDynamicColors } from "@/lib/chartColor";
+
 
 // Definimos un tipo para los datos del gráfico
 type ChartDataItem = {
@@ -63,15 +73,37 @@ interface DashboardHoldingsTableProps {
   data: Chart;
 }
 
+// Número máximo de criptomonedas a mostrar en la lista
+const MAX_VISIBLE_CRYPTOS = 6;
+
 export default function DashboardHoldingsTable({
   data: chartData,
 }: DashboardHoldingsTableProps) {
   const id = "crypto-holdings-pie";
+  const [showAllDialog, setShowAllDialog] = React.useState(false);
+
+  // Procesamos los datos para mostrar solo un número limitado de criptomonedas
+  const { visibleData, hiddenData, allData } = React.useMemo(() => {
+    // Ordenamos las criptomonedas por peso (porcentaje) de mayor a menor
+    const sortedDistribution = [...chartData.distribution]
+      .filter((item) => !item.is_others) // Filtramos los que ya son 'otros'
+      .sort((a, b) => b.weight - a.weight);
+    
+    // Siempre mostramos solo las top 6 criptomonedas
+    const visible = sortedDistribution.slice(0, MAX_VISIBLE_CRYPTOS);
+    const hidden = sortedDistribution.slice(MAX_VISIBLE_CRYPTOS);
+    
+    return {
+      visibleData: visible, // Solo las top 6, sin categoría 'Otros'
+      hiddenData: hidden,   // Las restantes para el modal
+      allData: sortedDistribution // Todas las criptomonedas para el modal
+    };
+  }, [chartData.distribution]);
 
   // Obtenemos la lista de tickers
   const tickers = React.useMemo(
-    () => chartData.distribution.map((item) => item.ticker),
-    [chartData.distribution]
+    () => visibleData.map((item) => item.ticker),
+    [visibleData]
   );
 
   // Generamos colores dinámicos para los tickers
@@ -80,24 +112,24 @@ export default function DashboardHoldingsTable({
     [tickers]
   );
 
-  // Preparamos los datos para el gráfico usando directamente los datos de la API
+  // Preparamos los datos para el gráfico usando directamente los datos procesados
   const pieData: ChartDataItem[] = React.useMemo(() => {
-    return chartData.distribution.map((item) => ({
+    return visibleData.map((item) => ({
       ticker: item.ticker,
       name: item.name,
       value: item.value,
       weight: item.weight,
-      fill: dynamicColors[item.ticker] || item.color, // Usar color dinámico o el original como respaldo
+      fill: item.ticker === "OTROS" ? "#9ca3af" : (dynamicColors[item.ticker] || item.color), // Color especial para 'Otros'
       isOthers: item.is_others || false,
       othersDetail: item.others_detail || [],
     }));
-  }, [chartData.distribution, dynamicColors]);
+  }, [visibleData, dynamicColors]);
 
   // Generamos la configuración del gráfico
   const chartConfig = React.useMemo(() => {
-    const config = generateChartConfig(chartData.distribution, dynamicColors);
+    const config = generateChartConfig(visibleData, dynamicColors);
     return config;
-  }, [chartData.distribution, dynamicColors]);
+  }, [visibleData, dynamicColors]);
 
   // Estado para el elemento activo
   const [activeTicker, setActiveTicker] = React.useState<string | null>(
@@ -125,7 +157,7 @@ export default function DashboardHoldingsTable({
   return (
     <Card
       data-chart={id}
-      className="flex flex-col w-full sm:max-w-xs bg-zinc-800 border-zinc-600 h-[31rem] overflow-y-auto custom-scrollbar"
+      className="flex flex-col bg-zinc-800 border-zinc-600 h-full"
     >
       <ChartStyle id={id} config={chartConfig} />
       <div className="px-4 pt-4 pb-2 grid gap-2 items-center">
@@ -329,7 +361,7 @@ export default function DashboardHoldingsTable({
         </ChartContainer>
 
         {/* Lista de criptomonedas con porcentajes */}
-        <div className="w-full mt-4 px-2 overflow-y-auto custom-scrollbar" style={{ maxHeight: '8rem', minHeight: '8rem' }}>
+        <div className="w-full mt-4 px-2">
           <div className="grid grid-cols-2 gap-2">
             {pieData.map((item) => (
               <div
@@ -356,6 +388,58 @@ export default function DashboardHoldingsTable({
               </div>
             ))}
           </div>
+          
+          {/* Botu00f3n para ver todas las criptomonedas */}
+          {hiddenData.length > 0 && (
+            <Dialog open={showAllDialog} onOpenChange={setShowAllDialog}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mt-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 border-zinc-600"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ver {hiddenData.length} más
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-zinc-800 border-zinc-600 text-zinc-100">
+                <DialogHeader>
+                  <DialogTitle className="text-zinc-100">Todas las criptomonedas</DialogTitle>
+                </DialogHeader>
+                
+                <div className="mt-2">
+                  <h3 className="text-sm font-medium mb-2 text-zinc-100">
+                    Criptomonedas adicionales ({hiddenData.length})
+                  </h3>
+                </div>
+                
+                <div className="grid sm:grid-cols-2 gap-3 mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+                  {/* Mostrar solo las criptomonedas que no aparecen en la vista principal */}
+                  {hiddenData.map((item) => (
+                    <div
+                      key={item.ticker}
+                      className="flex items-center justify-between p-2 bg-zinc-700 rounded-md"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="flex h-4 w-4 shrink-0 rounded-full"
+                          style={{ backgroundColor: dynamicColors[item.ticker] || item.color }}
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{item.ticker}</span>
+                          <span className="text-xs text-zinc-400">{item.name}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-sm">{formatCurrency(item.value)}</span>
+                        <span className="text-xs text-zinc-400">{item.weight.toFixed(2)}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Agregar estilos para el scrollbar */}

@@ -119,3 +119,40 @@ export interface Top {
   image_url:          string;
 }
 
+// Interfaces para el historial de inversiones
+export interface InvestmentHistoryParams {
+  show_all?: boolean;
+  show_7d?: boolean;
+  show_30d?: boolean;
+  show_today?: boolean;
+}
+
+export interface InvestmentHistoryResponse {
+  investment_history: InvestmentHistory;
+}
+
+export interface InvestmentHistory {
+  labels: string[];
+  values: HistoryValue[];
+  max_values: HistoryValue[];
+  min_values: HistoryValue[];
+  snapshots: InvestmentSnapshot[];
+}
+
+export interface HistoryValue {
+  fecha: string;
+  valor: number;
+}
+
+export interface InvestmentSnapshot {
+  id: string;
+  user_id: string;
+  date: string;
+  total_value: number;
+  total_invested: number;
+  profit: number;
+  profit_percentage: number;
+  max_value: number;
+  min_value: number;
+}
+

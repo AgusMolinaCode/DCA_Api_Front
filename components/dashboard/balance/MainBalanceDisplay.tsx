@@ -18,7 +18,7 @@ export default function MainBalanceDisplay({ data }: MainBalanceDisplayProps) {
   const isPositive = profit_percentage >= 0;
 
   return (
-    <Card className="w-full sm:w-[24rem]  bg-zinc-800 border-zinc-600">
+    <Card className="w-full sm:w-[24rem] h-auto bg-zinc-800 border-zinc-600">
       <CardContent className="p-6">
         <div className="flex flex-col items-center mx-auto">
           <h3 className="text-zinc-100 text-xl font-bold">

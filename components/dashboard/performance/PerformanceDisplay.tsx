@@ -16,7 +16,7 @@ export default function PerformanceDisplay({ data }: PerformanceDisplayProps) {
   const hasValidPerformanceData = performance && performance.top_gainer && performance.top_loser;
 
   return (
-    <Card className="w-full sm:w-[24rem] bg-zinc-800 border-zinc-600">
+    <Card className="w-full sm:w-[24rem] h-full bg-zinc-800 border-zinc-600">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl text-zinc-100">Rendimiento 24h</CardTitle>
       </CardHeader>

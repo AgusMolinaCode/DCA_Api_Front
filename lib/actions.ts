@@ -414,3 +414,61 @@ export async function getPerformance() {
     };
   }
 }
+
+/**
+ * Obtiene el historial de inversiones para mostrar en gráficos
+ * @param params Parámetros opcionales para filtrar los datos (show_all, show_7d, show_30d, show_today)
+ * @returns Datos del historial de inversiones
+ */
+export async function getInvestmentHistory(params?: { show_all?: boolean, show_7d?: boolean, show_30d?: boolean, show_today?: boolean }) {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        data: null 
+      };
+    }
+    
+    // Construir la URL con los parámetros de consulta si existen
+    let url = `${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/investment-history`;
+    
+    if (params) {
+      const queryParams = new URLSearchParams();
+      if (params.show_all) queryParams.append('show_all', 'true');
+      if (params.show_7d) queryParams.append('show_7d', 'true');
+      if (params.show_30d) queryParams.append('show_30d', 'true');
+      if (params.show_today) queryParams.append('show_today', 'true');
+      
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al obtener el historial de inversiones: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
+    const data = await response.json();
+    
+    return { success: true, data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al obtener el historial de inversiones",
+      data: null 
+    };
+  }
+}
