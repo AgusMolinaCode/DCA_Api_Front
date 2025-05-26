@@ -156,3 +156,44 @@ export interface InvestmentSnapshot {
   min_value: number;
 }
 
+// Interfaces para bolsas de inversión
+export interface BolsaAsset {
+  id: string;
+  bolsa_id: string;
+  crypto_name: string;
+  ticker: string;
+  amount: number;
+  purchase_price: number;
+  total: number;
+  current_price: number;
+  current_value: number;
+  gain_loss: number;
+  gain_loss_percent: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Bolsa {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  goal: number;
+  current_value: number;
+  assets?: BolsaAsset[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BolsasResponse {
+  bolsas: Bolsa[];
+}
+
+export interface AddAssetToBolsaResponse {
+  added_assets: BolsaAsset[];
+  bolsa: Bolsa;
+  current_value: number;
+  progress_percent: number;
+  total_value_added: number;
+}
+

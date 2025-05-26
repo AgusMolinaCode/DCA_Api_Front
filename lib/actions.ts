@@ -472,3 +472,53 @@ export async function getInvestmentHistory(params?: { show_all?: boolean, show_7
     };
   }
 }
+
+/**
+ * Obtiene las bolsas de inversión del usuario
+ * @returns Datos de las bolsas de inversión
+ */
+export async function getBolsas() {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        data: null 
+      };
+    }
+
+    const url = `${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/bolsas`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { 
+        success: false, 
+        error: "Error al obtener las bolsas de inversión",
+        data: null 
+      };
+    }
+
+    const data = await response.json();
+    return { 
+      success: true, 
+      error: null,
+      data: data.bolsas || [] 
+    };
+  } catch (error) {
+    console.error("Error al obtener las bolsas de inversión:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al obtener las bolsas de inversión",
+      data: [] 
+    };
+  }
+}

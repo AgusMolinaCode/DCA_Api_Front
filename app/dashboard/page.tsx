@@ -5,6 +5,7 @@ import DashboardHoldings from "@/components/dashboard/holdings/DashboardHoldings
 import DashboardPerformance from "@/components/dashboard/performance/DashboardPerformance";
 import DashboardMainBalance from "@/components/dashboard/balance/DashboardMainBalance";
 import DashboardLineChart from "@/components/dashboard/line-chart/DashboardLineChart";
+import BolsaTransactions from "@/components/dashboard/bolsas/BolsaTransactions";
 
 export default function DashboardPage() {
   return (
@@ -30,6 +31,11 @@ export default function DashboardPage() {
         </div>
       </div>
       
+      {/* Sección de Bolsas de Inversión */}
+      <div className="mb-4">
+        <BolsaTransactions />
+      </div>
+
       {/* Sección inferior - siempre apilada */}
       <div className="space-y-4">
         <DashboardBalance />

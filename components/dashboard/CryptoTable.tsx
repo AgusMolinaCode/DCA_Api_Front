@@ -21,6 +21,29 @@ import {
 import { TokenIcon } from "@web3icons/react";
 import { SellCryptoModal } from "./SellCryptoModal";
 
+// Función para truncar nombres largos de criptomonedas
+const truncateCryptoName = (name: string, ticker: string): string => {
+  // Si el nombre es corto (menos de 20 caracteres), lo mostramos completo
+  if (name.length <= 20) {
+    return name;
+  }
+  
+  // Verificamos si el nombre incluye el ticker entre paréntesis
+  const tickerInParenthesis = `(${ticker})`;
+  if (name.includes(tickerInParenthesis)) {
+    // Extraemos la parte del nombre antes del ticker
+    const namePart = name.split(tickerInParenthesis)[0].trim();
+    // Si el nombre es muy largo, lo truncamos
+    if (namePart.length > 10) {
+      return `${namePart.substring(0, 10)}... ${tickerInParenthesis}`;
+    }
+    return `${namePart} ${tickerInParenthesis}`;
+  }
+  
+  // Si no tiene el formato esperado, simplemente truncamos
+  return `${name.substring(0, 10)}...`;
+};
+
 import {
   ColumnDef,
   flexRender,
@@ -138,8 +161,8 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
             ticker={row.original.ticker}
             imageUrl={row.original.image_url}
           />
-          <span className="font-semibold text-base">
-            {row.original.crypto_name}
+          <span className="font-semibold text-base" title={row.original.crypto_name}>
+            {truncateCryptoName(row.original.crypto_name, row.original.ticker)}
           </span>
         </div>
       ),

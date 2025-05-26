@@ -25,17 +25,24 @@ export default function PerformanceDisplay({ data }: PerformanceDisplayProps) {
           <div className="flex flex-col gap-4">
             {/* Top Gainer */}
             <div className="flex items-center space-x-4 bg-zinc-700/40 p-4 rounded-lg">
-              <div className="relative h-12 w-12 overflow-hidden rounded-full">
-                {performance.top_gainer.image_url && (
+              <div className="relative h-12 w-12 overflow-hidden rounded-full bg-zinc-800">
+                {performance.top_gainer.image_url ? (
                   <Image
                     src={performance.top_gainer.image_url}
                     alt={performance.top_gainer.ticker}
                     fill
-                    className="object-cover"
+                    className="object-cover p-1"
+                  />
+                ) : (
+                  <Image
+                    src="/images/cripto.png"
+                    alt={performance.top_gainer.ticker}
+                    fill
+                    className="object-cover p-1"
                   />
                 )}
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="font-medium text-zinc-100">{performance.top_gainer.ticker}</h3>
                 <div className="flex items-center text-green-500">
                   <ArrowUpIcon className="h-4 w-4 mr-1" />
@@ -43,8 +50,8 @@ export default function PerformanceDisplay({ data }: PerformanceDisplayProps) {
                     {Math.abs(performance.top_gainer.change_percent_24h).toFixed(2)}% (
                     {new Intl.NumberFormat("es-AR", {
                       style: "currency",
-                      currency: "ARS",
-                      maximumFractionDigits: 0,
+                      currency: "USD",
+                      maximumFractionDigits: 4,
                     }).format(Math.abs(performance.top_gainer.price_change))}
                     )
                   </span>
@@ -54,17 +61,24 @@ export default function PerformanceDisplay({ data }: PerformanceDisplayProps) {
 
             {/* Top Loser */}
             <div className="flex items-center space-x-4 bg-zinc-700/40 p-4 rounded-lg">
-              <div className="relative h-12 w-12 overflow-hidden rounded-full">
-                {performance.top_loser.image_url && (
+              <div className="relative h-12 w-12 overflow-hidden rounded-full bg-zinc-800">
+                {performance.top_loser.image_url ? (
                   <Image
                     src={performance.top_loser.image_url}
                     alt={performance.top_loser.ticker}
                     fill
-                    className="object-cover"
+                    className="object-cover p-1"
+                  />
+                ) : (
+                  <Image
+                    src="/images/cripto.png"
+                    alt={performance.top_loser.ticker}
+                    fill
+                    className="object-cover p-1"
                   />
                 )}
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="font-medium text-zinc-100">{performance.top_loser.ticker}</h3>
                 <div className="flex items-center text-red-500">
                   <ArrowDownIcon className="h-4 w-4 mr-1" />
@@ -72,8 +86,8 @@ export default function PerformanceDisplay({ data }: PerformanceDisplayProps) {
                     {Math.abs(performance.top_loser.change_percent_24h).toFixed(2)}% (
                     {new Intl.NumberFormat("es-AR", {
                       style: "currency",
-                      currency: "ARS",
-                      maximumFractionDigits: 0,
+                      currency: "USD",
+                      maximumFractionDigits: 4,
                     }).format(Math.abs(performance.top_loser.price_change))}
                     )
                   </span>
