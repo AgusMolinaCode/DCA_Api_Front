@@ -173,6 +173,14 @@ export interface BolsaAsset {
   updated_at: string;
 }
 
+export interface BolsaProgress {
+  percent: number;
+  raw_percent: number;
+  status: 'pendiente' | 'superado';
+  excess_amount?: number;
+  excess_percent?: number;
+}
+
 export interface Bolsa {
   id: string;
   user_id: string;
@@ -180,6 +188,7 @@ export interface Bolsa {
   description?: string;
   goal: number;
   current_value: number;
+  progress?: BolsaProgress;
   assets?: BolsaAsset[];
   created_at: string;
   updated_at: string;
