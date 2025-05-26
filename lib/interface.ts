@@ -198,6 +198,10 @@ export interface BolsasResponse {
   bolsas: Bolsa[];
 }
 
+export interface BolsaDetailsResponse {
+  bolsa: Bolsa;
+}
+
 export interface AddAssetToBolsaResponse {
   added_assets: BolsaAsset[];
   bolsa: Bolsa;

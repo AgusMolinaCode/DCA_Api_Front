@@ -5,11 +5,12 @@ import {
   CalendarIcon,
   CheckCircle2Icon,
   TargetIcon,
-  TrendingUpIcon,
   WalletIcon,
 } from "lucide-react";
+import BolsaDetailsButton from "./BolsaDetailsButton";
 
 export default async function BolsaTransactions() {
+  // Obtener las bolsas directamente de forma asíncrona
   const { success, data, error } = await getBolsas();
   const bolsas = (data || []) as Bolsa[];
 
@@ -79,7 +80,7 @@ export default async function BolsaTransactions() {
                           {new Intl.NumberFormat("es-AR", {
                             style: "currency",
                             currency: "ARS",
-                            maximumFractionDigits: 0,
+                            maximumFractionDigits: 1,
                           }).format(bolsa.goal)}
                         </p>
                       </div>
@@ -89,7 +90,7 @@ export default async function BolsaTransactions() {
                           {new Intl.NumberFormat("es-AR", {
                             style: "currency",
                             currency: "ARS",
-                            maximumFractionDigits: 0,
+                            maximumFractionDigits: 1,
                           }).format(bolsa.current_value)}
                         </p>
                       </div>
@@ -132,12 +133,7 @@ export default async function BolsaTransactions() {
                         Última actualización:{" "}
                         {new Date(bolsa.updated_at).toLocaleDateString("es-AR")}
                       </span>
-                      <a
-                        href={`/dashboard/bolsas/${bolsa.id}`}
-                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        Ver detalles →
-                      </a>
+                      <BolsaDetailsButton bolsaId={bolsa.id} />
                     </div>
                   </CardContent>
                 </Card>
