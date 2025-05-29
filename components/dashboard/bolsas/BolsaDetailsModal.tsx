@@ -25,7 +25,7 @@ export default function BolsaDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-zinc-800 border-zinc-600 text-zinc-100 lg:min-h-[20vh] lg:min-w-[40vw] overflow-y-hidden">
+      <DialogContent className="bg-zinc-800 border-zinc-600 text-zinc-100 lg:min-h-[20vh] md:min-w-[56vw] md:max-w-[56vw] overflow-y-hidden">
         <DialogHeader className="border-b border-zinc-700 pb-4">
           <div className="flex justify-between items-start">
             <DialogTitle className="text-xl font-semibold">{bolsa.name}</DialogTitle>
