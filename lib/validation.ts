@@ -91,3 +91,12 @@ export const resetPasswordSchema = z.object({
     message: "Las contraseñas no coinciden",
     path: ["confirmPassword"],
   });
+
+// Esquema de validación para el formulario de bolsa
+export const bolsaFormSchema = z.object({
+  name: z.string().min(1, "El nombre de la bolsa es requerido"),
+  description: z.string().optional(),
+  goal: z.number().positive("El objetivo debe ser un número positivo").min(1, "El objetivo debe ser mayor a 0"),
+});
+
+export type BolsaFormValues = z.infer<typeof bolsaFormSchema>;

@@ -198,6 +198,19 @@ export interface BolsasResponse {
   bolsas: Bolsa[];
 }
 
+export interface CreateBolsaData {
+  name: string;
+  description?: string;
+  goal: number;
+}
+
+export interface CreateBolsaResponse {
+  success: boolean;
+  message?: string;
+  bolsa?: Bolsa;
+  error?: string;
+}
+
 export interface BolsaDetailsResponse {
   bolsa: Bolsa;
 }

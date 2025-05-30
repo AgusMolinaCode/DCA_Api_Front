@@ -1,6 +1,7 @@
 "use server";
 
 import { CryptoData } from "./types";
+import { CreateBolsaData, CreateBolsaResponse } from "./interface";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -570,6 +571,56 @@ export async function getBolsaDetails(id: string) {
       success: false, 
       error: error instanceof Error ? error.message : "Error desconocido al obtener los detalles de la bolsa de inversión",
       data: null 
+    };
+  }
+}
+
+/**
+ * Crea una nueva bolsa de inversión
+ * @param data Datos de la bolsa de inversión
+ * @returns Resultado de la operación
+ */
+export async function createBolsa(data: CreateBolsaData): Promise<CreateBolsaResponse> {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return {
+        success: false,
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente."
+      };
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/bolsas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: result.message || 'Error al crear la bolsa de inversión'
+      };
+    }
+
+    // Revalidar la ruta para actualizar los datos
+    revalidatePath('/dashboard/bolsas');
+
+    return {
+      success: true,
+      message: 'Bolsa de inversión creada correctamente',
+      bolsa: result.bolsa
+    };
+  } catch (error) {
+    console.error('Error al crear la bolsa de inversión:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Error desconocido al crear la bolsa de inversión'
     };
   }
 }

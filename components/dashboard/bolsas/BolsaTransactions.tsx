@@ -8,6 +8,7 @@ import {
   WalletIcon,
 } from "lucide-react";
 import BolsaDetailsButton from "./BolsaDetailsButton";
+import AddBolsaModal from "./AddBolsaModal";
 
 export default async function BolsaTransactions() {
   // Obtener las bolsas directamente de forma asíncrona
@@ -18,10 +19,13 @@ export default async function BolsaTransactions() {
     <div className="w-full">
       <Card className="bg-zinc-800 border-zinc-600">
         <CardHeader className="pb-2">
-          <CardTitle className="text-xl text-zinc-100 flex items-center">
-            <WalletIcon className="mr-2 h-5 w-5" />
-            Bolsas de Inversión
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl text-zinc-100 flex items-center">
+              <WalletIcon className="mr-2 h-5 w-5" />
+              Bolsas de Inversión
+            </CardTitle>
+            <AddBolsaModal />
+          </div>
         </CardHeader>
         <CardContent>
           {error ? (
