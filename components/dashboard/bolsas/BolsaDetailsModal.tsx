@@ -201,7 +201,7 @@ export default function BolsaDetailsModal({
                 size="sm"
               >
                 <PlusIcon className="h-4 w-4 mr-2" />
-                Agregar criptomoneda
+                Agregar criptomoneda.
               </Button>
             </div>
 
