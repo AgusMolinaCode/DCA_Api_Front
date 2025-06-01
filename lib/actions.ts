@@ -715,3 +715,55 @@ export async function deleteAssetFromBolsa(bolsaId: string, assetId: string) {
     };
   }
 }
+
+/**
+ * Edita una bolsa de inversión existente
+ * @param bolsaId ID de la bolsa de inversión a editar
+ * @param data Datos actualizados de la bolsa
+ * @returns Resultado de la operación
+ */
+export async function updateBolsa(bolsaId: string, data: {
+  name?: string;
+  description?: string;
+  goal?: number;
+}) {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return {
+        success: false,
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente."
+      };
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/bolsas/${bolsaId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al actualizar la bolsa: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
+    const result = await response.json();
+    
+    // Revalidar la ruta para actualizar los datos
+    revalidatePath('/dashboard/bolsas');
+    
+    return { 
+      success: true, 
+      message: 'Bolsa actualizada correctamente',
+      bolsa: result.bolsa
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al actualizar la bolsa" 
+    };
+  }
+}

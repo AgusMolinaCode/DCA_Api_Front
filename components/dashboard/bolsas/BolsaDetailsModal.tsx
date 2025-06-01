@@ -23,6 +23,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { AddCryptoModal } from "@/components/dashboard/AddCryptoModal";
 import { deleteAssetFromBolsa } from "@/lib/actions";
+import EditBolsaModal from "./EditBolsaModal";
 
 interface BolsaDetailsModalProps {
   bolsa: Bolsa | null;
@@ -41,10 +42,13 @@ export default function BolsaDetailsModal({
     "detalles"
   );
   const [isAddCryptoModalOpen, setIsAddCryptoModalOpen] = useState(false);
-  
+
   // Estado para el modal de confirmación de eliminación
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [assetToDelete, setAssetToDelete] = useState<{id: string, name: string} | null>(null);
+  const [assetToDelete, setAssetToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -53,27 +57,34 @@ export default function BolsaDetailsModal({
   // Función para manejar la eliminación de un activo
   const handleDeleteAsset = async () => {
     if (!assetToDelete || !bolsa) return;
-    
+
     setIsDeleting(true);
     setDeleteError(null);
-    
+
     try {
-      const result = await deleteAssetFromBolsa(bolsa.id.toString(), assetToDelete.id);
-      
+      const result = await deleteAssetFromBolsa(
+        bolsa.id.toString(),
+        assetToDelete.id
+      );
+
       if (result.success) {
         // Cerrar el modal de confirmación
         setIsDeleteModalOpen(false);
         setAssetToDelete(null);
-        
+
         // Cerrar el modal de detalles si se solicita
         if (onCryptoAdded) {
           onCryptoAdded();
         }
       } else {
-        setDeleteError(result.error || 'Error al eliminar el activo');
+        setDeleteError(result.error || "Error al eliminar el activo");
       }
     } catch (error) {
-      setDeleteError(error instanceof Error ? error.message : 'Error desconocido al eliminar el activo');
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : "Error desconocido al eliminar el activo"
+      );
     } finally {
       setIsDeleting(false);
     }
@@ -88,15 +99,23 @@ export default function BolsaDetailsModal({
         <DialogContent className="bg-zinc-800 border-zinc-600 text-zinc-100 lg:min-h-[20vh] md:min-w-[56vw] md:max-w-[56vw] overflow-y-hidden">
           <DialogHeader className="border-b border-zinc-700 pb-4">
             <div className="flex justify-between items-start">
-              <DialogTitle className="text-xl font-semibold">
-                {bolsa.name}
-              </DialogTitle>
+              <div>
+                <div className="flex items-center">
+                  <DialogTitle className="text-xl font-semibold">
+                    {bolsa.name}
+                  </DialogTitle>
+                  <div className="ml-2">
+                    <EditBolsaModal bolsa={bolsa} onSuccess={onCryptoAdded} />
+                  </div>
+                </div>
+                {bolsa.description && (
+                  <p className="text-zinc-400 text-sm mt-2">
+                    {bolsa.description}
+                  </p>
+                )}
+              </div>
             </div>
-            {bolsa.description && (
-              <p className="text-zinc-400 text-sm mt-2">{bolsa.description}</p>
-            )}
           </DialogHeader>
-
           <div className="flex border-b border-zinc-700 mb-4">
             <button
               className={`px-4 py-2 ${
@@ -241,8 +260,8 @@ export default function BolsaDetailsModal({
           ) : (
             <div className="space-y-4">
               <div className="flex justify-end mb-4">
-                <AddCryptoModal 
-                  bolsaId={bolsa.id.toString()} 
+                <AddCryptoModal
+                  bolsaId={bolsa.id.toString()}
                   onSuccess={() => {
                     // Llamar al callback onCryptoAdded si existe
                     if (onCryptoAdded) {
@@ -369,7 +388,7 @@ export default function BolsaDetailsModal({
                               onClick={() => {
                                 setAssetToDelete({
                                   id: asset.id.toString(),
-                                  name: asset.crypto_name || asset.ticker
+                                  name: asset.crypto_name || asset.ticker,
                                 });
                                 setIsDeleteModalOpen(true);
                               }}
@@ -429,18 +448,19 @@ export default function BolsaDetailsModal({
               Confirmar eliminación
             </DialogTitle>
             <DialogDescription className="text-center pt-2">
-              ¿Estás seguro de que deseas eliminar <strong>{assetToDelete?.name}</strong> de esta bolsa?
+              ¿Estás seguro de que deseas eliminar{" "}
+              <strong>{assetToDelete?.name}</strong> de esta bolsa?
               <br />
               Esta acción no se puede deshacer.
             </DialogDescription>
           </DialogHeader>
-          
+
           {deleteError && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
               {deleteError}
             </div>
           )}
-          
+
           <DialogFooter className="flex justify-between sm:justify-between">
             <Button
               type="button"
@@ -467,7 +487,7 @@ export default function BolsaDetailsModal({
                   Eliminando...
                 </>
               ) : (
-                'Eliminar'
+                "Eliminar"
               )}
             </Button>
           </DialogFooter>
