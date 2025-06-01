@@ -16,7 +16,7 @@ import { cryptoFormSchema, type CryptoFormValues } from "@/lib/validation";
 import { Plus } from "lucide-react";
 import { Crypto, CryptoData } from "@/lib/types";
 import FormCryptoAdd from "./FormCryptoAdd";
-import { createTransaction } from "@/lib/actions";
+import { createTransaction, addAssetToBolsa } from "@/lib/actions";
 
 // URL base de la API de CryptoCompare
 const CRYPTO_COMPARE_API_URL = "https://min-api.cryptocompare.com/data";
@@ -37,9 +37,11 @@ function getCookie(name: string): string | null {
 
 interface AddCryptoModalProps {
   onAddCrypto?: (data: CryptoData) => void;
+  bolsaId?: string; // ID de la bolsa a la que se agregaru00e1 la criptomoneda
+  onSuccess?: () => void; // Callback para notificar cuando se ha agregado exitosamente
 }
 
-export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
+export function AddCryptoModal({ onAddCrypto, bolsaId, onSuccess }: AddCryptoModalProps) {
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
   const [selectedCrypto, setSelectedCrypto] = useState<Crypto | null>(null);
@@ -256,8 +258,25 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
         note: updatedValues.note,
       };
       
-      // Usar la acción del servidor para crear la transacción
-      const result = await createTransaction(cryptoData);
+      let result;
+      
+      // Si tenemos un bolsaId, agregar el activo a la bolsa
+      if (bolsaId) {
+        // Crear un objeto con los datos necesarios para agregar a la bolsa
+        const bolsaAsset = {
+          crypto_name: cryptoData.crypto_name,
+          ticker: cryptoData.ticker,
+          amount: cryptoData.amount,
+          purchase_price: cryptoData.purchase_price,
+          image_url: cryptoData.image_url
+        };
+        
+        // Usar la acción del servidor para agregar el activo a la bolsa
+        result = await addAssetToBolsa(bolsaId, [bolsaAsset]);
+      } else {
+        // Si no hay bolsaId, crear una transacción normal
+        result = await createTransaction(cryptoData);
+      }
       
       if (!result.success) {
         throw new Error(result.error || "Error al guardar la transacción");
@@ -273,6 +292,11 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
       setOpen(false);
       handleReset();
       
+      // Llamar al callback onSuccess si existe
+      if (onSuccess) {
+        onSuccess();
+      }
+      
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Error al procesar los datos del formulario");
     } finally {
@@ -283,16 +307,21 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
-          Transacción
+        <Button variant="outline" className="text-black">
+          <Plus className="w-4 h-4 mr-2 text-black" />
+          {bolsaId ? 'Agregar cripto' : 'Transacción'}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Agregar transacción</DialogTitle>
+          <DialogTitle>
+            {bolsaId ? 'Agregar criptomoneda a bolsa' : 'Agregar transacción'}
+          </DialogTitle>
           <DialogDescription>
-            Agrega una transacción de criptomoneda a tu portafolio
+            {bolsaId 
+              ? 'Agrega una criptomoneda a tu bolsa de inversión' 
+              : 'Agrega una transacción de criptomoneda a tu portafolio'
+            }
           </DialogDescription>
         </DialogHeader>
         
@@ -314,6 +343,7 @@ export function AddCryptoModal({ onAddCrypto }: AddCryptoModalProps) {
           searchError={searchError}
           onReset={handleReset}
           onCancel={handleCancel}
+          showDateAndNote={!bolsaId} // No mostrar fecha y nota cuando se agrega a una bolsa
         />
       </DialogContent>
     </Dialog>

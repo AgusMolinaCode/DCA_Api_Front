@@ -57,6 +57,13 @@ export default function BolsaDetailsButton({ bolsaId }: BolsaDetailsButtonProps)
           setIsModalOpen(false);
           setSelectedBolsa(null);
         }}
+        onCryptoAdded={() => {
+          // Cerrar el modal y actualizar los datos
+          setIsModalOpen(false);
+          setSelectedBolsa(null);
+          // Opcionalmente, podríamos recargar los datos de la bolsa aquí
+          // pero no es necesario porque la página principal se encargará de actualizarlos
+        }}
       />
     </>
   );

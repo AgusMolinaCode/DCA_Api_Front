@@ -56,6 +56,7 @@ interface FormCryptoAddProps {
   onReset: () => void;
   onCancel?: () => void; // Nueva propiedad opcional para cancelar y cerrar el modal
   isEditMode?: boolean;
+  showDateAndNote?: boolean; // Indica si se deben mostrar los campos de fecha y nota
 }
 
 const FormCryptoAdd = ({
@@ -77,6 +78,7 @@ const FormCryptoAdd = ({
   onReset,
   onCancel,
   isEditMode,
+  showDateAndNote = true, // Por defecto, mostrar fecha y nota
 }: FormCryptoAddProps) => {
   React.useEffect(() => {
     if (manualMode) {
@@ -355,55 +357,60 @@ const FormCryptoAdd = ({
             />
           )}
 
-          <div className="grid gap-4 pb-4">
-            <div>
-              <FormLabel className="text-sm pb-1">Fecha</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? (
-                      format(date, "PPP", { locale: es })
-                    ) : (
-                      <span>Selecciona una fecha</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(date) => date && setDate(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
+          {/* Mostrar campos de fecha y nota solo si showDateAndNote es true */}
+          {showDateAndNote && (
+            <>
+              <div className="grid gap-4 pb-4">
+                <div>
+                  <FormLabel className="text-sm pb-1">Fecha</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? (
+                          format(date, "PPP", { locale: es })
+                        ) : (
+                          <span>Selecciona una fecha</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={(date) => date && setDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
 
-          <FormField
-            control={form.control}
-            name="note"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nota (opcional)</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Agrega una nota sobre esta transacción"
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nota (opcional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Agrega una nota sobre esta transacción"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
         </div>
 
         {submitSuccess && (

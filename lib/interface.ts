@@ -163,6 +163,7 @@ export interface BolsaAsset {
   crypto_name: string;
   ticker: string;
   amount: number;
+  image_url: string;
   purchase_price: number;
   total: number;
   current_price: number;

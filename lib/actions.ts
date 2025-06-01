@@ -624,3 +624,94 @@ export async function createBolsa(data: CreateBolsaData): Promise<CreateBolsaRes
     };
   }
 }
+
+/**
+ * Agrega un activo a una bolsa de inversión específica
+ * @param bolsaId ID de la bolsa de inversión
+ * @param assets Array de activos a agregar
+ * @returns Resultado de la operación
+ */
+export async function addAssetToBolsa(bolsaId: string, assets: Array<{
+  crypto_name: string;
+  ticker: string;
+  amount: number;
+  purchase_price: number;
+  image_url?: string;
+}>) {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/bolsas/${bolsaId}/assets`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ assets }),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al agregar activo a la bolsa: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
+    const result = await response.json();
+    
+    // Revalidar la ruta para actualizar los datos
+    revalidatePath('/dashboard/bolsas');
+    
+    return { success: true, data: result };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al agregar activo a la bolsa" 
+    };
+  }
+}
+
+/**
+ * Elimina un activo de una bolsa de inversión específica
+ * @param bolsaId ID de la bolsa de inversión
+ * @param assetId ID del activo a eliminar
+ * @returns Resultado de la operación
+ */
+export async function deleteAssetFromBolsa(bolsaId: string, assetId: string) {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/bolsas/${bolsaId}/assets/${assetId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al eliminar activo de la bolsa: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
+    // Revalidar la ruta para actualizar los datos
+    revalidatePath('/dashboard/bolsas');
+    
+    return { success: true };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al eliminar activo de la bolsa" 
+    };
+  }
+}

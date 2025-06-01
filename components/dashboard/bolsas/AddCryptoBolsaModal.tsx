@@ -9,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogOverlay,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -181,13 +183,15 @@ export default function AddCryptoBolsaModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Agregar criptomoneda a {bolsa.name}</DialogTitle>
-          <DialogDescription>
-            Agrega una nueva criptomoneda a tu bolsa de inversión
-          </DialogDescription>
-        </DialogHeader>
+      <DialogPortal>
+        <DialogOverlay className="bg-black/80" />
+        <DialogContent className="sm:max-w-[500px] z-50">
+          <DialogHeader>
+            <DialogTitle>Agregar criptomoneda a {bolsa.name}</DialogTitle>
+            <DialogDescription>
+              Agrega una nueva criptomoneda a tu bolsa de inversión
+            </DialogDescription>
+          </DialogHeader>
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -347,7 +351,8 @@ export default function AddCryptoBolsaModal({
             </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
+        </DialogContent>
+      </DialogPortal>
     </Dialog>
   );
 }
