@@ -767,3 +767,42 @@ export async function updateBolsa(bolsaId: string, data: {
     };
   }
 }
+
+/**
+ * Elimina una bolsa de inversión
+ * @param bolsaId ID de la bolsa de inversión a eliminar
+ * @returns Resultado de la operación
+ */
+export async function deleteBolsa(bolsaId: string) {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { 
+        success: false, 
+        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+      };
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/bolsas/${bolsaId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al eliminar la bolsa: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
+    // Revalidar la ruta del dashboard para actualizar los datos
+    revalidatePath('/dashboard');
+    
+    return { success: true };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al eliminar la bolsa" 
+    };
+  }
+}

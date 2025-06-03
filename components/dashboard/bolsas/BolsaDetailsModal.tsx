@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Bolsa, BolsaAsset } from "@/lib/interface";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import { AddCryptoModal } from "@/components/dashboard/AddCryptoModal";
-import { deleteAssetFromBolsa } from "@/lib/actions";
+import { deleteAssetFromBolsa, deleteBolsa } from "@/lib/actions";
 import EditBolsaModal from "./EditBolsaModal";
 
 interface BolsaDetailsModalProps {
@@ -43,7 +44,7 @@ export default function BolsaDetailsModal({
   );
   const [isAddCryptoModalOpen, setIsAddCryptoModalOpen] = useState(false);
 
-  // Estado para el modal de confirmación de eliminación
+  // Estado para el modal de confirmación de eliminación de activo
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState<{
     id: string;
@@ -51,6 +52,11 @@ export default function BolsaDetailsModal({
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  
+  // Estado para el modal de confirmación de eliminación de bolsa
+  const [isDeleteBolsaModalOpen, setIsDeleteBolsaModalOpen] = useState(false);
+  const [isDeletingBolsa, setIsDeletingBolsa] = useState(false);
+  const [deleteBolsaError, setDeleteBolsaError] = useState<string | null>(null);
 
   if (!bolsa) return null;
 
@@ -89,6 +95,41 @@ export default function BolsaDetailsModal({
       setIsDeleting(false);
     }
   };
+  
+  // Función para manejar la eliminación de la bolsa
+  const handleDeleteBolsa = async () => {
+    if (!bolsa) return;
+
+    setIsDeletingBolsa(true);
+    setDeleteBolsaError(null);
+
+    try {
+      const result = await deleteBolsa(bolsa.id.toString());
+
+      if (result.success) {
+        // Cerrar el modal de confirmación
+        setIsDeleteBolsaModalOpen(false);
+        
+        // Cerrar el modal de detalles
+        onClose();
+        
+        // Actualizar la lista de bolsas
+        if (onCryptoAdded) {
+          onCryptoAdded();
+        }
+      } else {
+        setDeleteBolsaError(result.error || "Error al eliminar la bolsa");
+      }
+    } catch (error) {
+      setDeleteBolsaError(
+        error instanceof Error
+          ? error.message
+          : "Error desconocido al eliminar la bolsa"
+      );
+    } finally {
+      setIsDeletingBolsa(false);
+    }
+  };
 
   const isBolsaCompleted =
     bolsa.progress?.status === "superado" || bolsa.current_value >= bolsa.goal;
@@ -104,8 +145,16 @@ export default function BolsaDetailsModal({
                   <DialogTitle className="text-xl font-semibold">
                     {bolsa.name}
                   </DialogTitle>
-                  <div className="ml-2">
+                  <div className="ml-2 flex space-x-1">
                     <EditBolsaModal bolsa={bolsa} onSuccess={onCryptoAdded} />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100/10"
+                      onClick={() => setIsDeleteBolsaModalOpen(true)}
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
                 {bolsa.description && (
@@ -489,6 +538,42 @@ export default function BolsaDetailsModal({
               ) : (
                 "Eliminar"
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal de confirmación para eliminar la bolsa */}
+      <Dialog open={isDeleteBolsaModalOpen} onOpenChange={setIsDeleteBolsaModalOpen}>
+        <DialogContent className="bg-zinc-800 border-zinc-600 text-zinc-100 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">
+              Eliminar bolsa
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              ¿Estás seguro de que deseas eliminar la bolsa <span className="font-medium text-zinc-200">{bolsa.name}</span>? Esta acción no se puede deshacer y se eliminarán todos los activos asociados.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {deleteBolsaError && (
+            <div className="bg-red-900/30 border border-red-800 text-red-400 px-3 py-2 rounded-md flex items-start mb-3">
+              <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+              <span>{deleteBolsaError}</span>
+            </div>
+          )}
+          
+          <DialogFooter className="flex justify-between sm:justify-between gap-2">
+            <DialogClose asChild>
+              <Button variant="outline" className="border-zinc-600 hover:bg-zinc-700 hover:text-zinc-200">
+                Cancelar
+              </Button>
+            </DialogClose>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteBolsa}
+              disabled={isDeletingBolsa}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeletingBolsa ? "Eliminando..." : "Eliminar bolsa"}
             </Button>
           </DialogFooter>
         </DialogContent>
