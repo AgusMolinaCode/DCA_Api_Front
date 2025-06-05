@@ -145,15 +145,26 @@ export default function BolsaDetailsModal({
                   <DialogTitle className="text-xl font-semibold">
                     {bolsa.name}
                   </DialogTitle>
-                  <div className="ml-2 flex space-x-1">
+                  <div className="ml-2 flex gap-2">
                     <EditBolsaModal bolsa={bolsa} onSuccess={onCryptoAdded} />
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100/10"
+                      variant="outline"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 flex items-center"
                       onClick={() => setIsDeleteBolsaModalOpen(true)}
+                      disabled={isDeletingBolsa}
                     >
-                      <Trash2Icon className="h-4 w-4" />
+                      {isDeletingBolsa ? (
+                        <>
+                          <span className="mr-2 h-4 w-4 rounded-full border-2 border-red-500 border-t-transparent animate-spin"></span>
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2Icon className="h-4 w-4 mr-1" />
+                          Eliminar
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -511,7 +522,7 @@ export default function BolsaDetailsModal({
           )}
 
           <DialogFooter className="flex justify-between sm:justify-between">
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               onClick={() => {
@@ -522,7 +533,7 @@ export default function BolsaDetailsModal({
               disabled={isDeleting}
             >
               Cancelar
-            </Button>
+            </Button> */}
             <Button
               type="button"
               variant="destructive"
@@ -563,17 +574,23 @@ export default function BolsaDetailsModal({
           
           <DialogFooter className="flex justify-between sm:justify-between gap-2">
             <DialogClose asChild>
-              <Button variant="outline" className="border-zinc-600 hover:bg-zinc-700 hover:text-zinc-200">
+              {/* <Button variant="outline" className="border-zinc-600 hover:bg-zinc-700 hover:text-zinc-200">
                 Cancelar
-              </Button>
+              </Button> */}
             </DialogClose>
             <Button 
               variant="destructive" 
               onClick={handleDeleteBolsa}
               disabled={isDeletingBolsa}
-              className="bg-red-600 hover:bg-red-700"
             >
-              {isDeletingBolsa ? "Eliminando..." : "Eliminar bolsa"}
+              {isDeletingBolsa ? (
+                <>
+                  <span className="mr-2 h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                  Eliminando...
+                </>
+              ) : (
+                "Eliminar bolsa"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -7,9 +7,17 @@ import BolsaDetailsModal from "./BolsaDetailsModal";
 
 interface BolsaDetailsButtonProps {
   bolsaId: string;
+  onBolsaChange?: () => void;
+  markAsProcessing?: (bolsaId: string) => void;
+  unmarkAsProcessing?: (bolsaId: string) => void;
 }
 
-export default function BolsaDetailsButton({ bolsaId }: BolsaDetailsButtonProps) {
+export default function BolsaDetailsButton({ 
+  bolsaId,
+  onBolsaChange,
+  markAsProcessing,
+  unmarkAsProcessing
+}: BolsaDetailsButtonProps) {
   const [selectedBolsa, setSelectedBolsa] = useState<Bolsa | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
