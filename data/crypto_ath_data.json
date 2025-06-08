@@ -1,0 +1,167 @@
+[
+  {
+    "id": "bitcoin",
+    "name": "Bitcoin",
+    "symbol": "BTC",
+    "current_price": 105580,
+    "ath_price": 111814,
+    "ath_date": "2025-05-22T18:41:28.492Z",
+    "percent_from_ath": "-5.58",
+    "days_since_ath": 16,
+    "image": "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400"
+  },
+  {
+    "id": "ethereum",
+    "name": "Ethereum",
+    "symbol": "ETH",
+    "current_price": 2522.1,
+    "ath_price": 4878.26,
+    "ath_date": "2021-11-10T14:24:19.604Z",
+    "percent_from_ath": "-48.30",
+    "days_since_ath": 1305,
+    "image": "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628"
+  },
+  {
+    "id": "tether",
+    "name": "Tether",
+    "symbol": "USDT",
+    "current_price": 1,
+    "ath_price": 1.32,
+    "ath_date": "2018-07-24T00:00:00.000Z",
+    "percent_from_ath": "-24.24",
+    "days_since_ath": 2511,
+    "image": "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661"
+  },
+  {
+    "id": "ripple",
+    "name": "XRP",
+    "symbol": "XRP",
+    "current_price": 2.17,
+    "ath_price": 3.4,
+    "ath_date": "2018-01-07T00:00:00.000Z",
+    "percent_from_ath": "-36.18",
+    "days_since_ath": 2709,
+    "image": "https://coin-images.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1696501442"
+  },
+  {
+    "id": "gatechain-token",
+    "name": "Gate",
+    "symbol": "GT",
+    "current_price": 18.36,
+    "ath_price": 25.94,
+    "ath_date": "2025-01-25T03:07:37.823Z",
+    "percent_from_ath": "-29.22",
+    "days_since_ath": 133,
+    "image": "https://coin-images.coingecko.com/coins/images/8183/large/200X200.png?1735246724"
+  },
+  {
+    "id": "mantle",
+    "name": "Mantle",
+    "symbol": "MNT",
+    "current_price": 0.65228,
+    "ath_price": 1.54,
+    "ath_date": "2024-04-08T09:45:25.482Z",
+    "percent_from_ath": "-57.64",
+    "days_since_ath": 425,
+    "image": "https://coin-images.coingecko.com/coins/images/30980/large/Mantle-Logo-mark.png?1739213200"
+  },
+  {
+    "id": "usd1-wlfi",
+    "name": "USD1",
+    "symbol": "USD1",
+    "current_price": 1,
+    "ath_price": 1.025,
+    "ath_date": "2025-05-12T12:36:39.412Z",
+    "percent_from_ath": "-2.44",
+    "days_since_ath": 26,
+    "image": "https://coin-images.coingecko.com/coins/images/54977/large/USD1_1000x1000_transparent.png?1749297002"
+  },
+  {
+    "id": "official-trump",
+    "name": "Official Trump",
+    "symbol": "TRUMP",
+    "current_price": 10.35,
+    "ath_price": 73.43,
+    "ath_date": "2025-01-19T11:50:34.806Z",
+    "percent_from_ath": "-85.90",
+    "days_since_ath": 139,
+    "image": "https://coin-images.coingecko.com/coins/images/53746/large/trump.png?1737171561"
+  },
+  {
+    "id": "binancecoin",
+    "name": "BNB",
+    "symbol": "BNB",
+    "current_price": 650.24,
+    "ath_price": 788.84,
+    "ath_date": "2024-12-04T10:35:25.220Z",
+    "percent_from_ath": "-17.57",
+    "days_since_ath": 185,
+    "image": "https://coin-images.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1696501970"
+  },
+  {
+    "id": "solana",
+    "name": "Solana",
+    "symbol": "SOL",
+    "current_price": 149.56,
+    "ath_price": 293.31,
+    "ath_date": "2025-01-19T11:15:27.957Z",
+    "percent_from_ath": "-49.01",
+    "days_since_ath": 139,
+    "image": "https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756"
+  },
+  {
+    "id": "usd-coin",
+    "name": "USDC",
+    "symbol": "USDC",
+    "current_price": 0.999764,
+    "ath_price": 1.17,
+    "ath_date": "2019-05-08T00:40:28.300Z",
+    "percent_from_ath": "-14.55",
+    "days_since_ath": 2223,
+    "image": "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694"
+  },
+  {
+    "id": "dogecoin",
+    "name": "Dogecoin",
+    "symbol": "DOGE",
+    "current_price": 0.183704,
+    "ath_price": 0.731578,
+    "ath_date": "2021-05-08T05:08:23.458Z",
+    "percent_from_ath": "-74.89",
+    "days_since_ath": 1491,
+    "image": "https://coin-images.coingecko.com/coins/images/5/large/dogecoin.png?1696501409"
+  },
+  {
+    "id": "wrapped-bitcoin",
+    "name": "Wrapped Bitcoin",
+    "symbol": "WBTC",
+    "current_price": 105517,
+    "ath_price": 111685,
+    "ath_date": "2025-05-22T18:56:49.172Z",
+    "percent_from_ath": "-5.52",
+    "days_since_ath": 16,
+    "image": "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857"
+  },
+  {
+    "id": "hyperliquid",
+    "name": "Hyperliquid",
+    "symbol": "HYPE",
+    "current_price": 34.57,
+    "ath_price": 39.68,
+    "ath_date": "2025-05-26T02:00:26.867Z",
+    "percent_from_ath": "-12.88",
+    "days_since_ath": 12,
+    "image": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300"
+  },
+  {
+    "id": "sui",
+    "name": "Sui",
+    "symbol": "SUI",
+    "current_price": 3.24,
+    "ath_price": 5.35,
+    "ath_date": "2025-01-04T22:56:18.063Z",
+    "percent_from_ath": "-39.44",
+    "days_since_ath": 154,
+    "image": "https://coin-images.coingecko.com/coins/images/26375/large/sui-ocean-square.png?1727791290"
+  }
+]

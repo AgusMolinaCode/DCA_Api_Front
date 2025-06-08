@@ -1,0 +1,47 @@
+[
+  {
+    "rank": "",
+    "name": "",
+    "symbol": "",
+    "currentPrice": "Bitcoin\n                  \n  BTC",
+    "athPrice": "Buy",
+    "percentFromATH": "$105,604",
+    "athDate": "$111,814"
+  },
+  {
+    "rank": "",
+    "name": "",
+    "symbol": "",
+    "currentPrice": "Ethereum\n                  \n  ETH",
+    "athPrice": "Buy",
+    "percentFromATH": "$2,515.79",
+    "athDate": "$4,878.26"
+  },
+  {
+    "rank": "",
+    "name": "",
+    "symbol": "",
+    "currentPrice": "Tether\n                  \n  USDT",
+    "athPrice": "Buy",
+    "percentFromATH": "$1.00",
+    "athDate": "$1.32"
+  },
+  {
+    "rank": "",
+    "name": "",
+    "symbol": "",
+    "currentPrice": "XRP\n                  \n  XRP",
+    "athPrice": "Buy",
+    "percentFromATH": "$2.17",
+    "athDate": "$3.40"
+  },
+  {
+    "rank": "",
+    "name": "",
+    "symbol": "",
+    "currentPrice": "BNB\n                  \n  BNB",
+    "athPrice": "Buy",
+    "percentFromATH": "$649.70",
+    "athDate": "$788.84"
+  }
+]

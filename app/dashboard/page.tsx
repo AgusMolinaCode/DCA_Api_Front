@@ -6,8 +6,13 @@ import DashboardPerformance from "@/components/dashboard/performance/DashboardPe
 import DashboardMainBalance from "@/components/dashboard/balance/DashboardMainBalance";
 import DashboardLineChart from "@/components/dashboard/line-chart/DashboardLineChart";
 import BolsaTransactions from "@/components/dashboard/bolsas/BolsaTransactions";
+import { getCryptoATH } from "@/lib/getCryptoATH";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Obtener datos de ATH y mostrarlos por consola
+  const athData = await getCryptoATH();
+  console.log("Datos de ATH de las principales criptomonedas:", athData);
+  
   return (
     <div className="max-w-[100rem] mx-auto p-2 md:p-8">
       <DashboardContentLogin />
