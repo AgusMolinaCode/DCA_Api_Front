@@ -182,7 +182,7 @@ export async function getCryptoATH(symbols?: string[]): Promise<CryptoATHData[]>
     
     return athData;
   } catch (error) {
-    console.error('Error al obtener datos de ATH', error);
+    console.error('Error al obtener datos de ATH:', error);
     return [];
   }
 }
