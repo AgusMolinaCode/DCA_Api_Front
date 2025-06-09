@@ -3,23 +3,25 @@
     "id": "bitcoin",
     "name": "Bitcoin",
     "symbol": "BTC",
-    "current_price": 105580,
+    "current_price": 106261,
     "ath_price": 111814,
     "ath_date": "2025-05-22T18:41:28.492Z",
-    "percent_from_ath": "-5.58",
+    "percent_from_ath": "-4.97",
     "days_since_ath": 16,
-    "image": "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400"
+    "image": "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400",
+    "last_updated": "2025-06-08T18:24:30.745Z"
   },
   {
     "id": "ethereum",
     "name": "Ethereum",
     "symbol": "ETH",
-    "current_price": 2522.1,
+    "current_price": 2528.56,
     "ath_price": 4878.26,
     "ath_date": "2021-11-10T14:24:19.604Z",
-    "percent_from_ath": "-48.30",
-    "days_since_ath": 1305,
-    "image": "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628"
+    "percent_from_ath": "-48.17",
+    "days_since_ath": 1306,
+    "image": "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+    "last_updated": "2025-06-08T18:27:44.393Z"
   },
   {
     "id": "tether",
@@ -30,18 +32,20 @@
     "ath_date": "2018-07-24T00:00:00.000Z",
     "percent_from_ath": "-24.24",
     "days_since_ath": 2511,
-    "image": "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661"
+    "image": "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+    "last_updated": "2025-06-08T18:23:51.219Z"
   },
   {
     "id": "ripple",
     "name": "XRP",
     "symbol": "XRP",
-    "current_price": 2.17,
+    "current_price": 2.29,
     "ath_price": 3.4,
     "ath_date": "2018-01-07T00:00:00.000Z",
-    "percent_from_ath": "-36.18",
+    "percent_from_ath": "-32.65",
     "days_since_ath": 2709,
-    "image": "https://coin-images.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1696501442"
+    "image": "https://coin-images.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1696501442",
+    "last_updated": "2025-06-08T18:24:28.222Z"
   },
   {
     "id": "gatechain-token",
@@ -102,12 +106,13 @@
     "id": "solana",
     "name": "Solana",
     "symbol": "SOL",
-    "current_price": 149.56,
+    "current_price": 153.75,
     "ath_price": 293.31,
     "ath_date": "2025-01-19T11:15:27.957Z",
-    "percent_from_ath": "-49.01",
-    "days_since_ath": 139,
-    "image": "https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756"
+    "percent_from_ath": "-47.58",
+    "days_since_ath": 140,
+    "image": "https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756",
+    "last_updated": "2025-06-08T18:24:33.177Z"
   },
   {
     "id": "usd-coin",
@@ -124,12 +129,13 @@
     "id": "dogecoin",
     "name": "Dogecoin",
     "symbol": "DOGE",
-    "current_price": 0.183704,
+    "current_price": 0.185567,
     "ath_price": 0.731578,
     "ath_date": "2021-05-08T05:08:23.458Z",
-    "percent_from_ath": "-74.89",
-    "days_since_ath": 1491,
-    "image": "https://coin-images.coingecko.com/coins/images/5/large/dogecoin.png?1696501409"
+    "percent_from_ath": "-74.63",
+    "days_since_ath": 1492,
+    "image": "https://coin-images.coingecko.com/coins/images/5/large/dogecoin.png?1696501409",
+    "last_updated": "2025-06-08T18:24:04.835Z"
   },
   {
     "id": "wrapped-bitcoin",
@@ -163,5 +169,62 @@
     "percent_from_ath": "-39.44",
     "days_since_ath": 154,
     "image": "https://coin-images.coingecko.com/coins/images/26375/large/sui-ocean-square.png?1727791290"
+  },
+  {
+    "id": "bittensor",
+    "name": "Bittensor",
+    "symbol": "TAO",
+    "current_price": 379.55,
+    "ath_price": 757.6,
+    "ath_date": "2024-03-07T18:45:36.466Z",
+    "percent_from_ath": "-49.90",
+    "days_since_ath": 457,
+    "image": "https://coin-images.coingecko.com/coins/images/28452/large/ARUsPeNQ_400x400.jpeg?1696527447",
+    "last_updated": "2025-06-08T18:23:54.021Z"
+  },
+  {
+    "id": "thorchain",
+    "name": "THORChain",
+    "symbol": "RUNE",
+    "current_price": 1.64,
+    "ath_price": 20.87,
+    "ath_date": "2021-05-19T00:30:09.436Z",
+    "percent_from_ath": "-92.14",
+    "days_since_ath": 1481,
+    "image": "https://coin-images.coingecko.com/coins/images/6595/large/Rune200x200.png?1696506946",
+    "last_updated": "2025-06-08T18:23:56.837Z"
+  },
+  {
+    "id": "ronin",
+    "name": "Ronin",
+    "symbol": "RONIN",
+    "current_price": 0.54646,
+    "ath_price": 4.45,
+    "ath_date": "2024-03-26T05:12:38.487Z",
+    "percent_from_ath": "-87.72",
+    "days_since_ath": 439,
+    "image": "https://coin-images.coingecko.com/coins/images/20009/large/photo_2024-04-06_22-52-24.jpg?1712415367",
+    "last_updated": "2025-06-08T18:24:07.278Z"
+  },
+  {
+    "id": "cardano",
+    "name": "Cardano",
+    "symbol": "ADA",
+    "current_price": 0.672674,
+    "ath_price": 3.09,
+    "ath_date": "2021-09-02T06:00:10.474Z",
+    "percent_from_ath": "-78.23",
+    "days_since_ath": 1375,
+    "image": "https://coin-images.coingecko.com/coins/images/975/large/cardano.png?1696502090",
+    "last_updated": "2025-06-08T18:24:10.098Z"
+  },
+  {
+    "symbol": "FET",
+    "name": "FET",
+    "current_price": "Desconocido",
+    "ath_price": "Desconocido",
+    "ath_date": "Desconocido",
+    "percent_from_ath": "Desconocido",
+    "last_updated": "2025-06-08T18:24:49.487Z"
   }
 ]

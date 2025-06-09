@@ -6,13 +6,34 @@ import DashboardPerformance from "@/components/dashboard/performance/DashboardPe
 import DashboardMainBalance from "@/components/dashboard/balance/DashboardMainBalance";
 import DashboardLineChart from "@/components/dashboard/line-chart/DashboardLineChart";
 import BolsaTransactions from "@/components/dashboard/bolsas/BolsaTransactions";
-import { getCryptoATH } from "@/lib/getCryptoATH";
+import { Suspense } from "react";
 
-export default async function DashboardPage() {
-  // Obtener datos de ATH y mostrarlos por consola
-  const athData = await getCryptoATH();
-  console.log("Datos de ATH de las principales criptomonedas:", athData);
-  
+// Componentes de carga para cada sección
+const HoldingsLoader = () => (
+  <div className="w-full h-64 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+);
+
+const BalanceLoader = () => (
+  <div className="w-full h-64 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+);
+
+const PerformanceLoader = () => (
+  <div className="w-full h-68 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+);
+
+const ChartLoader = () => (
+  <div className="w-full h-64 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+);
+
+const BolsaLoader = () => (
+  <div className="w-full h-48 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+);
+
+const ContentLoader = () => (
+  <div className="w-full h-64 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+);
+
+export default function DashboardPage() {
   return (
     <div className="max-w-[100rem] mx-auto p-2 md:p-8">
       <DashboardContentLogin />
@@ -21,30 +42,44 @@ export default async function DashboardPage() {
       <div className="flex flex-col lg:flex-row gap-4 mb-4">
         {/* Gráfico de holdings - ancho completo en móvil, 1/3 en pantallas grandes */}
         <div className="w-full lg:w-1/3 h-auto">
-          <DashboardHoldings />
+          <Suspense fallback={<HoldingsLoader />}>
+            <DashboardHoldings />
+          </Suspense>
         </div>
         
         {/* Balance y rendimiento - ancho completo en móvil, 1/3 en pantallas grandes */}
         <div className="w-full lg:w-1/3 flex flex-col md:flex-row lg:flex-col gap-4 h-auto">
-          <DashboardMainBalance />
-          <DashboardPerformance />
+          <Suspense fallback={<BalanceLoader />}>
+            <DashboardMainBalance />
+          </Suspense>
+          <Suspense fallback={<PerformanceLoader />}>
+            <DashboardPerformance />
+          </Suspense>
         </div>
         
         {/* Gráfico de línea - ancho completo en móvil, 1/3 en pantallas grandes */}
         <div className="w-full lg:w-3/4 h-auto">
-          <DashboardLineChart />
+          <Suspense fallback={<ChartLoader />}>
+            <DashboardLineChart />
+          </Suspense>
         </div>
       </div>
       
       {/* Sección de Bolsas de Inversión */}
       <div className="mb-4">
-        <BolsaTransactions />
+        <Suspense fallback={<BolsaLoader />}>
+          <BolsaTransactions />
+        </Suspense>
       </div>
 
       {/* Sección inferior - siempre apilada */}
       <div className="space-y-4">
-        <DashboardBalance />
-        <DashboardContent />
+        <Suspense fallback={<ContentLoader />}>
+          <DashboardBalance />
+        </Suspense>
+        <Suspense fallback={<ContentLoader />}>
+          <DashboardContent />
+        </Suspense>
       </div>
     </div>
   );

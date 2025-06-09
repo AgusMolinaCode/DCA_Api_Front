@@ -3,7 +3,7 @@
 import { CryptoData } from "./types";
 import { CreateBolsaData, CreateBolsaResponse } from "./interface";
 import { revalidatePath } from "next/cache";
-import { getCryptoATH } from "./getCryptoATH";
+
 import { cookies } from "next/headers";
 
 /**
@@ -87,7 +87,8 @@ export async function createTransaction(data: CryptoData) {
 
 /**
  * Obtiene todas las transacciones del usuario agrupados por criptomoneda
- * @returns Lista de transacciones agrupadas
+ * e incluye información de ATH (All-Time High)
+ * @returns Lista de transacciones agrupadas con datos de ATH
  */
 export async function getTrasactionsDashboard() {
   try {
@@ -113,20 +114,9 @@ export async function getTrasactionsDashboard() {
     
     const result = await response.json();
     
-    // Verificar si hay resultados y extraer los símbolos de las criptomonedas del usuario
-    if (result && Array.isArray(result)) {
-      // Extraer los símbolos de las criptomonedas que el usuario tiene
-      const userCryptoSymbols = result.map(crypto => crypto.ticker.toUpperCase());
-      
-      // Obtener directamente los datos de ATH para las criptomonedas del usuario
-      const userAthData = await getCryptoATH(userCryptoSymbols);
-      
-      console.log("Datos de ATH de tus criptomonedas:", userAthData);
-      console.log("Tus criptomonedas:", userCryptoSymbols);
-    }
-    
     return { success: true, data: result };
   } catch (error) {
+    console.error("Error en getTrasactionsDashboard:", error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error desconocido al obtener las transacciones",

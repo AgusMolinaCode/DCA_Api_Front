@@ -1,0 +1,28 @@
+[
+  {
+    "ticker": "BTC",
+    "crypto_name": "Bitcoin",
+    "total_invested": 1000,
+    "current_price": 106000,
+    "profit_percent": 5.2,
+    "ath_data": {
+      "ath_price": "$111.814",
+      "ath_date": "2025-05-22T18:41:28.492Z",
+      "percent_from_ath": "-4.97%",
+      "days_since_ath": 16
+    }
+  },
+  {
+    "ticker": "ETH",
+    "crypto_name": "Ethereum",
+    "total_invested": 500,
+    "current_price": 2500,
+    "profit_percent": -2.3,
+    "ath_data": {
+      "ath_price": "$4878,26",
+      "ath_date": "2021-11-10T14:24:19.604Z",
+      "percent_from_ath": "-48.17%",
+      "days_since_ath": 1306
+    }
+  }
+]
