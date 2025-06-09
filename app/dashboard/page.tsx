@@ -10,7 +10,7 @@ import { Suspense } from "react";
 
 // Componentes de carga para cada sección
 const HoldingsLoader = () => (
-  <div className="w-full h-64 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+  <div className="w-full h-136 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
 );
 
 const BalanceLoader = () => (
