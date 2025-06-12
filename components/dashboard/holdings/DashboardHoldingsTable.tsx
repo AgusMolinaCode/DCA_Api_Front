@@ -235,7 +235,7 @@ export default function DashboardHoldingsTable({
         {!hasTenencias ? (
           <div className="flex items-center justify-center h-[20rem]">
             <p className="text-zinc-400">
-              No hay tenencias disponibles.
+              No hay tenencias disponibles
             </p>
           </div>
         ) : (
