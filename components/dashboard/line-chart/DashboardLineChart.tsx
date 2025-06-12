@@ -78,21 +78,33 @@ function DashboardLineChart() {
 
         if (result.success && result.data) {
           const data = result.data as InvestmentHistoryResponse;
-          setChartData(data.investment_history.values);
-          setMaxValues(data.investment_history.max_values);
-          setMinValues(data.investment_history.min_values);
+          
+          // Verificar que investment_history existe y tiene los datos necesarios
+          if (data.investment_history) {
+            // Verificar que values existe antes de asignarlo
+            setChartData(data.investment_history.values || []);
+            setMaxValues(data.investment_history.max_values || []);
+            setMinValues(data.investment_history.min_values || []);
 
-          // Si hay snapshots, tomamos el último para mostrar el beneficio
-          if (
-            data.investment_history.snapshots &&
-            data.investment_history.snapshots.length > 0
-          ) {
-            const lastSnapshot =
-              data.investment_history.snapshots[
-                data.investment_history.snapshots.length - 1
-              ];
-            setProfitPercentage(lastSnapshot.profit_percentage);
-            setTotalProfit(lastSnapshot.profit);
+            // Si hay snapshots, tomamos el último para mostrar el beneficio
+            if (
+              data.investment_history.snapshots &&
+              data.investment_history.snapshots.length > 0
+            ) {
+              const lastSnapshot =
+                data.investment_history.snapshots[
+                  data.investment_history.snapshots.length - 1
+                ];
+              setProfitPercentage(lastSnapshot.profit_percentage);
+              setTotalProfit(lastSnapshot.profit);
+            }
+          } else {
+            // Si no hay datos de historial, establecer arrays vacíos
+            setChartData([]);
+            setMaxValues([]);
+            setMinValues([]);
+            setProfitPercentage(0);
+            setTotalProfit(0);
           }
         } else {
           setError(result.error || "Error al cargar los datos");

@@ -25,7 +25,7 @@ const AthComponent = async () => {
         <Card>
           <CardHeader>
             <CardTitle>ATH (All-Time High)</CardTitle>
-            <CardDescription>No se pudieron cargar los datos del dashboard</CardDescription>
+            <CardDescription className=''>No se pudieron cargar los datos del dashboard</CardDescription>
           </CardHeader>
         </Card>
       );

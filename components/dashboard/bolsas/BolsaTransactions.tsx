@@ -20,10 +20,13 @@ export default async function BolsaTransactions() {
       <Card className="bg-zinc-800 border-zinc-600">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl text-zinc-100 flex items-center">
-              <WalletIcon className="mr-2 h-5 w-5" />
-              Bolsas de Inversión
-            </CardTitle>
+            <div className="flex items-center">
+              <WalletIcon className="mr-2 h-6 w-6 text-zinc-100" />
+              <CardTitle className=" text-2xl font-semibold leading-none tracking-tight text-zinc-100">
+                Bolsas de Inversión
+              </CardTitle>
+            </div>
+
             <AddBolsaModal />
           </div>
         </CardHeader>
