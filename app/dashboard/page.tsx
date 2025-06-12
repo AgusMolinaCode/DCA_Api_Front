@@ -7,6 +7,7 @@ import DashboardMainBalance from "@/components/dashboard/balance/DashboardMainBa
 import DashboardLineChart from "@/components/dashboard/line-chart/DashboardLineChart";
 import BolsaTransactions from "@/components/dashboard/bolsas/BolsaTransactions";
 import { Suspense } from "react";
+import AthComponent from "@/components/dashboard/ath/AthComponent";
 
 // Componentes de carga para cada sección
 const HoldingsLoader = () => (
@@ -30,6 +31,10 @@ const BolsaLoader = () => (
 );
 
 const ContentLoader = () => (
+  <div className="w-full h-64 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
+);
+
+const AthLoader = () => (
   <div className="w-full h-64 bg-zinc-800 border-zinc-600 rounded-lg animate-pulse"></div>
 );
 
@@ -69,6 +74,13 @@ export default function DashboardPage() {
       <div className="mb-4">
         <Suspense fallback={<BolsaLoader />}>
           <BolsaTransactions />
+        </Suspense>
+      </div>
+
+      {/* Sección de ATH */}
+      <div className="mb-4">
+        <Suspense fallback={<AthLoader />}>
+          <AthComponent />
         </Suspense>
       </div>
 

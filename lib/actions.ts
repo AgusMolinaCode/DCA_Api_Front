@@ -1,7 +1,7 @@
 "use server";
 
 import { CryptoData } from "./types";
-import { CreateBolsaData, CreateBolsaResponse } from "./interface";
+import { CreateBolsaData, CreateBolsaResponse, CryptorankResponse } from "./interface";
 import { revalidatePath } from "next/cache";
 
 import { cookies } from "next/headers";
@@ -806,6 +806,42 @@ export async function deleteBolsa(bolsaId: string) {
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error desconocido al eliminar la bolsa" 
+    };
+  }
+}
+
+/**
+ * Obtiene datos de criptomonedas desde la API de Cryptorank
+ * @param symbols Símbolos de criptomonedas separados por coma (ej: "ETH,BTC,SOL")
+ * @returns Datos de las criptomonedas solicitadas
+ */
+export async function getCryptorankData(symbols: string) {
+  try {
+    const apiKey = process.env.NEXT_PUBLIC_CRYPTORANK_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error("API Key de Cryptorank no encontrada. Asegúrate de configurar la variable de entorno NEXT_PUBLIC_CRYPTORANK_API_KEY.");
+    }
+    
+    const response = await fetch(`https://api.cryptorank.io/v2/currencies?symbol=${symbols}`, {
+      method: 'GET',
+      headers: {
+        'X-Api-Key': apiKey
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error al obtener datos de Cryptorank: ${response.status} ${response.statusText}`);
+    }
+    
+    const data: CryptorankResponse = await response.json();
+    
+    return { success: true, data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Error desconocido al obtener datos de Cryptorank",
+      data: null
     };
   }
 }

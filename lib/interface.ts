@@ -224,3 +224,47 @@ export interface AddAssetToBolsaResponse {
   total_value_added: number;
 }
 
+// Interfaces para la API de Cryptorank
+export interface CryptorankResponse {
+  data: CryptorankCurrency[];
+  status: {
+    usedCredits: number;
+  };
+}
+
+export interface CryptorankCurrency {
+  id: number;
+  key: string;
+  symbol: string;
+  name: string;
+  type: string;
+  rank: number;
+  categoryId: number;
+  lastUpdated: number;
+  totalSupply: string;
+  maxSupply: string | null;
+  circulatingSupply: string;
+  volume24hBase: string;
+  images: {
+    x60: string;
+    x150: string;
+    icon: string;
+    native: string;
+  };
+  price: string;
+  high24h: string;
+  low24h: string;
+  volume24h: string;
+  marketCap: string;
+  fullyDilutedValuation: string;
+  ath: {
+    date: number;
+    value: string;
+    percentChange: string;
+  };
+  atl: {
+    date: number;
+    value: string;
+    percentChange: string;
+  };
+}
