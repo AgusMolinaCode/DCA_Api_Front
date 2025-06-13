@@ -35,12 +35,15 @@ async function DashboardBalance({ refreshData }: { refreshData?: () => void }) {
               <p>{error}</p>
             </div>
           ) : dashboardData.length === 0 ? (
-            <div className="flex justify-center py-4">
-              <p className="text-zinc-100 text-xl md:text-2xl">No hay datos disponibles</p>
+            <div className="text-zinc-400 p-4 text-center">
+              No tienes criptomonedas agregadas
             </div>
           ) : (
             <div className="space-y-3">
-              <CryptoTable dashboardData={dashboardData} refreshData={refreshData} />
+              <CryptoTable
+                dashboardData={dashboardData}
+                refreshData={refreshData}
+              />
             </div>
           )}
         </CardContent>

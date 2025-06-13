@@ -22,10 +22,10 @@ const AthComponent = async () => {
     
     if (!dashboardResult.success || !dashboardResult.data || !Array.isArray(dashboardResult.data)) {
       return (
-        <Card>
+        <Card className='bg-zinc-800 border-zinc-600'>
           <CardHeader>
             <CardTitle>ATH (All-Time High)</CardTitle>
-            <CardDescription className=''>No se pudieron cargar los datos del dashboard</CardDescription>
+            <CardDescription className='text-zinc-200'>No se pudieron cargar los datos del dashboard</CardDescription>
           </CardHeader>
         </Card>
       );
@@ -41,10 +41,12 @@ const AthComponent = async () => {
     
     if (!cryptorankResult.success || !cryptorankResult.data) {
       return (
-        <Card>
+        <Card className='bg-zinc-800 border-zinc-600'>
           <CardHeader>
-            <CardTitle>ATH (All-Time High)</CardTitle>
-            <CardDescription>No se pudieron cargar los datos de ATH</CardDescription>
+            <CardTitle className='text-zinc-100'>ATH (All-Time High)</CardTitle>
+            <div className="text-zinc-400 p-4 text-center">
+              No se pudieron cargar los datos de ATH
+            </div>
           </CardHeader>
         </Card>
       );

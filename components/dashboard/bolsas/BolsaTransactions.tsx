@@ -37,7 +37,7 @@ export default async function BolsaTransactions() {
             </div>
           ) : bolsas.length === 0 ? (
             <div className="text-zinc-400 p-4 text-center">
-              No tienes bolsas de inversión creadas.
+              No tienes bolsas de inversión creadas
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
