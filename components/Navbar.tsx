@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +14,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { LoginForm } from "./login/LoginForm";
+import { ShimmerButton } from "./magicui/shimmer-button";
+
+// Importación dinámica del componente TickerTape para evitar problemas de SSR
+const TickerTapeNoSSR = dynamic(
+  () => import("react-ts-tradingview-widgets").then((w) => w.TickerTape),
+  {
+    ssr: false,
+  }
+);
 
 // Función para obtener una cookie
 function getCookie(name: string): string | null {
@@ -192,53 +202,104 @@ export const Navbar = () => {
   };
 
   return (
-    <div className="flex justify-around items-center p-4">
-      <div className="flex items-center justify-center gap-4">
-        <Link href="/" className="flex items-center gap-2">
-          <h1 className="text-lg sm:text-2xl font-bold text-zinc-100">DCA-app</h1>
-        </Link>
+    <div>
+      <div className="flex justify-between md:justify-around items-center p-4">
+        <div className="flex items-center justify-center gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <h1 className="text-lg sm:text-2xl font-bold text-zinc-100">
+              DCA-app
+            </h1>
+          </Link>
+        </div>
+        <div className="flex items-center gap-4">
+          {isClient && isAuthenticated ? (
+            <div className="flex items-center space-x-4">
+              <Button className="text-zinc-100 bg-zinc-700 hover:bg-zinc-800 duration-300">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <Button onClick={handleLogout} variant="destructive">
+                Salir
+              </Button>
+            </div>
+          ) : (
+            <Dialog>
+              <DialogTrigger asChild>
+                <ShimmerButton>Acceder</ShimmerButton>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold text-center">
+                    {isPasswordRecovery
+                      ? "Recuperar contraseña"
+                      : isLoginMode
+                      ? "Iniciar sesión"
+                      : "Crear cuenta"}
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-sm">
+                    {isPasswordRecovery
+                      ? "Ingresa tu correo electrónico para recuperar tu contraseña"
+                      : isLoginMode
+                      ? "Ingresa tus credenciales para acceder"
+                      : "Completa el formulario para registrarte"}
+                  </DialogDescription>
+                </DialogHeader>
+                <LoginForm
+                  onModeChange={handleModeChange}
+                  onPasswordRecoveryMode={handlePasswordRecoveryMode}
+                  onLoginSuccess={handleLoginSuccess}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </div>
-      <div className="flex items-center gap-4">
-        {isClient && isAuthenticated ? (
-          <div className="flex items-center space-x-4">
-            <Button className="text-zinc-100 bg-zinc-700 hover:bg-zinc-800 duration-300" >
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
-            <Button onClick={handleLogout} variant="destructive">
-              Salir
-            </Button>
-          </div>
-        ) : (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="text-zinc-100 bg-zinc-700 hover:bg-zinc-800 duration-300">Acceder</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-center">
-                  {isPasswordRecovery
-                    ? "Recuperar contraseña"
-                    : isLoginMode
-                    ? "Iniciar sesión"
-                    : "Crear cuenta"}
-                </DialogTitle>
-                <DialogDescription className="text-center text-sm">
-                  {isPasswordRecovery
-                    ? "Ingresa tu correo electrónico para recuperar tu contraseña"
-                    : isLoginMode
-                    ? "Ingresa tus credenciales para acceder"
-                    : "Completa el formulario para registrarte"}
-                </DialogDescription>
-              </DialogHeader>
-              <LoginForm
-                onModeChange={handleModeChange}
-                onPasswordRecoveryMode={handlePasswordRecoveryMode}
-                onLoginSuccess={handleLoginSuccess}
-              />
-            </DialogContent>
-          </Dialog>
-        )}
-      </div>
+
+
+      {isClient && <TickerTapeNoSSR 
+        colorTheme="dark" 
+        symbols={[
+          {
+            proName: "BITSTAMP:BTCUSD",
+            title: "Bitcoin"
+          },
+          {
+            proName: "BITSTAMP:ETHUSD",
+            title: "Ethereum"
+          },
+          {
+            proName: "BINANCE:BNBUSD",
+            title: "BNB"
+          },
+          {
+            proName: "BINANCE:SOLUSD",
+            title: "Solana"
+          },
+          {
+            proName: "BINANCE:ADAUSD",
+            title: "Cardano"
+          },
+          {
+            proName: "BINANCE:DOTUSD",
+            title: "Polkadot"
+          },
+          {
+            proName: "BINANCE:DOGEUSD",
+            title: "Dogecoin"
+          },
+          {
+            proName: "BINANCE:AVAXUSD",
+            title: "Avalanche"
+          },
+          {
+            proName: "BINANCE:XRPUSD",
+            title: "XRP"
+          },
+          {
+            proName: "BINANCE:LINKUSD",
+            title: "Chainlink"
+          }
+        ]}
+      />}
     </div>
   );
 };
