@@ -50,7 +50,7 @@ export default function Home() {
             className="text-xl font-bold" 
             skewAngle={0}
           >
-            DCA reduce el riesgo y maximiza tus ganancias a largo plazo  
+            DCA reduce el riesgo y maximiza tus ganancias a largo plazo -
           </VelocityScroll>
         </div>
       </div>
