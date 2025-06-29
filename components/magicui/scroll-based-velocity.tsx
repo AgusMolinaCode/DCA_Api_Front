@@ -89,7 +89,7 @@ function ParallaxText({
   return (
     <div
       ref={containerRef}
-      className="w-full overflow-hidden whitespace-nowrap"
+      className="w-full max-w-full overflow-hidden whitespace-nowrap"
       style={{ transform: `skew(${skewAngle}deg)` }}
       {...props}
     >
@@ -115,7 +115,7 @@ export function VelocityScroll({
   return (
     <div
       className={cn(
-        "relative w-full text-4xl font-bold tracking-[-0.02em] md:text-5xl md:leading-[5rem]",
+        "relative w-full max-w-full overflow-hidden text-4xl font-bold tracking-[-0.02em] md:text-5xl md:leading-[5rem]",
         className,
       )}
       {...props}

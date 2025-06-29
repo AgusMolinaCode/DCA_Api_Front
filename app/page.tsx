@@ -3,10 +3,11 @@ import { RainbowButton } from "@/components/magicui/rainbow-button";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import TextPressure from "@/components/ui/TextPressure";
 import Link from "next/link";
+import HeroTwo from "@/components/ui/HeroTwo";
 
 export default function Home() {
   return (
-    <>
+    <div>
       <div className="h-[100vh] relative flex flex-col items-start justify-start bg-zinc-900 pt-10 md:pt-14 xl:pt-20">
         <div className="w-full max-w-7xl mx-auto h-32 md:h-64 xl:h-96 mb-8 px-4">
           <TextPressure
@@ -43,17 +44,21 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="mt-10 mb-20 overflow-hidden py-8" style={{ transform: 'rotate(-4deg)', width: '120%', marginLeft: '-10%' }}>
-          <VelocityScroll 
-            defaultVelocity={0.2} 
-            numRows={2} 
-            className="text-xl font-bold" 
+        <div
+          className="mt-10 mb-20 overflow-hidden py-8 w-full"
+          style={{ transform: "rotate(-4deg)" }}
+        >
+          <VelocityScroll
+            defaultVelocity={0.2}
+            numRows={2}
+            className="text-xl font-bold"
             skewAngle={0}
           >
             DCA reduce el riesgo y maximiza tus ganancias a largo plazo -
           </VelocityScroll>
         </div>
       </div>
-    </>
+      <HeroTwo />
+    </div>
   );
 }
