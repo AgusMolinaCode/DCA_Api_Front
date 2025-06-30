@@ -8,7 +8,7 @@ import HeroTwo from "@/components/ui/HeroTwo";
 export default function Home() {
   return (
     <div>
-      <div className="h-[100vh] relative flex flex-col items-start justify-start bg-zinc-900 pt-10 md:pt-14 xl:pt-20">
+      <div className="xl:h-[100vh] relative flex flex-col items-start justify-start bg-zinc-900 pt-10 md:pt-14 xl:pt-20">
         <div className="w-full max-w-7xl mx-auto h-32 md:h-64 xl:h-96 mb-8 px-4">
           <TextPressure
             text="DCA CRYPTO"
@@ -45,7 +45,7 @@ export default function Home() {
         </div>
 
         <div
-          className="mt-10 mb-20 overflow-hidden py-8 w-full"
+          className="xl:mt-10 xl:pb-20 mt-4 pb-6 overflow-hidden py-8 w-full"
           style={{ transform: "rotate(-4deg)" }}
         >
           <VelocityScroll
