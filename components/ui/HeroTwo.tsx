@@ -32,7 +32,7 @@ function HeroTwo() {
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               <span className="text-3xl md:text-[3rem] font-bold leading-none">
-                Dashboard completo de DCA Crypto
+                Dashboard completo de DCA Crypt
               </span>
             </motion.h2>
           </>
