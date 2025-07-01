@@ -35,7 +35,7 @@ export default function Home() {
             DCA es una estrategia de inversión que consiste en comprar
             regularmente, sin importar el precio.
             <span className="font-semibold text-zinc-100">
-              Evita el estrés de intentar predecir el mercado
+              Evita el estrés de intentar predecir el mercado.
             </span>{" "}
             y aprovecha la volatilidad a tu favor. Con pequeñas inversiones
             periódicas, reduces el impacto de las fluctuaciones y obtienes un
