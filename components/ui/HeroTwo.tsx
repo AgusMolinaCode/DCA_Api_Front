@@ -1,7 +1,14 @@
 "use client";
 import React, { useRef } from "react";
 import { ContainerScroll } from "../ui/container-scroll-animation";
-import { motion, useInView } from "framer-motion";
+import {
+  motion,
+  useInView,
+  useScroll,
+  useVelocity,
+  useTransform,
+  useSpring,
+} from "framer-motion";
 import Image from "next/image";
 import ScrollFloat from "./ScrollFloat";
 import ScrollReveal from "./ScrollReveal";
@@ -10,6 +17,24 @@ import GlitchText from "./GlitchText";
 function HeroTwo() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.3 });
+  const targetRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start start", "end start"],
+  });
+
+  const scrollVelocity = useVelocity(scrollYProgress);
+
+  const skewXRaw = useTransform(
+    scrollVelocity,
+    [-0.5, 0.5],
+    ["45deg", "-45deg"]
+  );
+  const skewX = useSpring(skewXRaw, { mass: 3, stiffness: 400, damping: 50 });
+
+  const xRaw = useTransform(scrollYProgress, [0, 1], [0, -4000]);
+  const x = useSpring(xRaw, { mass: 3, stiffness: 400, damping: 50 });
 
   return (
     <div className="flex flex-col overflow-hidden" ref={ref}>
@@ -108,6 +133,26 @@ function HeroTwo() {
         </div>
       </div>
 
+      {/* <ScrollReveal
+        baseOpacity={0}
+        enableBlur={true}
+        baseRotation={5}
+        blurStrength={10}
+        containerClassName="text-center max-w-5xl mx-auto"
+        textClassName="text-center text-zinc-300 text-xl mt-4 mb-8 mx-auto"
+      ></ScrollReveal> */}
+
+      <section ref={targetRef} className="bg-zinc-900 text-zinc-100">
+        <div className="sticky top-0 flex items-center overflow-hidden">
+          <motion.p
+            style={{ skewX, x }}
+            className="origin-bottom-left whitespace-nowrap text-5xl font-black uppercase leading-[0.85] md:text-7xl md:leading-[0.85]"
+          >
+            Visualiza el ATH histórico de tus criptomonedas y descubre cuánto
+            falta para alcanzarlo nuevamente.
+          </motion.p>
+        </div>
+      </section>
       <Image
         src={`/images/imagen2.png`}
         alt="hero"
@@ -118,35 +163,10 @@ function HeroTwo() {
         style={{ maxHeight: "100%", objectPosition: "center" }}
       />
 
-      {/* <ScrollFloat
-        animationDuration={1}
-        ease="back.inOut(2)"
-        scrollStart="center bottom+=50%"
-        scrollEnd="bottom bottom-=40%"
-        stagger={0.03}
-        textClassName="text-center text-zinc-300 text-lg mt-4 mb-8 mx-auto"
-        containerClassName="text-center max-w-5xl mx-auto"
-      >
-        Visualiza el ATH histórico de tus criptomonedas y descubre cuánto
-        falta para alcanzarlo nuevamente
-      </ScrollFloat> */}
-
-      <ScrollReveal
-        baseOpacity={0}
-        enableBlur={true}
-        baseRotation={5}
-        blurStrength={10}
-        containerClassName="text-center max-w-5xl mx-auto"
-        textClassName="text-center text-zinc-300 text-xl mt-4 mb-8 mx-auto"
-      >
-        Visualiza el ATH histórico de tus criptomonedas y descubre cuánto falta
-        para alcanzarlo nuevamente
-      </ScrollReveal>
-
       <GlitchText
-        speed={1}
+        speed={20}
         enableShadows={true}
-        enableOnHover={true}
+        enableOnHover={false}
         className="custom-class"
       >
         ATH histórico
