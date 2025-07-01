@@ -1,8 +1,11 @@
 "use client";
 import React, { useRef } from "react";
 import { ContainerScroll } from "../ui/container-scroll-animation";
-import { motion, useInView } from "framer-motion";import Image from "next/image";
-1
+import { motion, useInView } from "framer-motion";
+import Image from "next/image";
+import ScrollFloat from "./ScrollFloat";
+import ScrollReveal from "./ScrollReveal";
+import GlitchText from "./GlitchText";
 
 function HeroTwo() {
   const ref = useRef(null);
@@ -50,7 +53,6 @@ function HeroTwo() {
       </ContainerScroll>
 
       <div className="max-w-7xl mx-auto py-6 px-4">
-
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
           {[
             {
@@ -105,6 +107,60 @@ function HeroTwo() {
           ))}
         </div>
       </div>
+
+      <Image
+        src={`/images/imagen2.png`}
+        alt="hero"
+        height={1000}
+        width={1800}
+        className="mx-auto rounded-2xl h-full max-w-7xl transform transition-transform duration-700 p-2 mt-8"
+        draggable={false}
+        style={{ maxHeight: "100%", objectPosition: "center" }}
+      />
+
+      {/* <ScrollFloat
+        animationDuration={1}
+        ease="back.inOut(2)"
+        scrollStart="center bottom+=50%"
+        scrollEnd="bottom bottom-=40%"
+        stagger={0.03}
+        textClassName="text-center text-zinc-300 text-lg mt-4 mb-8 mx-auto"
+        containerClassName="text-center max-w-5xl mx-auto"
+      >
+        Visualiza el ATH histórico de tus criptomonedas y descubre cuánto
+        falta para alcanzarlo nuevamente
+      </ScrollFloat> */}
+
+      <ScrollReveal
+        baseOpacity={0}
+        enableBlur={true}
+        baseRotation={5}
+        blurStrength={10}
+        containerClassName="text-center max-w-5xl mx-auto"
+        textClassName="text-center text-zinc-300 text-xl mt-4 mb-8 mx-auto"
+      >
+        Visualiza el ATH histórico de tus criptomonedas y descubre cuánto falta
+        para alcanzarlo nuevamente
+      </ScrollReveal>
+
+      <GlitchText
+        speed={1}
+        enableShadows={true}
+        enableOnHover={true}
+        className="custom-class"
+      >
+        ATH histórico
+      </GlitchText>
+
+      <Image
+        src={`/images/imagen3.png`}
+        alt="hero"
+        height={1000}
+        width={1800}
+        className="mx-auto rounded-2xl h-full max-w-7xl transform transition-transform duration-700 p-2 mt-8"
+        draggable={false}
+        style={{ maxHeight: "100%", objectPosition: "center" }}
+      />
     </div>
   );
 }
