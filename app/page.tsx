@@ -2,9 +2,10 @@ import { VelocityScroll } from "@/components/magicui/scroll-based-velocity";
 import { RainbowButton } from "@/components/magicui/rainbow-button";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import TextPressure from "@/components/ui/TextPressure";
-import Link from "next/link";
 import HeroTwo from "@/components/ui/HeroTwo";
 import HeroMobile from "@/components/ui/HeroMobile";
+import Footer from "@/components/ui/Footer";
+import TextHoverEffect from "@/components/ui/text-hover-effect";
 
 export default function Home() {
   return (
@@ -67,6 +68,10 @@ export default function Home() {
           <HeroMobile />
         </div>
       </div>
+      <div className="lg:h-[40rem] flex items-center justify-center">
+      <TextHoverEffect text="HODL" />
+    </div>
+      <Footer />
     </div>
   );
 }

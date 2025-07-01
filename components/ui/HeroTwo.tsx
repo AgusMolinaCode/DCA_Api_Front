@@ -13,6 +13,7 @@ import Image from "next/image";
 import ScrollFloat from "./ScrollFloat";
 import ScrollReveal from "./ScrollReveal";
 import GlitchText from "./GlitchText";
+import InfiniteScroll from "./InfiniteScroll";
 
 function HeroTwo() {
   const ref = useRef(null);
@@ -36,33 +37,48 @@ function HeroTwo() {
   const xRaw = useTransform(scrollYProgress, [0, 1], [0, -4000]);
   const x = useSpring(xRaw, { mass: 3, stiffness: 400, damping: 50 });
 
+  const items = [
+    {
+      content: (
+        <Image
+          src="/images/imagen3.png"
+          alt="Historial de inversiones"
+          width={1800}
+          height={1000}
+          className="w-full h-auto rounded-xl"
+          style={{ maxWidth: "100%" }}
+        />
+      ),
+    },
+    {
+      content: (
+        <Image
+          src="/images/imagen4.png"
+          alt="Búsqueda de transacciones"
+          width={1800}
+          height={1000}
+          className="w-full h-auto rounded-xl"
+          style={{ maxWidth: "100%" }}
+        />
+      ),
+    },
+  ];
+
   return (
     <div className="flex flex-col overflow-hidden" ref={ref}>
       <ContainerScroll
         titleComponent={
           <>
             <div className="w-full text-center">
-              <motion.p
-                className="text-2xl text-zinc-300"
-                initial={{ opacity: 0, y: 20 }}
-                animate={
-                  isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
-                }
-                transition={{ duration: 0.7, delay: 0.3 }}
-              >
+              <p className="text-2xl text-zinc-300">
                 Gestión inteligente de inversiones en criptomonedas
-              </motion.p>
+              </p>
             </div>
-            <motion.h2
-              className="text-3xl font-bold text-zinc-100 mt-4"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-            >
+            <h2 className="text-3xl font-bold text-zinc-100 mt-4">
               <span className="text-3xl md:text-[3rem] font-bold leading-none">
                 Dashboard completo de DCA Crypto
               </span>
-            </motion.h2>
+            </h2>
           </>
         }
       >
@@ -77,7 +93,7 @@ function HeroTwo() {
         />
       </ContainerScroll>
 
-      <div className="max-w-7xl mx-auto py-6 px-4">
+      <div className="max-w-7xl mx-auto py-6 px-4 hidden lg:block">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
           {[
             {
@@ -117,23 +133,20 @@ function HeroTwo() {
               delay: 0.8,
             },
           ].map((feature, index) => (
-            <motion.div
+            <div
               key={index}
               className="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.5, delay: feature.delay }}
             >
               <h4 className="text-xl font-semibold text-zinc-100 mb-3">
                 {feature.title}
               </h4>
               <p className="text-zinc-400">{feature.description}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
 
-      <section ref={targetRef} className="bg-zinc-900 text-zinc-100 py-20">
+      <section ref={targetRef} className="bg-zinc-900 text-zinc-300 py-20">
         <div className="sticky top-0 flex items-center justify-center overflow-hidden max-w-7xl mx-auto">
           <motion.p
             style={{ skewX }}
@@ -154,71 +167,74 @@ function HeroTwo() {
         style={{ maxHeight: "100%", objectPosition: "center" }}
       />
 
-      <div className="max-w-7xl mx-auto py-6 px-4">
+      <div className="max-w-7xl mx-auto py-6 px-4 hidden lg:block">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
           {[
             {
-              title: "Tenencias en crypto y porcentajes",
+              title: "Historial de transacciones",
               description:
-                "Visualiza tus tenencias en criptomonedas con gráficos detallados y porcentajes de distribución",
+                "Visualiza todas tus transacciones realizadas con detalles completos y ordenamiento personalizable",
               delay: 0.3,
             },
             {
-              title: "Balance total",
+              title: "Filtros avanzados por fecha",
               description:
-                "Monitorea tu balance total de inversiones, ganancias y pérdidas en tiempo real",
+                "Filtra transacciones por rangos de fechas, días específicos o períodos predefinidos",
               delay: 0.4,
             },
             {
-              title: "Rendimiento de criptomonedas",
+              title: "Búsqueda inteligente",
               description:
-                "Analiza el rendimiento de tus mejores y peores criptomonedas en diferentes períodos",
+                "Encuentra rápidamente cualquier transacción mediante búsqueda por moneda, monto o exchange",
               delay: 0.5,
             },
             {
-              title: "Historial de inversiones",
+              title: "Análisis de ganancias/pérdidas",
               description:
-                "Revisa el historial completo de tus inversiones con gráficos detallados de evolución",
+                "Visualiza el rendimiento de cada transacción con cálculos precisos de ganancias y pérdidas",
               delay: 0.6,
             },
             {
-              title: "Bolsas de inversión",
+              title: "Exportación de datos",
               description:
-                "Gestiona diferentes bolsas de inversión según tus estrategias y objetivos",
+                "Exporta tu historial de transacciones en múltiples formatos para análisis externos",
               delay: 0.7,
             },
             {
-              title: "Estrategia DCA personalizada",
+              title: "Etiquetas personalizadas",
               description:
-                "Implementa tu estrategia de Dollar Cost Averaging adaptada a tus necesidades",
+                "Organiza tus transacciones con etiquetas personalizadas para un seguimiento más eficiente",
               delay: 0.8,
             },
           ].map((feature, index) => (
-            <motion.div
+            <div
               key={index}
               className="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.5, delay: feature.delay }}
             >
               <h4 className="text-xl font-semibold text-zinc-100 mb-3">
                 {feature.title}
               </h4>
               <p className="text-zinc-400">{feature.description}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
 
-      <Image
-        src={`/images/imagen3.png`}
-        alt="hero"
-        height={1000}
-        width={1800}
-        className="mx-auto rounded-2xl h-full max-w-7xl transform transition-transform duration-700 p-2 mt-8"
-        draggable={false}
-        style={{ maxHeight: "100%", objectPosition: "center" }}
-      />
+      <div
+        style={{ height: "800px", position: "relative" }}
+        className="max-w-7xl mx-auto"
+      >
+        <InfiniteScroll
+          items={items}
+          width="100%"
+          isTilted={true}
+          tiltDirection="left"
+          autoplay={true}
+          autoplaySpeed={0.8}
+          autoplayDirection="down"
+          pauseOnHover={true}
+        />
+      </div>
     </div>
   );
 }
