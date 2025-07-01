@@ -155,42 +155,43 @@ function HeroTwo() {
       />
 
       <div className="max-w-7xl mx-auto py-6 px-4">
+        <h3 className="text-2xl font-bold text-zinc-100 mb-6 text-center">Información detallada de tus criptomonedas</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
           {[
             {
-              title: "Tenencias en crypto y porcentajes",
+              title: "Total Invertido",
               description:
-                "Visualiza tus tenencias en criptomonedas con gráficos detallados y porcentajes de distribución",
+                "Visualiza el monto total que has invertido en cada criptomoneda para un control preciso de tu capital",
               delay: 0.3,
             },
             {
-              title: "Balance total",
+              title: "Precio Actual",
               description:
-                "Monitorea tu balance total de inversiones, ganancias y pérdidas en tiempo real",
+                "Consulta el precio actual de mercado de cada una de tus criptomonedas en tiempo real",
               delay: 0.4,
             },
             {
-              title: "Rendimiento de criptomonedas",
+              title: "Diferencia de Precio",
               description:
-                "Analiza el rendimiento de tus mejores y peores criptomonedas en diferentes períodos",
+                "Observa la diferencia entre el precio actual y tu precio de compra para cada activo",
               delay: 0.5,
             },
             {
-              title: "Historial de inversiones",
+              title: "Precio Promedio",
               description:
-                "Revisa el historial completo de tus inversiones con gráficos detallados de evolución",
+                "Analiza tu precio promedio de compra calculado mediante la estrategia DCA implementada",
               delay: 0.6,
             },
             {
-              title: "Bolsas de inversión",
+              title: "Profit Actual",
               description:
-                "Gestiona diferentes bolsas de inversión según tus estrategias y objetivos",
+                "Monitorea tus ganancias o pérdidas actuales tanto en valor absoluto como en porcentaje",
               delay: 0.7,
             },
             {
-              title: "Estrategia DCA personalizada",
+              title: "Tenencias",
               description:
-                "Implementa tu estrategia de Dollar Cost Averaging adaptada a tus necesidades",
+                "Controla la cantidad exacta de cada criptomoneda que posees en tu portafolio",
               delay: 0.8,
             },
           ].map((feature, index) => (
