@@ -4,6 +4,7 @@ import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import TextPressure from "@/components/ui/TextPressure";
 import Link from "next/link";
 import HeroTwo from "@/components/ui/HeroTwo";
+import HeroMobile from "@/components/ui/HeroMobile";
 
 export default function Home() {
   return (
@@ -26,10 +27,10 @@ export default function Home() {
         </div>
 
         <div className="text-center max-w-2xl mx-auto px-4 mb-12">
-          <h2 className="text-2xl font-bold mb-4 text-zinc-100">
+          <h2 className="md:text-2xl text-xl font-bold mb-4 text-zinc-100">
             ¿Por qué usar Dollar Cost Averaging?
           </h2>
-          <p className="text-lg text-zinc-300 mb-6">
+          <p className="md:text-lg text-base text-zinc-300 mb-6">
             DCA es una estrategia de inversión que consiste en comprar
             regularmente, sin importar el precio.
             <span className="font-semibold text-zinc-100">
@@ -58,7 +59,14 @@ export default function Home() {
           </VelocityScroll>
         </div>
       </div>
-      <HeroTwo />
+      <div>
+        <div className="hidden lg:block">
+          <HeroTwo />
+        </div>
+        <div className="block lg:hidden">
+          <HeroMobile />
+        </div>
+      </div>
     </div>
   );
 }

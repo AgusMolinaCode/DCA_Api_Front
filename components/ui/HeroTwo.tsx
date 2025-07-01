@@ -1,8 +1,8 @@
 "use client";
 import React, { useRef } from "react";
 import { ContainerScroll } from "../ui/container-scroll-animation";
-import BlurText from "./BlurText";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";import Image from "next/image";
+1
 
 function HeroTwo() {
   const ref = useRef(null);
@@ -38,7 +38,7 @@ function HeroTwo() {
           </>
         }
       >
-        <img
+        <Image
           src={`/images/imagen1.png`}
           alt="hero"
           height={1000}
