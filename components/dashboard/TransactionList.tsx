@@ -40,6 +40,8 @@ import { formatCurrency } from "@/lib/types";
 import { TransactionFilters } from "./TransactionFilters";
 import TransactionColumns from "./TransactionColumns";
 import TransactionDateHeader from "./TransactionDateHeader";
+import ExportToExcel from '@/components/ui/ExportToExcel';
+import { useTransactionExportData } from '@/hooks/useTransactionExportData';
 
 export function TransactionList({
   transactions,
@@ -53,6 +55,9 @@ export function TransactionList({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [transactionToEdit, setTransactionToEdit] = useState<any>(null);
+
+  // Preparar datos para exportación
+  const exportData = useTransactionExportData(filteredData);
 
   // Obtener todas las fechas únicas de las transacciones para habilitar en el calendario
   const transactionDates = transactions.map((t) =>
@@ -366,6 +371,15 @@ export function TransactionList({
           uniqueDates={uniqueDates}
           transactionsCount={transactions.length}
           filteredCount={filteredData.length}
+          exportButton={
+            <ExportToExcel 
+              data={exportData}
+              filename="transacciones"
+              sheetName="Transacciones"
+              buttonText="Exportar Transacciones"
+              className=""
+            />
+          }
         />
         <CardContent>
           {filteredData.length > 0 ? (

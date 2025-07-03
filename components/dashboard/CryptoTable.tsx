@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { TokenIcon } from "@web3icons/react";
 import { SellCryptoModal } from "./SellCryptoModal";
+import ExportToExcel from '@/components/ui/ExportToExcel';
+import { useCryptoTableExportData } from '@/hooks/useCryptoTableExportData';
 
 // Función para truncar nombres largos de criptomonedas
 const truncateCryptoName = (name: string, ticker: string): string => {
@@ -112,6 +114,9 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
    // Estado para el modal de venta
    const [sellModalOpen, setSellModalOpen] = useState(false);
    const [selectedCrypto, setSelectedCrypto] = useState<DashboardItem | null>(null);
+   
+   // Preparar datos para exportación
+   const exportData = useCryptoTableExportData(dashboardData);
  
    // Función para abrir el modal de venta con la criptomoneda seleccionada
    const handleSellClick = (crypto: DashboardItem) => {
@@ -289,6 +294,17 @@ const CryptoTable = ({ dashboardData, refreshData }: CryptoTableProps) => {
 
   return (
     <div className="flex flex-col h-full justify-between">
+      {/* Header con botón de exportación */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-zinc-100">Portfolio de Criptomonedas</h3>
+        <ExportToExcel 
+          data={exportData}
+          filename="crypto_portfolio"
+          sheetName="Portfolio"
+          buttonText="Exportar Portfolio"
+          className=""
+        />
+      </div>
       <div className="overflow-x-auto">
         <SellCryptoModal
           open={sellModalOpen}

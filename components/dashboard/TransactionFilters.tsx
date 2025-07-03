@@ -24,6 +24,7 @@ interface TransactionFiltersProps {
   uniqueDates: Date[];
   transactionsCount: number;
   filteredCount: number;
+  exportButton?: React.ReactNode;
 }
 
 // Función para determinar qué días están disponibles en el calendario
@@ -47,6 +48,7 @@ export const TransactionFilters = ({
   uniqueDates,
   transactionsCount,
   filteredCount,
+  exportButton,
 }: TransactionFiltersProps) => {
   return (
     <div className="flex flex-col lg:flex-row items-center justify-between w-full p-6">
@@ -95,6 +97,7 @@ export const TransactionFilters = ({
               />
             </PopoverContent>
           </Popover>
+          {exportButton}
         </div>
       </div>
     </div>

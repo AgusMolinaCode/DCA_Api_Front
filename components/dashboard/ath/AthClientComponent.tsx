@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { TokenIcon } from '@web3icons/react';
 import Image from 'next/image';
 import { useState } from 'react';
+import ExportToExcel from '@/components/ui/ExportToExcel';
+import { useAthExportData } from '@/hooks/useAthExportData';
 
 // Tipo para los datos combinados
 interface CombinedData {
@@ -49,6 +51,9 @@ const AthClientComponent = ({ data }: { data: CombinedData[] }) => {
   
   // Calcular el total de valores en ATH
   const totalAthValue = data.reduce((sum, item) => sum + item.athPotentialValue, 0);
+  
+  // Preparar datos para exportación
+  const exportData = useAthExportData(data);
 
   // Función para ordenar los datos
   const sortData = (field: keyof CombinedData) => {
@@ -83,8 +88,19 @@ const AthClientComponent = ({ data }: { data: CombinedData[] }) => {
   return (
     <Card className="bg-zinc-800 border-zinc-600">
       <CardHeader>
-        <CardTitle className="text-zinc-100">ATH (All-Time High)</CardTitle>
-        <CardDescription className="text-zinc-400">Comparativa con máximos históricos</CardDescription>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-zinc-100">ATH (All-Time High)</CardTitle>
+            <CardDescription className="text-zinc-400">Comparativa con máximos históricos</CardDescription>
+          </div>
+          <ExportToExcel 
+            data={exportData}
+            filename="ath_analysis"
+            sheetName="ATH Analysis"
+            buttonText="Exportar ATH"
+            className=""
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -92,37 +108,37 @@ const AthClientComponent = ({ data }: { data: CombinedData[] }) => {
             <thead>
               <tr className="border-b">
                 <th 
-                  className="text-left py-3 cursor-pointer text-zinc-300 font-thin text-sm" 
+                  className="text-left py-3 cursor-pointer text-zinc-300 font-thin text-sm w-[180px] min-w-[180px]" 
                   onClick={() => sortData('crypto_name')}
                 >
                   Criptomoneda {sortField === 'crypto_name' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm" 
+                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm w-[120px] min-w-[120px]" 
                   onClick={() => sortData('current_price')}
                 >
                   Precio Actual {sortField === 'current_price' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm" 
+                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm w-[120px] min-w-[120px]" 
                   onClick={() => sortData('ath')}
                 >
                   ATH {sortField === 'ath' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm" 
+                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm w-[120px] min-w-[120px]" 
                   onClick={() => sortData('athDate')}
                 >
                   Fecha ATH {sortField === 'athDate' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm" 
+                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm w-[120px] min-w-[120px]" 
                   onClick={() => sortData('athPotentialValue')}
                 >
                   Valor en ATH {sortField === 'athPotentialValue' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th 
-                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm" 
+                  className="text-right py-3 cursor-pointer text-zinc-300 font-thin text-sm w-[120px] min-w-[120px]" 
                   onClick={() => sortData('athPercentChange')}
                 >
                   % desde ATH {sortField === 'athPercentChange' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -132,21 +148,21 @@ const AthClientComponent = ({ data }: { data: CombinedData[] }) => {
             <tbody>
               {sortedData.map((item, index) => (
                 <tr key={index} className="border-b border-zinc-800">
-                  <td className="py-3 flex items-center gap-2 text-zinc-100 text-md font-semibold">
+                  <td className="py-3 flex items-center gap-2 text-zinc-100 text-md font-semibold w-[180px] min-w-[180px]">
                     <CryptoIcon ticker={item.ticker} />
-                    <span>{item.crypto_name} ({item.ticker})</span>
+                    <span className="truncate">{item.crypto_name} ({item.ticker})</span>
                   </td>
-                  <td className="text-right py-3 text-zinc-100 text-md font-semibold">${item.current_price.toFixed(2)}</td>
-                  <td className="text-right py-3 text-zinc-100 text-md font-semibold">
+                  <td className="text-right py-3 text-zinc-100 text-md font-semibold w-[120px] min-w-[120px]">${item.current_price.toFixed(2)}</td>
+                  <td className="text-right py-3 text-zinc-100 text-md font-semibold w-[120px] min-w-[120px]">
                     {`$${item.ath.toFixed(2)}`}
                   </td>
-                  <td className="text-right py-3 text-zinc-100 text-md font-semibold">
+                  <td className="text-right py-3 text-zinc-100 text-md font-semibold w-[120px] min-w-[120px]">
                     {item.athDate}
                   </td>
-                  <td className="text-right py-3 text-zinc-100 text-md font-semibold">
+                  <td className="text-right py-3 text-zinc-100 text-md font-semibold w-[120px] min-w-[120px]">
                     {`$${item.athPotentialValue.toFixed(2)}`}
                   </td>
-                  <td className="text-right py-3 text-zinc-100 text-md font-semibold">
+                  <td className="text-right py-3 text-zinc-100 text-md font-semibold w-[120px] min-w-[120px]">
                     <span className={item.athPercentChange < 0 ? "text-red-500" : "text-green-500"}>
                       {item.athPercentChange.toFixed(2)}%
                     </span>
@@ -155,14 +171,14 @@ const AthClientComponent = ({ data }: { data: CombinedData[] }) => {
               ))}
               {/* Fila de total */}
               <tr className="border-t-2 border-zinc-600">
-                <td className="py-4 text-zinc-100 text-md font-bold">TOTAL</td>
-                <td className="text-right py-4"></td>
-                <td className="text-right py-4"></td>
-                <td className="text-right py-4"></td>
-                <td className="text-right py-4 text-zinc-100 text-md font-bold bg-green-700/30">
+                <td className="py-4 text-zinc-100 text-md font-bold w-[180px] min-w-[180px]">TOTAL</td>
+                <td className="text-right py-4 w-[120px] min-w-[120px]"></td>
+                <td className="text-right py-4 w-[120px] min-w-[120px]"></td>
+                <td className="text-right py-4 w-[120px] min-w-[120px]"></td>
+                <td className="text-right py-4 text-zinc-100 text-md font-bold bg-green-700/30 w-[120px] min-w-[120px]">
                   ${totalAthValue.toFixed(2)}
                 </td>
-                <td className="text-right py-4"></td>
+                <td className="text-right py-4 w-[120px] min-w-[120px]"></td>
               </tr>
             </tbody>
           </table>
