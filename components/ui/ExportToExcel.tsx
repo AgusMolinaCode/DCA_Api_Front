@@ -37,7 +37,7 @@ const ExportToExcel = ({
       
     } catch (error) {
       console.error('Error al exportar a Excel:', error);
-      alert('Error al exportar los datos a Excel');
+      alert('Error al exportar los datos a Excel.');
     }
   };
 
