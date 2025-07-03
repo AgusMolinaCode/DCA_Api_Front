@@ -8,7 +8,7 @@ import DashboardLineChart from "@/components/dashboard/line-chart/DashboardLineC
 import BolsaTransactions from "@/components/dashboard/bolsas/BolsaTransactions";
 import { Suspense } from "react";
 import AthComponent from "@/components/dashboard/ath/AthComponent";
-import { ChatAI } from "@/components/dashboard/ai/ChatAI";
+import { ChatAICompletion } from "@/components/dashboard/ai/ChatAICompletion";
 
 // Componentes de carga para cada sección
 const HoldingsLoader = () => (
@@ -85,7 +85,7 @@ export default function DashboardPage() {
       {/* Sección de AI Portfolio Advisor */}
       <div className="mb-4">
         <Suspense fallback={<ChatLoader />}>
-          <ChatAI />
+          <ChatAICompletion />
         </Suspense>
       </div>
 

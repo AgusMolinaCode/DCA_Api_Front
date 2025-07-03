@@ -1,35 +1,127 @@
 "use client";
 
 import { useState } from 'react';
-import { useChat } from 'ai/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 
-export function ChatAI() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat({
-    api: '/api/ai/simple-chat', // Cambiar temporalmente a la API simple
-    onError: (error) => {
-      console.error('Chat error details:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    },
-    onFinish: (message) => {
-      console.log('Chat finished successfully:', message);
-    },
-    onResponse: (response) => {
-      console.log('Chat response received:', response.status, response.statusText);
-    },
-  });
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
 
-  // Debug logs
-  console.log('ChatAI rendered - messages:', messages.length, 'isLoading:', isLoading, 'error:', error);
+export function ChatAICustom() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input.trim()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      console.log('Sending request to API...');
+      const response = await fetch('/api/ai/simple-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        })
+      });
+
+      console.log('Response received:', response.status, response.statusText);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
+      }
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: ''
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          console.log('Processing line:', line);
+          
+          if (line.startsWith('0:')) {
+            try {
+              const jsonStr = line.slice(2);
+              console.log('Parsing JSON:', jsonStr);
+              const data = JSON.parse(jsonStr);
+              console.log('Parsed data:', data);
+              
+              if (typeof data === 'string' && data.length > 0) {
+                setMessages(prev => 
+                  prev.map(m => 
+                    m.id === assistantMessage.id 
+                      ? { ...m, content: m.content + data }
+                      : m
+                  )
+                );
+              }
+            } catch (e) {
+              console.warn('Failed to parse line:', line, e);
+            }
+          } else if (line.startsWith('8:')) {
+            // Línea de finalización del stream
+            console.log('Stream finished');
+            break;
+          }
+        }
+      }
+
+      console.log('Stream completed successfully');
+    } catch (err) {
+      console.error('Request failed:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      // Remove the assistant message if it was added
+      setMessages(prev => prev.filter(m => m.role !== 'assistant' || m.content.length > 0));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSuggestedQuestion = (question: string) => {
-    console.log('Sending suggested question:', question);
-    append({ role: 'user', content: question });
+    setInput(question);
   };
 
   return (
@@ -37,36 +129,33 @@ export function ChatAI() {
       <CardHeader className="pb-3">
         <CardTitle className="text-zinc-100 flex items-center gap-2">
           <Bot className="h-5 w-5 text-emerald-500" />
-          AI Portfolio Advisor
+          AI Portfolio Advisor (Custom)
         </CardTitle>
         <p className="text-sm text-zinc-400">
-          Pregúntame sobre tu portfolio, estrategias de inversión y análisis de mercado
+          Versión personalizada del chat AI
         </p>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4 p-4">
-        {/* Área de mensajes */}
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4">
             {messages.length === 0 && !error && (
               <div className="text-center text-zinc-400 py-8">
                 <Bot className="h-12 w-12 mx-auto mb-4 text-zinc-500" />
-                <p className="text-lg font-medium mb-2">¡Hola! Soy tu asistente de portfolio</p>
-                <p className="text-sm">
-                  Puedes preguntarme cosas como:
-                </p>
+                <p className="text-lg font-medium mb-2">¡Hola! Soy tu asistente AI</p>
+                <p className="text-sm">Prueba preguntas como:</p>
                 <div className="mt-4 space-y-2 text-left max-w-md mx-auto">
                   <p className="text-xs bg-zinc-700 rounded-lg px-3 py-2 cursor-pointer hover:bg-zinc-600 transition-colors"
-                     onClick={() => handleSuggestedQuestion('¿Cómo está mi portfolio hoy?')}>
-                    "¿Cómo está mi portfolio hoy?"
+                     onClick={() => handleSuggestedQuestion('Hola, ¿cómo estás?')}>
+                    "Hola, ¿cómo estás?"
                   </p>
                   <p className="text-xs bg-zinc-700 rounded-lg px-3 py-2 cursor-pointer hover:bg-zinc-600 transition-colors"
-                     onClick={() => handleSuggestedQuestion('¿Debería diversificar más mis inversiones?')}>
-                    "¿Debería diversificar más mis inversiones?"
+                     onClick={() => handleSuggestedQuestion('Explícame qué es DCA')}>
+                    "Explícame qué es DCA"
                   </p>
                   <p className="text-xs bg-zinc-700 rounded-lg px-3 py-2 cursor-pointer hover:bg-zinc-600 transition-colors"
-                     onClick={() => handleSuggestedQuestion('¿Cuáles son mis mejores y peores inversiones?')}>
-                    "¿Cuáles son mis mejores y peores inversiones?"
+                     onClick={() => handleSuggestedQuestion('Dame consejos de inversión')}>
+                    "Dame consejos de inversión"
                   </p>
                 </div>
               </div>
@@ -120,7 +209,7 @@ export function ChatAI() {
                 <div className="bg-zinc-700 rounded-lg px-4 py-3">
                   <div className="flex items-center gap-2 text-zinc-400">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Analizando tu portfolio...</span>
+                    <span className="text-sm">Generando respuesta...</span>
                   </div>
                 </div>
               </div>
@@ -133,7 +222,7 @@ export function ChatAI() {
                 </div>
                 <div className="bg-red-700 rounded-lg px-4 py-3">
                   <div className="text-red-100 text-sm">
-                    Error: {error.message || 'Algo salió mal. Intenta de nuevo.'}
+                    Error: {error}
                   </div>
                 </div>
               </div>
@@ -141,15 +230,11 @@ export function ChatAI() {
           </div>
         </ScrollArea>
 
-        {/* Input del chat */}
-        <form 
-          onSubmit={handleSubmit} 
-          className="flex gap-2"
-        >
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             value={input}
-            onChange={handleInputChange}
-            placeholder="Pregúntame sobre tu portfolio..."
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Escribe tu mensaje..."
             className="flex-1 bg-zinc-700 border-zinc-600 text-zinc-100 placeholder:text-zinc-400"
             disabled={isLoading}
           />

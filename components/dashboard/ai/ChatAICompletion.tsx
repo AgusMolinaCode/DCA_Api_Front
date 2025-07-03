@@ -1,35 +1,23 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
-import { useChat } from 'ai/react';
+import { useCompletion } from '@ai-sdk/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 
-export function ChatAI() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat({
-    api: '/api/ai/simple-chat', // Cambiar temporalmente a la API simple
-    onError: (error) => {
-      console.error('Chat error details:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    },
-    onFinish: (message) => {
-      console.log('Chat finished successfully:', message);
-    },
-    onResponse: (response) => {
-      console.log('Chat response received:', response.status, response.statusText);
-    },
+export function ChatAICompletion() {
+  const { completion, input, handleInputChange, handleSubmit, isLoading, error } = useCompletion({
+    api: '/api/ai/completion',
   });
 
-  // Debug logs
-  console.log('ChatAI rendered - messages:', messages.length, 'isLoading:', isLoading, 'error:', error);
-
   const handleSuggestedQuestion = (question: string) => {
-    console.log('Sending suggested question:', question);
-    append({ role: 'user', content: question });
+    // For useCompletion, we need to manually trigger the input change
+    const syntheticEvent = {
+      target: { value: question }
+    } as React.ChangeEvent<HTMLInputElement>;
+    handleInputChange(syntheticEvent);
   };
 
   return (
@@ -40,78 +28,68 @@ export function ChatAI() {
           AI Portfolio Advisor
         </CardTitle>
         <p className="text-sm text-zinc-400">
-          Pregúntame sobre tu portfolio, estrategias de inversión y análisis de mercado
+          Asistente inteligente para tu portfolio de criptomonedas
         </p>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4 p-4">
-        {/* Área de mensajes */}
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4">
-            {messages.length === 0 && !error && (
+            {!completion && !isLoading && !error && (
               <div className="text-center text-zinc-400 py-8">
                 <Bot className="h-12 w-12 mx-auto mb-4 text-zinc-500" />
                 <p className="text-lg font-medium mb-2">¡Hola! Soy tu asistente de portfolio</p>
-                <p className="text-sm">
-                  Puedes preguntarme cosas como:
-                </p>
+                <p className="text-sm">Puedes preguntarme sobre:</p>
                 <div className="mt-4 space-y-2 text-left max-w-md mx-auto">
                   <p className="text-xs bg-zinc-700 rounded-lg px-3 py-2 cursor-pointer hover:bg-zinc-600 transition-colors"
-                     onClick={() => handleSuggestedQuestion('¿Cómo está mi portfolio hoy?')}>
-                    "¿Cómo está mi portfolio hoy?"
+                     onClick={() => handleSuggestedQuestion('¿Qué es DCA y cómo funciona?')}>
+                    "¿Qué es DCA y cómo funciona?"
                   </p>
                   <p className="text-xs bg-zinc-700 rounded-lg px-3 py-2 cursor-pointer hover:bg-zinc-600 transition-colors"
-                     onClick={() => handleSuggestedQuestion('¿Debería diversificar más mis inversiones?')}>
-                    "¿Debería diversificar más mis inversiones?"
+                     onClick={() => handleSuggestedQuestion('Dame consejos para diversificar mi portfolio')}>
+                    "Dame consejos para diversificar mi portfolio"
                   </p>
                   <p className="text-xs bg-zinc-700 rounded-lg px-3 py-2 cursor-pointer hover:bg-zinc-600 transition-colors"
-                     onClick={() => handleSuggestedQuestion('¿Cuáles son mis mejores y peores inversiones?')}>
-                    "¿Cuáles son mis mejores y peores inversiones?"
+                     onClick={() => handleSuggestedQuestion('¿Cuándo es buen momento para comprar criptomonedas?')}>
+                    "¿Cuándo es buen momento para comprar criptomonedas?"
                   </p>
                 </div>
               </div>
             )}
             
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                <div
-                  className={`flex gap-3 max-w-[80%] ${
-                    message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
-                  }`}
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      message.role === 'user'
-                        ? 'bg-emerald-600'
-                        : 'bg-zinc-700'
-                    }`}
-                  >
-                    {message.role === 'user' ? (
-                      <User className="h-4 w-4 text-white" />
-                    ) : (
-                      <Bot className="h-4 w-4 text-emerald-400" />
-                    )}
+            {/* Show user input if there's completion or loading */}
+            {(completion || isLoading) && input && (
+              <div className="flex gap-3 justify-end">
+                <div className="flex gap-3 max-w-[80%] flex-row-reverse">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <User className="h-4 w-4 text-white" />
                   </div>
-                  <div
-                    className={`rounded-lg px-4 py-3 ${
-                      message.role === 'user'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-zinc-700 text-zinc-100'
-                    }`}
-                  >
+                  <div className="rounded-lg px-4 py-3 bg-emerald-600 text-white">
                     <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                      {message.content}
+                      {input}
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+            )}
             
+            {/* Show completion response */}
+            {completion && (
+              <div className="flex gap-3 justify-start">
+                <div className="flex gap-3 max-w-[80%] flex-row">
+                  <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center flex-shrink-0">
+                    <Bot className="h-4 w-4 text-emerald-400" />
+                  </div>
+                  <div className="rounded-lg px-4 py-3 bg-zinc-700 text-zinc-100">
+                    <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                      {completion}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Show loading state */}
             {isLoading && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
@@ -120,12 +98,13 @@ export function ChatAI() {
                 <div className="bg-zinc-700 rounded-lg px-4 py-3">
                   <div className="flex items-center gap-2 text-zinc-400">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Analizando tu portfolio...</span>
+                    <span className="text-sm">Generando respuesta...</span>
                   </div>
                 </div>
               </div>
             )}
             
+            {/* Show error state */}
             {error && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center">
@@ -133,7 +112,7 @@ export function ChatAI() {
                 </div>
                 <div className="bg-red-700 rounded-lg px-4 py-3">
                   <div className="text-red-100 text-sm">
-                    Error: {error.message || 'Algo salió mal. Intenta de nuevo.'}
+                    Error: {error.message}
                   </div>
                 </div>
               </div>
@@ -141,15 +120,12 @@ export function ChatAI() {
           </div>
         </ScrollArea>
 
-        {/* Input del chat */}
-        <form 
-          onSubmit={handleSubmit} 
-          className="flex gap-2"
-        >
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
+            name="prompt"
             value={input}
             onChange={handleInputChange}
-            placeholder="Pregúntame sobre tu portfolio..."
+            placeholder="Pregúntame sobre inversiones, DCA, portfolio..."
             className="flex-1 bg-zinc-700 border-zinc-600 text-zinc-100 placeholder:text-zinc-400"
             disabled={isLoading}
           />

@@ -1,4 +1,4 @@
-import { createOpenAI } from '@ai-sdk/openai';
+import { openai } from '@ai-sdk/openai';
 import { streamText, convertToCoreMessages } from 'ai';
 import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
@@ -92,8 +92,8 @@ function createPortfolioContext(portfolioData: any) {
 export async function POST(request: NextRequest) {
   try {
     // Verificar que la API key esté configurada
-    if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-      console.error('NEXT_PUBLIC_OPENAI_API_KEY not found in environment variables');
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY not found in environment variables');
       return new Response(
         JSON.stringify({ error: 'API key de OpenAI no configurada' }), 
         { 
@@ -140,11 +140,6 @@ Responde de forma conversacional, profesional y educativa. Si el usuario pregunt
     console.log('Creating AI stream...');
     console.log('System prompt length:', systemPrompt.length);
     console.log('Messages:', JSON.stringify(messages, null, 2));
-    
-    // Crear instancia personalizada de OpenAI
-    const openai = createOpenAI({
-      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-    });
     
     const result = streamText({
       model: openai('gpt-4o'),
