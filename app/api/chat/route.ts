@@ -14,6 +14,7 @@ async function getPortfolioData() {
   try {
     const token = await getAuthToken();
     if (!token) {
+      console.log('[DEBUG] No auth token found');
       return null;
     }
 
@@ -24,10 +25,13 @@ async function getPortfolioData() {
     });
 
     if (!response.ok) {
+      console.log('[DEBUG] Response not ok:', response.status, response.statusText);
       return null;
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('[DEBUG] Dashboard data received:', JSON.stringify(data, null, 2));
+    return data;
   } catch (error) {
     console.error('Error fetching portfolio data:', error);
     return null;
@@ -44,6 +48,19 @@ export async function POST(req: Request) {
   
   if (portfolioData) {
     systemPrompt += `\n\nPortfolio del usuario:\n${JSON.stringify(portfolioData, null, 2)}\n\nResponde brevemente basándote en estos datos.`;
+    
+    // Log what tickers are available in the data
+    if (Array.isArray(portfolioData)) {
+      const tickers = portfolioData.map((item: any) => item.ticker).filter(Boolean);
+      console.log('[DEBUG] Available tickers:', tickers);
+    } else if (portfolioData.dashboard && Array.isArray(portfolioData.dashboard)) {
+      const tickers = portfolioData.dashboard.map((item: any) => item.ticker).filter(Boolean);
+      console.log('[DEBUG] Available tickers from dashboard:', tickers);
+    } else {
+      console.log('[DEBUG] No ticker data found in portfolioData:', Object.keys(portfolioData));
+    }
+  } else {
+    console.log('[DEBUG] No portfolio data available for AI');
   }
 
   const result = streamText({

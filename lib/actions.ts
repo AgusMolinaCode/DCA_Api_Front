@@ -113,6 +113,7 @@ export async function getTrasactionsDashboard() {
     }
     
     const result = await response.json();
+    console.log('[DEBUG] getTrasactionsDashboard result:', JSON.stringify(result, null, 2));
     
     return { success: true, data: result };
   } catch (error) {
