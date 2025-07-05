@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { ClerkProvider } from '@clerk/nextjs';
 
 const spaceMono = Space_Mono({
   variable: "--font-space-mono",
@@ -21,12 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={spaceMono.className}>
-
-      <body className="bg-zinc-900">
-        <Navbar />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={spaceMono.className}>
+        <body className="bg-zinc-900">
+          <Navbar />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
