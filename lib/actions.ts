@@ -3,42 +3,16 @@
 import { CryptoData } from "./types";
 import { CreateBolsaData, CreateBolsaResponse, CryptorankResponse } from "./interface";
 import { revalidatePath } from "next/cache";
-
-import { cookies } from "next/headers";
-
-/**
- * Guarda el token de autenticación en una cookie
- * @param token Token de autenticación
- */
-export async function saveAuthToken(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set({
-    name: "auth_token",
-    value: token,
-    httpOnly: true,
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 7, // 7 días
-  });
-}
+import { auth } from "@clerk/nextjs/server";
 
 /**
- * Elimina el token de autenticación de las cookies
+ * Obtiene el ID del usuario autenticado con Clerk
+ * @returns ID del usuario o null si no está autenticado
  */
-export async function removeAuthToken() {
-  const cookieStore = await cookies();
-  cookieStore.delete("auth_token");
-}
-
-/**
- * Obtiene el token de autenticación de las cookies
- * @returns Token de autenticación o null si no existe
- */
-export async function getAuthToken() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  
-  return token || null;
+export async function getCurrentUserId() {
+  const { userId } = await auth();
+  console.log('[DEBUG] Current user ID:', userId);
+  return userId;
 }
 
 /**
@@ -49,11 +23,11 @@ export async function getAuthToken() {
 export async function createTransaction(data: CryptoData) {
   try {
     
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente." 
       };
     }
     
@@ -61,7 +35,7 @@ export async function createTransaction(data: CryptoData) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
       body: JSON.stringify(data),
     });
@@ -92,18 +66,18 @@ export async function createTransaction(data: CryptoData) {
  */
 export async function getTrasactionsDashboard() {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: [] 
       };
     }
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/dashboard`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
       cache: 'no-store',
     });
@@ -132,18 +106,18 @@ export async function getTrasactionsDashboard() {
  */
 export async function getTransactions() {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: [] 
       };
     }
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/transactions`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
       cache: 'no-store',
     });
@@ -192,18 +166,18 @@ export async function getTransactions() {
  */
 export async function deleteTransaction(id: string) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente." 
       };
     }
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/transactions/${id}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
     });
     
@@ -231,18 +205,18 @@ export async function deleteTransaction(id: string) {
  */
 export async function editTransaction(id: string, data: CryptoData) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente." 
       };
     }
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/transactions/${id}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
@@ -271,18 +245,18 @@ export async function editTransaction(id: string, data: CryptoData) {
  */
 export async function deleteTransactionsByTicker(ticker: string) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente." 
       };
     }
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/transactions/ticker/${ticker}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
     });
     
@@ -308,18 +282,18 @@ export async function deleteTransactionsByTicker(ticker: string) {
  */
 export async function getHoldingsChart() {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: null 
       };
     }
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/holdings`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
       cache: 'no-store',
     });
@@ -346,11 +320,11 @@ export async function getHoldingsChart() {
  */
 export async function getCurrentBalance() {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: null 
       };
     }
@@ -359,7 +333,7 @@ export async function getCurrentBalance() {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
     });
     
@@ -386,11 +360,11 @@ export async function getCurrentBalance() {
  */
 export async function getPerformance() {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: null 
       };
     }
@@ -399,7 +373,7 @@ export async function getPerformance() {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
     });
     
@@ -427,11 +401,11 @@ export async function getPerformance() {
  */
 export async function getInvestmentHistory(params?: { show_all?: boolean, show_7d?: boolean, show_30d?: boolean, show_today?: boolean }) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: null 
       };
     }
@@ -456,7 +430,7 @@ export async function getInvestmentHistory(params?: { show_all?: boolean, show_7
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
       cache: 'no-store',
     });
@@ -484,11 +458,11 @@ export async function getInvestmentHistory(params?: { show_all?: boolean, show_7
  */
 export async function getBolsas() {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: null 
       };
     }
@@ -499,7 +473,7 @@ export async function getBolsas() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        "X-API-Key": userId,
       },
       cache: "no-store",
     });
@@ -535,11 +509,11 @@ export async function getBolsas() {
  */
 export async function getBolsaDetails(id: string) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.",
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente.",
         data: null 
       };
     }
@@ -550,7 +524,7 @@ export async function getBolsaDetails(id: string) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        "X-API-Key": userId,
       },
       cache: "no-store",
     });
@@ -586,11 +560,11 @@ export async function getBolsaDetails(id: string) {
  */
 export async function createBolsa(data: CreateBolsaData): Promise<CreateBolsaResponse> {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return {
         success: false,
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente."
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente."
       };
     }
 
@@ -598,7 +572,7 @@ export async function createBolsa(data: CreateBolsaData): Promise<CreateBolsaRes
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'X-API-Key': userId
       },
       body: JSON.stringify(data)
     });
@@ -643,11 +617,11 @@ export async function addAssetToBolsa(bolsaId: string, assets: Array<{
   image_url?: string;
 }>) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente." 
       };
     }
     
@@ -655,7 +629,7 @@ export async function addAssetToBolsa(bolsaId: string, assets: Array<{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
       body: JSON.stringify({ assets }),
     });
@@ -687,11 +661,11 @@ export async function addAssetToBolsa(bolsaId: string, assets: Array<{
  */
 export async function deleteAssetFromBolsa(bolsaId: string, assetId: string) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente." 
       };
     }
     
@@ -699,7 +673,7 @@ export async function deleteAssetFromBolsa(bolsaId: string, assetId: string) {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
     });
     
@@ -732,11 +706,11 @@ export async function updateBolsa(bolsaId: string, data: {
   goal?: number;
 }) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return {
         success: false,
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente."
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente."
       };
     }
 
@@ -744,7 +718,7 @@ export async function updateBolsa(bolsaId: string, data: {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
       body: JSON.stringify(data)
     });
@@ -779,18 +753,18 @@ export async function updateBolsa(bolsaId: string, data: {
  */
 export async function deleteBolsa(bolsaId: string) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       return { 
         success: false, 
-        error: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente." 
+        error: "Usuario no autenticado. Por favor, inicia sesión nuevamente." 
       };
     }
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/bolsas/${bolsaId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
     });
     

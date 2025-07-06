@@ -1,6 +1,6 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { streamText } from 'ai';
-import { getAuthToken } from '@/lib/actions';
+import { getCurrentUserId } from '@/lib/actions';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -12,15 +12,15 @@ const lmstudio = createOpenAICompatible({
 
 async function getPortfolioData() {
   try {
-    const token = await getAuthToken();
-    if (!token) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
       console.log('[DEBUG] No auth token found');
       return null;
     }
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/dashboard`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-API-Key': userId,
       },
     });
 

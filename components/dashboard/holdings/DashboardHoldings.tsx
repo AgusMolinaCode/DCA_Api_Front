@@ -1,24 +1,19 @@
-import * as React from "react"
+import * as React from "react";
 
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-  
-import { getHoldingsChart } from "@/lib/actions"
+} from "@/components/ui/card";
+
+import { getHoldingsChart } from "@/lib/actions";
 import DashboardHoldingsTable from "./DashboardHoldingsTable";
 
-
-
-
 export async function DashboardHoldings() {
-  const id = "crypto-holdings-pie"
-  
   // Obtenemos los datos de la API
   const response = await getHoldingsChart();
-  
+
   if (!response.success || !response.data) {
     return (
       <Card className="flex flex-col">
@@ -29,10 +24,8 @@ export async function DashboardHoldings() {
       </Card>
     );
   }
-  
-  return (
-    <DashboardHoldingsTable data={response.data} />
-  )
+
+  return <DashboardHoldingsTable data={response.data} />;
 }
 
-export default DashboardHoldings
+export default DashboardHoldings;
