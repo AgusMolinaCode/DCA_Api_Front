@@ -11,7 +11,6 @@ import { auth } from "@clerk/nextjs/server";
  */
 export async function getCurrentUserId() {
   const { userId } = await auth();
-  console.log('[DEBUG] Current user ID:', userId);
   return userId;
 }
 
@@ -87,11 +86,9 @@ export async function getTrasactionsDashboard() {
     }
     
     const result = await response.json();
-    console.log('[DEBUG] getTrasactionsDashboard result:', JSON.stringify(result, null, 2));
     
     return { success: true, data: result };
   } catch (error) {
-    console.error("Error en getTrasactionsDashboard:", error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error desconocido al obtener las transacciones",
@@ -568,7 +565,7 @@ export async function createBolsa(data: CreateBolsaData): Promise<CreateBolsaRes
       };
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/bolsas`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/bolsas`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -577,14 +574,15 @@ export async function createBolsa(data: CreateBolsaData): Promise<CreateBolsaRes
       body: JSON.stringify(data)
     });
 
-    const result = await response.json();
-
     if (!response.ok) {
+      const errorText = await response.text();
       return {
         success: false,
-        error: result.message || 'Error al crear la bolsa de inversión'
+        error: `Error al crear la bolsa de inversión: ${response.status} ${response.statusText} - ${errorText}`
       };
     }
+
+    const result = await response.json();
 
     // Revalidar la ruta para actualizar los datos
     revalidatePath('/dashboard/bolsas');

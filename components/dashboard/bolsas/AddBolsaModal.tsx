@@ -28,19 +28,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { bolsaFormSchema, type BolsaFormValues } from "@/lib/validation";
 import { createBolsa } from "@/lib/actions";
 
-// Función para obtener una cookie
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-
-  const cookies = document.cookie.split(";");
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.startsWith(name + "=")) {
-      return cookie.substring(name.length + 1);
-    }
-  }
-  return null;
-}
 
 interface AddBolsaModalProps {
   onAddBolsa?: (data: BolsaFormValues) => void;

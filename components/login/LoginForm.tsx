@@ -300,27 +300,8 @@ export function LoginForm({
       // Establecer estado de éxito
       setLoginStatus("success");
 
-      // Guardar el token en cookie
-      if (data.token) {
-
-        // Guardar el token en una cookie
-        document.cookie = `auth_token=${data.token}; path=/; max-age=${
-          60 * 60 * 24 * 7
-        }; SameSite=Strict`;
-
-        // Guardar el nombre de usuario en una cookie
-        const userName = data.user?.name || data.name || "Usuario";
-        document.cookie = `username=${userName}; path=/; max-age=${
-          60 * 60 * 24 * 7
-        }; SameSite=Strict`;
-        
-        // Establecer cookie de expiración de sesión (1 hora)
-        const expirationTime = new Date().getTime() + (1 * 60 * 60 * 1000); // Tiempo actual + 1 hora
-        document.cookie = `session_expiration=${expirationTime}; path=/; max-age=${
-          60 * 60 * 24 * 7
-        }; SameSite=Strict`;
-        console.log("Sesión iniciada, expirará en 1 hora");
-      }
+      // TODO: Esta funcionalidad debe ser reemplazada por Clerk authentication
+      // Se removió el almacenamiento de cookies para migrar a Clerk
 
       if (isPasswordRecovery) {
         // Manejar recuperación de contraseña

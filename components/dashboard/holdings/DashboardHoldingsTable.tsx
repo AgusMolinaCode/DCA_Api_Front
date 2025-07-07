@@ -81,16 +81,16 @@ export default function DashboardHoldingsTable({
   // Procesamos los datos para mostrar solo un número limitado de criptomonedas
   const { visibleData, hiddenData, allData } = React.useMemo(() => {
     // Ordenamos las criptomonedas por peso (porcentaje) de mayor a menor
+    // Incluimos todos los elementos, incluyendo la categoría "OTROS"
     const sortedDistribution = [...chartData.distribution]
-      .filter((item) => !item.is_others) // Filtramos los que ya son 'otros'
       .sort((a, b) => b.weight - a.weight);
 
-    // Siempre mostramos solo las top 6 criptomonedas
+    // Mostramos hasta MAX_VISIBLE_CRYPTOS criptomonedas
     const visible = sortedDistribution.slice(0, MAX_VISIBLE_CRYPTOS);
     const hidden = sortedDistribution.slice(MAX_VISIBLE_CRYPTOS);
 
     return {
-      visibleData: visible, // Solo las top 6, sin categoría 'Otros'
+      visibleData: visible, // Incluye la categoría 'Otros' si está presente
       hiddenData: hidden, // Las restantes para el modal
       allData: sortedDistribution, // Todas las criptomonedas para el modal
     };

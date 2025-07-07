@@ -17,23 +17,11 @@ import { Plus } from "lucide-react";
 import { Crypto, CryptoData } from "@/lib/types";
 import FormCryptoAdd from "./FormCryptoAdd";
 import { createTransaction, addAssetToBolsa } from "@/lib/actions";
+import { useUser } from "@clerk/nextjs";
 
 // URL base de la API de CryptoCompare
 const CRYPTO_COMPARE_API_URL = "https://min-api.cryptocompare.com/data";
 
-// Función para obtener una cookie
-function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
-  
-  const cookies = document.cookie.split(';');
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.startsWith(name + '=')) {
-      return cookie.substring(name.length + 1);
-    }
-  }
-  return null;
-}
 
 interface AddCryptoModalProps {
   onAddCrypto?: (data: CryptoData) => void;
@@ -42,6 +30,7 @@ interface AddCryptoModalProps {
 }
 
 export function AddCryptoModal({ onAddCrypto, bolsaId, onSuccess }: AddCryptoModalProps) {
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
   const [selectedCrypto, setSelectedCrypto] = useState<Crypto | null>(null);
@@ -167,8 +156,7 @@ export function AddCryptoModal({ onAddCrypto, bolsaId, onSuccess }: AddCryptoMod
     setManualMode(true);
     setSearchError(null);
     
-    // Mantener el ticker pero limpiar los otros campos para entrada manual
-    const currentTicker = form.getValues("ticker");
+    // Limpiar los campos para entrada manual
     form.setValue("crypto_name", "");
     form.setValue("purchase_price", "");
     // Establecer la imagen predeterminada para modo manual
@@ -216,10 +204,9 @@ export function AddCryptoModal({ onAddCrypto, bolsaId, onSuccess }: AddCryptoMod
       setIsSubmitting(true);
       setSubmitError(null);
 
-      // Verificar que haya un token en las cookies
-      const token = getCookie("auth_token");
-      if (!token) {
-        throw new Error("No se encontró el token de autenticación. Por favor, inicia sesión nuevamente.");
+      // Verificar que el usuario esté autenticado con Clerk
+      if (!user?.id) {
+        throw new Error("No se encontró el usuario autenticado. Por favor, inicia sesión nuevamente.");
       }
       
       // Si estamos en modo manual, asegurarse de que se use la imagen predeterminada

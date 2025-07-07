@@ -14,7 +14,6 @@ async function getPortfolioData() {
   try {
     const userId = await getCurrentUserId();
     if (!userId) {
-      console.log('[DEBUG] No auth token found');
       return null;
     }
 
@@ -25,12 +24,10 @@ async function getPortfolioData() {
     });
 
     if (!response.ok) {
-      console.log('[DEBUG] Response not ok:', response.status, response.statusText);
       return null;
     }
 
     const data = await response.json();
-    console.log('[DEBUG] Dashboard data received:', JSON.stringify(data, null, 2));
     return data;
   } catch (error) {
     console.error('Error fetching portfolio data:', error);
@@ -52,15 +49,10 @@ export async function POST(req: Request) {
     // Log what tickers are available in the data
     if (Array.isArray(portfolioData)) {
       const tickers = portfolioData.map((item: any) => item.ticker).filter(Boolean);
-      console.log('[DEBUG] Available tickers:', tickers);
     } else if (portfolioData.dashboard && Array.isArray(portfolioData.dashboard)) {
       const tickers = portfolioData.dashboard.map((item: any) => item.ticker).filter(Boolean);
-      console.log('[DEBUG] Available tickers from dashboard:', tickers);
     } else {
-      console.log('[DEBUG] No ticker data found in portfolioData:', Object.keys(portfolioData));
     }
-  } else {
-    console.log('[DEBUG] No portfolio data available for AI');
   }
 
   const result = streamText({
