@@ -53,7 +53,7 @@ export default function Home() {
           <VelocityScroll
             defaultVelocity={0.2}
             numRows={2}
-            className="text-xl font-bold"
+            className="text-xl font-bold text-zinc-600"
             skewAngle={0}
           >
             DCA reduce el riesgo y maximiza tus ganancias a largo plazo -
@@ -68,9 +68,9 @@ export default function Home() {
           <HeroMobile />
         </div>
       </div>
-      <div className="lg:h-[40rem] flex items-center justify-center">
-      <TextHoverEffect text="HODL" />
-    </div>
+      <div className="lg:h-[40rem] items-center justify-center hidden lg:flex">
+        <TextHoverEffect text="HODL" />
+      </div>
       <Footer />
     </div>
   );

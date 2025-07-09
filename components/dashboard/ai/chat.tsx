@@ -45,23 +45,32 @@ export default function ChatAI() {
   };
 
   React.useEffect(() => {
-    if (
-      scrollAreaRef.current &&
-      (status === "streaming" || status === "submitted")
-    ) {
-      const scrollContainer = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      );
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages, status]);
+
+  React.useEffect(() => {
+    if (status === "streaming" && scrollAreaRef.current) {
+      const scrollToBottom = () => {
+        if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+        }
+      };
+      
+      const interval = setInterval(scrollToBottom, 100);
+      return () => clearInterval(interval);
+    }
+  }, [status]);
 
   const ChatContent = React.useMemo(() => {
     return (
       <div className="flex flex-col h-full bg-zinc-900 text-zinc-100">
-        <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4 mb-4">
+        <div 
+          ref={scrollAreaRef} 
+          className="flex-1 overflow-y-auto pr-4 pb-4"
+          style={{ maxHeight: 'calc(100vh - 200px)' }}
+        >
           <div className="space-y-4 p-2 bg-zinc-900">
             {messages.length === 0 && (
               <div className="text-center text-zinc-400 py-8">
@@ -108,9 +117,9 @@ export default function ChatAI() {
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex gap-2 p-4 bg-zinc-800 border-t border-zinc-700 mt-auto">
+        <form onSubmit={handleSubmit} className="flex gap-2 p-4 bg-zinc-800 border-t border-zinc-700 sticky bottom-0 mt-auto">
           <input
             name="prompt"
             value={input}
