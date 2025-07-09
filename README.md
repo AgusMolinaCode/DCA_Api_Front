@@ -45,6 +45,9 @@ Aplicación web completa para gestionar estrategias de Dollar Cost Averaging (DC
 - **Integración**: Chat contextual con datos del portfolio
 - **Funcionalidad**: Asesoramiento financiero personalizado
 
+### Autenticacion
+- **Clerk**: Autenticacion con github y google
+
 ## 🏃‍♂️ Instalación y Uso
 
 ### Prerrequisitos
