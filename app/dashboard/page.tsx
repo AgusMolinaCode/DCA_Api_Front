@@ -10,6 +10,8 @@ import { Suspense } from "react";
 import AthComponent from "@/components/dashboard/ath/AthComponent";
 import Footer from "@/components/ui/Footer";
 
+export const dynamic = 'force-dynamic';
+
 
 // Componentes de carga para cada sección
 const HoldingsLoader = () => (
