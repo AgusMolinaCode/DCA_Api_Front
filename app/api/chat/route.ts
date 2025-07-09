@@ -1,13 +1,14 @@
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
-import { getCurrentUserId } from '@/lib/actions';
+import { getCurrentUserId, getCurrentBalance, getTransactions } from '@/lib/actions';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-const lmstudio = createOpenAICompatible({
-  name: 'lmstudio',
-  baseURL: 'http://localhost:1234/v1'
+const deepseek = createOpenAI({
+  name: 'deepseek',
+  apiKey: process.env.DEEPSEEK_API_KEY || '',
+  baseURL: 'https://api.deepseek.com/v1',
 });
 
 async function getPortfolioData() {
@@ -17,18 +18,19 @@ async function getPortfolioData() {
       return null;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:8080'}/dashboard`, {
-      headers: {
-        'X-API-Key': userId,
-      },
-    });
+    // Fetch current balance and transactions in parallel
+    const [balanceResult, transactionsResult] = await Promise.all([
+      getCurrentBalance(),
+      getTransactions()
+    ]);
 
-    if (!response.ok) {
-      return null;
-    }
+    const portfolioData = {
+      balance: balanceResult.success ? balanceResult.data : null,
+      transactions: transactionsResult.success ? transactionsResult.data : [],
+      hasData: balanceResult.success || transactionsResult.success
+    };
 
-    const data = await response.json();
-    return data;
+    return portfolioData;
   } catch (error) {
     console.error('Error fetching portfolio data:', error);
     return null;
@@ -41,22 +43,38 @@ export async function POST(req: Request) {
   // Fetch portfolio data
   const portfolioData = await getPortfolioData();
   
-  let systemPrompt = 'Eres un asistente especializado en criptomonedas. Respondes en español de forma concisa y directa.';
+  let systemPrompt = 'Eres un asistente especializado en criptomonedas y gestión de portafolios. Respondes en español de forma concisa y directa.';
   
-  if (portfolioData) {
-    systemPrompt += `\n\nPortfolio del usuario:\n${JSON.stringify(portfolioData, null, 2)}\n\nResponde brevemente basándote en estos datos.`;
+  if (portfolioData && portfolioData.hasData) {
+    systemPrompt += `\n\nDatos del portfolio del usuario:\n`;
     
-    // Log what tickers are available in the data
-    if (Array.isArray(portfolioData)) {
-      const tickers = portfolioData.map((item: any) => item.ticker).filter(Boolean);
-    } else if (portfolioData.dashboard && Array.isArray(portfolioData.dashboard)) {
-      const tickers = portfolioData.dashboard.map((item: any) => item.ticker).filter(Boolean);
-    } else {
+    // Add balance information
+    if (portfolioData.balance) {
+      systemPrompt += `Balance actual: ${JSON.stringify(portfolioData.balance, null, 2)}\n`;
     }
+    
+    // Add transactions information
+    if (portfolioData.transactions && portfolioData.transactions.length > 0) {
+      systemPrompt += `Transacciones: ${JSON.stringify(portfolioData.transactions, null, 2)}\n`;
+      
+      // Extract tickers from transactions
+      const tickers = portfolioData.transactions
+        .map((item: any) => item.ticker)
+        .filter(Boolean)
+        .filter((ticker: string, index: number, array: string[]) => array.indexOf(ticker) === index); // Remove duplicates
+        
+      if (tickers.length > 0) {
+        systemPrompt += `Criptomonedas en el portfolio: ${tickers.join(', ')}\n`;
+      }
+    }
+    
+    systemPrompt += `\nUsa esta información para responder preguntas sobre el portfolio, rendimiento, holdings, ganancias/pérdidas, y dar recomendaciones de inversión personalizadas.`;
+  } else {
+    systemPrompt += `\n\nEl usuario no tiene datos de portfolio disponibles. Puedes dar consejos generales sobre criptomonedas e inversión.`;
   }
 
   const result = streamText({
-    model: lmstudio('llama-3.2-1b-instruct'),
+    model: deepseek('deepseek-chat'),
     system: systemPrompt,
     messages,
   });

@@ -2,6 +2,7 @@
 
 import { useUser } from "@clerk/nextjs";
 import { AddCryptoModal } from "./AddCryptoModal";
+import ChatAI from "./ai/chat";
 
 export function DashboardContentLogin() {
   const { user } = useUser();
@@ -17,7 +18,8 @@ export function DashboardContentLogin() {
         <h1 className="text-lg font-bold text-zinc-300 gap-2">
           <span className="text-2xl text-zinc-100 font-bold">{displayName}</span>{" "}
         </h1>
-        <div className="">
+        <div className="flex gap-2 items-center">
+          <ChatAI />
           <AddCryptoModal />
         </div>
       </div>

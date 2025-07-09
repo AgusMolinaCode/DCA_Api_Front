@@ -11,6 +11,8 @@ interface CircularTextProps {
   spinDuration?: number;
   onHover?: "slowDown" | "speedUp" | "pause" | "goBonkers";
   className?: string;
+  centerImage?: string;
+  centerImageAlt?: string;
 }
 
 const getRotationTransition = (
@@ -40,6 +42,8 @@ const CircularText: React.FC<CircularTextProps> = ({
   spinDuration = 20,
   onHover = "speedUp",
   className = "",
+  centerImage,
+  centerImageAlt = "",
 }) => {
   const letters = Array.from(text);
   const controls = useAnimation();
@@ -100,32 +104,42 @@ const CircularText: React.FC<CircularTextProps> = ({
   };
 
   return (
-    <motion.div
-    className={`m-0 mx-auto rounded-full w-[122px] h-[122px] relative font-black text-white text-center cursor-pointer origin-center ${className}`}
-    style={{ rotate: rotation }}
-      initial={{ rotate: 0 }}
-      animate={controls}
-      onMouseEnter={handleHoverStart}
-      onMouseLeave={handleHoverEnd}
-    >
-      {letters.map((letter, i) => {
-        const rotationDeg = (360 / letters.length) * i;
-        const factor = Math.PI / letters.length;
-        const x = factor * i;
-        const y = factor * i;
-        const transform = `rotateZ(${rotationDeg}deg) translate3d(${x}px, ${y}px, 0)`;
+    <div className="relative">
+      <motion.div
+      className={`m-0 mx-auto rounded-full w-[122px] h-[122px] relative font-black text-white text-center cursor-pointer origin-center pointer-events-none ${className}`}
+      style={{ rotate: rotation }}
+        initial={{ rotate: 0 }}
+        animate={controls}
+        onMouseEnter={handleHoverStart}
+        onMouseLeave={handleHoverEnd}
+      >
+        {letters.map((letter, i) => {
+          const rotationDeg = (360 / letters.length) * i;
+          const factor = Math.PI / letters.length;
+          const x = factor * i;
+          const y = factor * i;
+          const transform = `rotateZ(${rotationDeg}deg) translate3d(${x}px, ${y}px, 0)`;
 
-        return (
-          <span
-            key={i}
-            className="absolute inline-block inset-0 text-lg transition-all duration-500 ease-[cubic-bezier(0,0,0,1)]"
-            style={{ transform, WebkitTransform: transform }}
-          >
-            {letter}
-          </span>
-        );
-      })}
-    </motion.div>
+          return (
+            <span
+              key={i}
+              className="absolute inline-block inset-0 text-lg transition-all duration-500 ease-[cubic-bezier(0,0,0,1)]"
+              style={{ transform, WebkitTransform: transform }}
+            >
+              {letter}
+            </span>
+          );
+        })}
+      </motion.div>
+      
+      {centerImage && (
+        <img
+          src={centerImage}
+          alt={centerImageAlt}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 object-contain pointer-events-auto cursor-pointer z-10"
+        />
+      )}
+    </div>
   );
 };
 
